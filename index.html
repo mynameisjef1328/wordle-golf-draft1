@@ -113,120 +113,142 @@
     #rickRoll img{max-width:80%; max-height:80%; border-radius:12px;}
 
     /* Sync badge */
-    /* Replace your current #syncBadge block with this */
-/* make the badge participate in the flex row */
-#syncBadge{
-  position: static !important;
-  top: auto !important;
-  right: auto !important;
-  transform: none !important;
+    #syncBadge{
+      position: static !important;
+      top: auto !important;
+      right: auto !important;
+      transform: none !important;
 
-  /* make it the same pill as the theme toggle */
-  display: inline-flex;
-  align-items: center;
-  box-sizing: border-box;
-  padding: 6px 10px;
-  gap: 0;                  /* keep, or add an icon later */
-  font: 600 12px/12px system-ui, Arial, sans-serif;
-  border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      box-sizing: border-box;
+      padding: 6px 10px;
+      gap: 0;
+      font: 600 12px/12px system-ui, Arial, sans-serif;
+      border-radius: 14px;
 
-  color: #000;
-  background: #777;
-  box-shadow: 0 1px 6px rgba(0,0,0,.15);
-}
-#syncBadge.is-synced{ background: orange; }
-#syncBadge.is-syncing{ background: #f39c12; }
-#syncBadge.is-offline{ background: #e74c3c; }
+      color: #000;
+      background: #777;
+      box-shadow: 0 1px 6px rgba(0,0,0,.15);
+    }
+    #syncBadge.is-synced{ background: orange; }
+    #syncBadge.is-syncing{ background: #f39c12; }
+    #syncBadge.is-offline{ background: #e74c3c; }
 
-/* ========= THEME VARIABLES ========= */
-:root{
-  --bg: #f9f9f9;
-  --fg: #111;
-  --head-bg: #999;
-  --head-fg: #fff;
-  --cell-border: #ccc;
-  --accent: #4CAF50;
-}
+    /* ========= THEME VARIABLES ========= */
+    :root{
+      --bg: #f9f9f9;
+      --fg: #111;
+      --head-bg: #999;
+      --head-fg: #fff;
+      --cell-border: #ccc;
+      --accent: #4CAF50;
+    }
 
+    /* Dark Knight */
+    body[data-theme="dark"]{
+      --bg:#0e0d15;
+      --fg:#e8e8ff;
+      --head-bg:#2a2540;
+      --head-fg:#e8e8ff;
+      --cell-border:#403a5e;
+      --accent:#00d3ff;
+    }
 
-/* Dark Knight */
-body[data-theme="dark"]{
-  --bg:#0e0d15;
-  --fg:#e8e8ff;
-  --head-bg:#2a2540;
-  --head-fg:#e8e8ff;
-  --cell-border:#403a5e;
-  --accent:#00d3ff; /* neon cyan */
-}
+    /* Wire your existing colors to variables */
+    body{ background: var(--bg); color: var(--fg); }
+    th{ background-color: var(--head-bg); color: var(--head-fg); }
+    td, th{ border-color: var(--cell-border); }
+    .btn:hover{ background-color: var(--accent); border-color: var(--accent); color:#fff; }
 
-/* Wire your existing colors to variables (keeps your old style intact) */
-body{ background: var(--bg); color: var(--fg); }
-th{ background-color: var(--head-bg); color: var(--head-fg); }
-td, th{ border-color: var(--cell-border); }
-.btn:hover{ background-color: var(--accent); border-color: var(--accent); color:#fff; }
+    /* Fixed tray that holds both widgets */
+    #topRightTray{
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 6;
+    }
 
-/* Fixed tray that holds both widgets */
-#topRightTray{
-  position: fixed;
-  top: 12px;
-  right: 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;          /* ← spacing BETWEEN them */
-  z-index: 6;
-}
+    /* Shared pill look so heights match perfectly */
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      box-sizing: border-box;
+      padding: 6px 10px;
+      border-radius: 14px;
+      font: 600 12px/1 system-ui, Arial, sans-serif;
+      color: #000;
+      box-shadow: 0 1px 6px rgba(0,0,0,.15);
+    }
 
-/* Shared pill look so heights match perfectly */
-.pill {
-  display: inline-flex;
-  align-items: center;
-  box-sizing: border-box;
-  padding: 6px 10px;           /* controls height */
-  border-radius: 14px;         /* pill */
-  font: 600 12px/1 system-ui, Arial, sans-serif;  /* line-height=1 for equal height */
-  color: #000;
-  box-shadow: 0 1px 6px rgba(0,0,0,.15);
-}
+    /* Theme toggle */
+    .theme-toggle { background: orange; }
+    .theme-toggle,
+    #syncBadge{
+      display: inline-flex;
+      align-items: center;
+      box-sizing: border-box;
+      padding: 6px 10px;
+      border-radius: 14px;
+      font: 600 12px/1 system-ui, Arial, sans-serif;
+      color: #000;
+      box-shadow: 0 1px 6px rgba(0,0,0,.15);
+    }
+    .theme-toggle .knob{
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #000;
+      flex: 0 0 auto;
+    }
+    .theme-toggle .label { line-height: 1; }
+    .theme-toggle input{ position:absolute; opacity:0; pointer-events:none; }
+    .theme-toggle input:checked ~ .label::after { content:" Dark"; }
+    .theme-toggle input:not(:checked) ~ .label::after { content:" Light"; }
 
-/* Theme toggle uses the pill base */
-.theme-toggle { background: orange; }
-.theme-toggle, #syncBadge { composes: pill; } /* if your build doesn't support 'composes', just duplicate .pill props into both rules */
+    /* === Spooky full-screen overlay (single, clean version) === */
+    #spookyOverlay{
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse at center, rgba(0,0,0,.65), rgba(0,0,0,.95));
+      display: none; /* JS toggles */
+      align-items: center; justify-content: center;
+      z-index: 10000;
+    }
+    #spookyOverlay.is-on { display:flex; }
 
-/* Or just paste the pill props into both: */
-.theme-toggle,
-#syncBadge{
-  display: inline-flex;
-  align-items: center;
-  box-sizing: border-box;
-  padding: 6px 10px;
-  border-radius: 14px;
-  font: 600 12px/1 system-ui, Arial, sans-serif;
-  color: #000;
-  box-shadow: 0 1px 6px rgba(0,0,0,.15);
-}
+    #spookyOverlay .spooky-card{
+      position: relative;
+      width: min(680px, 92vw); max-height: 92vh;
+      border-radius: 16px; overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,.7);
+      background: #000;
+      animation: spookyIn .35s ease-out both;
+    }
+    #spookyOverlay img{
+      width: 100%; height: auto; display:block; object-fit: cover;
+      filter: contrast(1.05) saturate(1.05) brightness(.95);
+    }
+    #spookyOverlay .caption{
+      position:absolute; left:0; right:0; bottom:0;
+      padding: 10px 14px; color:#f3f3f3; background: linear-gradient(transparent, rgba(0,0,0,.75));
+      font: 600 14px/1.4 system-ui, Arial, sans-serif; text-align:center;
+    }
+    #spookyOverlay .close{
+      position:absolute; top:10px; right:10px;
+      border:0; background:rgba(255,255,255,.1); color:#fff;
+      padding:8px 12px; border-radius: 999px; cursor:pointer;
+      font: 600 12px/1 system-ui, Arial, sans-serif;
+      backdrop-filter: blur(3px);
+    }
+    #spookyOverlay .close:hover{ background: rgba(255,255,255,.2); }
 
-/* Sync badge colors/states */
-#syncBadge{ background:#777; }
-#syncBadge.is-synced{ background: orange; }
-#syncBadge.is-syncing{ background: #f39c12; }
-#syncBadge.is-offline{ background: #e74c3c; }
-
-/* Keep the small black dot in the toggle */
-.theme-toggle .knob{
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #000;
-  flex: 0 0 auto;
-}
-
-/* The “Theme: Light/Dark” text */
-.theme-toggle .label { line-height: 1; }
-.theme-toggle input{ position:absolute; opacity:0; pointer-events:none; }
-.theme-toggle input:checked ~ .label::after { content:" Dark"; }
-.theme-toggle input:not(:checked) ~ .label::after { content:" Light";
-}
-    
+    @keyframes spookyIn{
+      from { transform: translateY(8px) scale(.98); opacity:0; }
+      to   { transform: translateY(0) scale(1);     opacity:1; }
+    }
   </style>
 </head>
 <body>
@@ -249,6 +271,30 @@ td, th{ border-color: var(--cell-border); }
       throw new Error("Unauthorized");
     }
   })();
+</script>
+
+  <script>
+/* === SPOOKY ON LOGIN === */
+function isHalloween(d = new Date()) {
+  // 👇 Change 18 → 31 later for real Halloween
+  return d.getFullYear() === 2025 && d.getMonth() === 9 && d.getDate() === 18;
+}
+
+window.addEventListener('load', () => {
+  if (isHalloween(new Date())) {
+    if (!sessionStorage.getItem('spooky2025Shown')) {
+      sessionStorage.setItem('spooky2025Shown', '1');
+      const overlay = document.getElementById('spookyOverlay');
+      overlay?.classList.add('is-on');
+      document.getElementById('spookyClose')?.addEventListener(
+        'click',
+        () => overlay.classList.remove('is-on'),
+        { once: true }
+      );
+      setTimeout(() => overlay.classList.remove('is-on'), 4000);
+    }
+  }
+});
 </script>
 
 <h2>Pardle</h2>
@@ -277,7 +323,7 @@ td, th{ border-color: var(--cell-border); }
   </table>
 </div>
 
-  <div id="topRightTray">
+<div id="topRightTray">
   <label class="theme-toggle" id="themeToggle">
     <input type="checkbox" id="themeSwitch" />
     <span class="knob" aria-hidden="true"></span>
@@ -355,9 +401,8 @@ const courses = {
   'Whistling Straits':[4,5,3,4,5,4,3,4,4,4,5,3,4,4,4,5,3,4],
   'Pebble Beach': [4,5,4,4,3,5,3,4,4,4,4,3,4,5,4,4,3,5],
   'Congressional': [4,3,4,5,4,5,3,4,5,3,5,4,3,4,5,5,4,4],
-
 };
-  
+
 /* DOM refs */
 const table = document.getElementById('scorecard');
 const holeHeader = document.getElementById('holeHeader');
@@ -534,6 +579,9 @@ function buildPlayerRow(name='', rowIndex=0, savedScores=[]){
       effectsEnabled = true;            // ← mark that a human is typing now
       calculateRowTotals(row);
       scheduleSave();
+
+      // Hook: show spooky overlay after any score input
+      maybeShowSpooky();
     });
 
     addNavKeys(input);
@@ -587,7 +635,7 @@ function sameData(a,b){ try{return JSON.stringify(a)===JSON.stringify(b);}catch{
 
 function renderFromData(docData){
   applyingRemote = true;          // prevent effects while building
-  effectsEnabled = false;
+  effectsEnabled = true;
 
   tbody.innerHTML = '';
 
@@ -671,6 +719,38 @@ async function loadScorecard(courseName){
   await attachListenerForCourse(courseName);
   courseNameHeader.textContent = courseName.toUpperCase();
   markCurrentHole();
+}
+
+/* === SPOOKY OVERLAY – FINAL (Halloween-only) === */
+
+/**
+ * Show the overlay on Halloween (October 31, 2025)
+ */
+function isHalloween(d = new Date()) {
+  return d.getFullYear() === 2025 && d.getMonth() === 9 && d.getDate() === 18;
+}
+
+function showSpookyOnce() {
+  const overlay = document.getElementById('spookyOverlay');
+  if (!overlay) return;
+
+  // show only once per page load
+  if (sessionStorage.getItem('spooky2025Shown') === '1') return;
+  sessionStorage.setItem('spooky2025Shown', '1');
+
+  overlay.classList.add('is-on');
+
+  const closeBtn = document.getElementById('spookyClose');
+  closeBtn?.addEventListener('click', () => overlay.classList.remove('is-on'), { once: true });
+
+  // auto-hide fallback
+  setTimeout(() => overlay.classList.remove('is-on'), 4000);
+}
+
+function maybeShowSpooky() {
+  if (isHalloween(new Date())) {
+    showSpookyOnce();
+  }
 }
 
 /* Boot */
@@ -758,6 +838,15 @@ document.getElementById('clearNamesBtn').addEventListener('click', () => {
 <!-- Rick Roll overlay -->
 <div id="rickRoll">
   <img src="https://media.giphy.com/media/Vuw9m5wXviFIQ/giphy.gif" alt="Never Gonna Give You Up" />
+</div>
+
+<!-- Spooky overlay -->
+<div id="spookyOverlay" aria-hidden="true">
+  <div class="spooky-card" role="dialog" aria-label="Halloween Surprise">
+    <img id="spookyImg" src="./assets/michael.PNG" alt="Michael Myers" />
+    <div class="caption">Happy Halloween 🎃</div>
+    <button class="close" type="button" id="spookyClose">Close</button>
+  </div>
 </div>
 
 </body>
