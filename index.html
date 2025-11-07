@@ -169,22 +169,28 @@
   z-index: 6;
 }
 
-/* larger tray gif: white rounded square with the animated image centered inside */
+/* show only the GIF pixels, no visible box */
 .tray-gif{
-  width: 84px;                /* outer box width — change this to make box wider/narrower */
-  height: 84px;               /* outer box height — change this to make box taller/shorter */
-  padding: 8px;               /* space between box edge and GIF */
+  width: 84px;               /* outer size, adjust as needed */
+  height: 84px;
+  padding: 0;                /* remove padding so no inner white space */
   box-sizing: border-box;
-  background: #fff;           /* white square background like your screenshot */
-  border-radius: 12px;        /* rounded corner of the white box */
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  object-fit: contain;        /* ensures the GIF fits inside without stretching */
-  box-shadow: 0 6px 18px rgba(0,0,0,.12);
+  background: transparent;   /* no background color */
+  border-radius: 50%;        /* circular, change to 12px for rounded square */
+  display: inline-block;
+  overflow: hidden;          /* clip any extra pixels */
+  box-shadow: none;          /* remove the white-box shadow */
   cursor: pointer;
   margin-right: 8px;
-  z-index: 7;                 /* sit above table header */
+  z-index: 7;
+}
+
+.tray-gif img{
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: transparent;
 }
 
 /* scale down on very small screens */
