@@ -169,17 +169,27 @@
   z-index: 6;
 }
 
-/* small animated gif to the left of the theme toggle */
+/* larger tray gif: white rounded square with the animated image centered inside */
 .tray-gif{
-  width:32px;
-  height:32px;
-  object-fit:contain;
-  display:inline-block;
-  vertical-align:middle;
-  border-radius:6px;
-  box-shadow:0 1px 6px rgba(0,0,0,.12);
-  cursor:pointer;
-  margin-right:6px;
+  width: 84px;                /* outer box width — change this to make box wider/narrower */
+  height: 84px;               /* outer box height — change this to make box taller/shorter */
+  padding: 8px;               /* space between box edge and GIF */
+  box-sizing: border-box;
+  background: #fff;           /* white square background like your screenshot */
+  border-radius: 12px;        /* rounded corner of the white box */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  object-fit: contain;        /* ensures the GIF fits inside without stretching */
+  box-shadow: 0 6px 18px rgba(0,0,0,.12);
+  cursor: pointer;
+  margin-right: 8px;
+  z-index: 7;                 /* sit above table header */
+}
+
+/* scale down on very small screens */
+@media (max-width:420px){
+  .tray-gif{ display:none; }
 }
 
 /* hide on very small screens */
