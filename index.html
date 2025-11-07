@@ -158,16 +158,34 @@
     td, th{ border-color: var(--cell-border); }
     .btn:hover{ background-color: var(--accent); border-color: var(--accent); color:#fff; }
 
-    /* Fixed tray that holds both widgets */
-    #topRightTray{
-      position: fixed;
-      top: 12px;
-      right: 12px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      z-index: 6;
-    }
+   /* Fixed tray that holds both widgets */
+#topRightTray{
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 6;
+}
+
+/* small animated gif to the left of the theme toggle */
+.tray-gif{
+  width:32px;
+  height:32px;
+  object-fit:contain;
+  display:inline-block;
+  vertical-align:middle;
+  border-radius:6px;
+  box-shadow:0 1px 6px rgba(0,0,0,.12);
+  cursor:pointer;
+  margin-right:6px;
+}
+
+/* hide on very small screens */
+@media (max-width:420px){
+  .tray-gif{ display:none; }
+}
 
     /* Shared pill look so heights match perfectly */
     .pill {
