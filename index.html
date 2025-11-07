@@ -169,20 +169,29 @@
   z-index: 6;
 }
 
-/* show only the GIF pixels, no visible box */
+/* bigger circular GIF (matches your green circle) */
 .tray-gif{
-  width: 84px;               /* outer size, adjust as needed */
-  height: 84px;
-  padding: 0;                /* remove padding so no inner white space */
+  width: 150px;            /* change this to make circle bigger/smaller */
+  height: 150px;           /* keep width/height equal for a perfect circle */
+  padding: 6px;            /* optional inner spacing so the GIF doesn't touch the edge */
   box-sizing: border-box;
-  background: transparent;   /* no background color */
-  border-radius: 50%;        /* circular, change to 12px for rounded square */
+  background: transparent; /* keep transparent so only the GIF pixels show */
+  border-radius: 50%;      /* 50% = perfect circle */
   display: inline-block;
-  overflow: hidden;          /* clip any extra pixels */
-  box-shadow: none;          /* remove the white-box shadow */
+  object-fit: contain;     /* ensures GIF scales properly inside the box */
+  overflow: hidden;        /* clip any overflow */
+  box-shadow: 0 10px 30px rgba(0,0,0,.18); /* optional, gives depth like screenshot */
   cursor: pointer;
-  margin-right: 8px;
+  margin-right: 12px;
   z-index: 7;
+}
+
+/* responsive: scale the circle down on narrower viewports */
+@media (max-width: 900px){
+  .tray-gif{ width: 120px; height: 120px; }
+}
+@media (max-width: 420px){
+  .tray-gif{ display: none; } /* keep UI tidy on tiny screens */
 }
 
 .tray-gif img{
