@@ -835,28 +835,6 @@ document.getElementById('clearNamesBtn').addEventListener('click', () => {
   </div>
 </div>
 
-<script>
-(function(){
-  const gifUrl = 'https://www.animatedimages.org/data/media/1528/animated-stick-figure-image-0057.gif';
-  const tray = document.getElementById('topRightTray');
-  const theme = document.getElementById('themeToggle') || document.getElementById('themeToggle') /* fallback */;
 
-  if (!tray || !theme) {
-    console.warn('topRightTray or themeToggle not found.');
-    return;
-  }
-
-  const img = document.createElement('img');
-  img.id = 'celebrationGif';
-  img.src = gifUrl;
-  img.alt = 'celebration';
-  img.title = 'Celebration — click to open';
-  img.addEventListener('click', () => window.open('https://www.animatedimages.org/cat-stick-figures-1528.htm','_blank'));
-
-  // insert immediately before the theme control
-  tray.insertBefore(img, theme);
-})();
-</script>
-  
 </body>
 </html>
