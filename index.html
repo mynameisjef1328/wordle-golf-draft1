@@ -238,6 +238,13 @@
     .theme-toggle input:checked ~ .label::after { content:" Dark"; }
     .theme-toggle input:not(:checked) ~ .label::after { content:" Light"; }
 
+    <div id="lose-buttons-wrapper">
+  <button id="lose-btn-1" type="button">Button 1</button>
+  <button id="lose-btn-2" type="button">Button 2</button>
+
+  <div id="lose-message">YOU LOSE YOU LOSER</div>
+</div>
+
     /* === Spooky full-screen overlay (single, clean version) === */
     #spookyOverlay{
       position: fixed; inset: 0;
@@ -278,6 +285,39 @@
       from { transform: translateY(8px) scale(.98); opacity:0; }
       to   { transform: translateY(0) scale(1);     opacity:1; }
     }
+
+#lose-buttons-wrapper {
+  margin-top: 16px;
+  text-align: center;
+}
+
+#lose-buttons-wrapper button {
+  margin: 0 8px;
+  padding: 6px 12px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+#lose-message {
+  margin-top: 20px;
+  font-size: 32px;
+  font-weight: 800;
+  color: red;
+  text-align: center;
+  display: none;              /* hidden by default */
+  animation: flashLose 0.5s linear infinite;
+}
+
+#lose-message.show {
+  display: block;
+}
+
+@keyframes flashLose {
+  0%   { opacity: 1; }
+  50%  { opacity: 0; }
+  100% { opacity: 1; }
+}
+    
   </style>
 </head>
 <body>
@@ -300,6 +340,21 @@
       throw new Error("Unauthorized");
     }
   })();
+</script>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const btn1 = document.getElementById('lose-btn-1');
+    const btn2 = document.getElementById('lose-btn-2');
+    const msg  = document.getElementById('lose-message');
+
+    function showLoseMessage() {
+      msg.classList.add('show');
+    }
+
+    btn1.addEventListener('click', showLoseMessage);
+    btn2.addEventListener('click', showLoseMessage);
+  });
 </script>
 
   <script>
