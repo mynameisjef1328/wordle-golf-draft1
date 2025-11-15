@@ -248,6 +248,7 @@
     .scorecard-wrapper {
       overflow-x: auto;
       padding-bottom: 4px;
+      position: relative;
     }
 
     .scorecard-table {
@@ -270,6 +271,9 @@
       color: var(--table-header-text);
       text-align: left;
       padding-left: 8px;
+      position: sticky;
+      left: 0;
+      z-index: 3;
     }
 
     .scorecard-table th.player-label {
@@ -277,6 +281,9 @@
       color: var(--table-player-header-text);
       text-align: left;
       padding-left: 8px;
+      position: sticky;
+      left: 0;
+      z-index: 3;
     }
 
     .scorecard-table th.hole-header {
@@ -459,7 +466,7 @@
               </tr>
 
               <!-- Player 1 -->
-              <tr>
+              <tr class="player-row">
                 <th class="player-label">
                   <input class="player-name" placeholder="Player 1" />
                 </th>
@@ -485,7 +492,7 @@
               </tr>
 
               <!-- Player 2 -->
-              <tr>
+              <tr class="player-row">
                 <th class="player-label">
                   <input class="player-name" placeholder="Player 2" />
                 </th>
@@ -511,7 +518,7 @@
               </tr>
 
               <!-- Player 3 -->
-              <tr>
+              <tr class="player-row">
                 <th class="player-label">
                   <input class="player-name" placeholder="Player 3" />
                 </th>
@@ -537,7 +544,7 @@
               </tr>
 
               <!-- Player 4 -->
-              <tr>
+              <tr class="player-row">
                 <th class="player-label">
                   <input class="player-name" placeholder="Player 4" />
                 </th>
@@ -597,6 +604,8 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
   </div>
 
   <script>
+    const STORAGE_KEY = "pardle_v1_state";
+
     // real par data for each course - numbers exactly as you provided
     const COURSES = {
       "st-andrews": [4,4,4,4,5,4,4,3,4,4,3,4,4,5,4,4,4,4],
@@ -613,6 +622,14 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
 
     const themeSwitch = document.getElementById("themeSwitch");
     const body = document.body;
+    const courseSelect = document.getElementById("courseSelect");
+    const parCells = document.querySelectorAll(".par-cell[data-hole]");
+    const parTotalCell = document.querySelector(".par-total");
+    const clearScoresBtn = document.getElementById("clearScoresBtn");
+    const clearNamesBtn = document.getElementById("clearNamesBtn");
+    const rulesLink = document.getElementById("rulesLink");
+    const rulesCard = document.getElementById("rulesCard");
+    const playerRows = document.querySelectorAll(".player-row");
 
     // theme toggle
     themeSwitch.addEventListener("change", () => {
@@ -621,25 +638,22 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
       } else {
         body.classList.remove("dark");
       }
+      saveState();
     });
 
     // clear buttons
-    const clearScoresBtn = document.getElementById("clearScoresBtn");
-    const clearNamesBtn = document.getElementById("clearNamesBtn");
-
     clearScoresBtn.addEventListener("click", () => {
       document.querySelectorAll(".score-input").forEach(el => (el.value = ""));
       recalcAllTotals();
+      saveState();
     });
 
     clearNamesBtn.addEventListener("click", () => {
       document.querySelectorAll(".player-name").forEach(el => (el.value = ""));
+      saveState();
     });
 
     // rules toggle
-    const rulesLink = document.getElementById("rulesLink");
-    const rulesCard = document.getElementById("rulesCard");
-
     rulesLink.addEventListener("click", () => {
       const isVisible = rulesCard.classList.contains("visible");
       if (isVisible) {
@@ -653,10 +667,6 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
     });
 
     // par row logic - update from course selection
-    const courseSelect = document.getElementById("courseSelect");
-    const parCells = document.querySelectorAll(".par-cell[data-hole]");
-    const parTotalCell = document.querySelector(".par-total");
-
     function updateParRow() {
       const courseId = courseSelect.value;
       const pars = COURSES[courseId];
@@ -682,7 +692,10 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
       recalcAllTotals();
     }
 
-    courseSelect.addEventListener("change", updateParRow);
+    courseSelect.addEventListener("change", () => {
+      updateParRow();
+      saveState();
+    });
 
     // scoring: totals and +/- vs par
     function recalcAllTotals() {
@@ -738,14 +751,108 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
       });
     }
 
-    // recalc whenever any score changes
+    // local storage: save current state
+    function saveState() {
+      try {
+        const state = {
+          courseId: courseSelect.value,
+          dark: body.classList.contains("dark"),
+          players: []
+        };
+
+        playerRows.forEach(row => {
+          const nameInput = row.querySelector(".player-name");
+          const scoreInputs = row.querySelectorAll(".score-input");
+          const player = {
+            name: nameInput ? nameInput.value || "" : "",
+            scores: []
+          };
+          scoreInputs.forEach(input => {
+            const val = input.value;
+            player.scores.push(val === "" ? null : Number(val));
+          });
+          state.players.push(player);
+        });
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        // fail silently if storage is blocked
+      }
+    }
+
+    // local storage: load state
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+          updateParRow();
+          return;
+        }
+        const state = JSON.parse(raw);
+
+        // course
+        if (state.courseId && COURSES[state.courseId]) {
+          courseSelect.value = state.courseId;
+        }
+
+        // theme
+        if (state.dark) {
+          body.classList.add("dark");
+          themeSwitch.checked = true;
+        } else {
+          body.classList.remove("dark");
+          themeSwitch.checked = false;
+        }
+
+        updateParRow(); // sets par row and then we restore scores
+
+        // players
+        if (Array.isArray(state.players)) {
+          playerRows.forEach((row, index) => {
+            const playerState = state.players[index];
+            if (!playerState) return;
+
+            const nameInput = row.querySelector(".player-name");
+            const scoreInputs = row.querySelectorAll(".score-input");
+
+            if (nameInput) {
+              nameInput.value = playerState.name || "";
+            }
+
+            if (Array.isArray(playerState.scores)) {
+              scoreInputs.forEach((input, idx) => {
+                const s = playerState.scores[idx];
+                input.value = s == null ? "" : s;
+              });
+            }
+          });
+        }
+
+        recalcAllTotals();
+      } catch (e) {
+        updateParRow();
+      }
+    }
+
+    // recalc whenever any score changes + save
     const allScoreInputs = document.querySelectorAll(".score-input");
     allScoreInputs.forEach(input => {
-      input.addEventListener("input", recalcAllTotals);
+      input.addEventListener("input", () => {
+        recalcAllTotals();
+        saveState();
+      });
     });
 
-    // initial par fill and totals on load
-    updateParRow();
+    // save whenever a player name changes
+    const allNameInputs = document.querySelectorAll(".player-name");
+    allNameInputs.forEach(input => {
+      input.addEventListener("input", () => {
+        saveState();
+      });
+    });
+
+    // initial load
+    loadState();
   </script>
 </body>
 </html>
