@@ -168,38 +168,6 @@
   gap: 8px;
   z-index: 6;
 }
-
-/* show only the GIF pixels, no visible box */
-.tray-gif{
-  width: 84px;               /* outer size, adjust as needed */
-  height: 84px;
-  padding: 0;                /* remove padding so no inner white space */
-  box-sizing: border-box;
-  background: transparent;   /* no background color */
-  border-radius: 50%;        /* circular, change to 12px for rounded square */
-  display: inline-block;
-  overflow: hidden;          /* clip any extra pixels */
-  box-shadow: none;          /* remove the white-box shadow */
-  cursor: pointer;
-  margin-right: 8px;
-  z-index: 7;
-}
-
-.tray-gif img{
-  display: block;
-  width: 33%;
-  height: 33%;
-  object-fit: contain;
-  background: transparent;
-}
-
-    /* responsive: scale the circle down on narrower viewports */
-@media (max-width: 900px){
-  .tray-gif{ width: 120px; height: 120px; }
-}
-@media (max-width: 111px){
-  .tray-gif{ display: none; } /* keep UI tidy on tiny screens */
-}
     
     /* Shared pill look so heights match perfectly */
     .pill {
@@ -351,12 +319,6 @@ window.addEventListener('load', () => {
     <tbody></tbody>
   </table>
 </div>
-
-<div id="topRighttTray">
-  <img id="themeGif"
-       class="tray-gif"
-       src="https://www.animatedimages.org/data/media/1528/animated-stick-figure-image-0070.gif"
-       alt="celebration" />
 
   <label class="theme-toggle" id="themeToggle">
     <input type="checkbox" id="themeSwitch" />
