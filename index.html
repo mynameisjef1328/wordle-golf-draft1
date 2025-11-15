@@ -228,13 +228,18 @@
       text-align: right;
     }
 
-    .rules-link a {
+    .rules-link button {
+      border: none;
+      background: none;
       color: var(--accent);
       text-decoration: none;
       font-weight: 600;
+      font-size: 13px;
+      padding: 0;
+      cursor: pointer;
     }
 
-    .rules-link a:active {
+    .rules-link button:active {
       opacity: 0.7;
     }
 
@@ -247,7 +252,7 @@
 
     .scorecard-table {
       border-collapse: collapse;
-      min-width: 420px;
+      min-width: 1000px; /* extra wide for 18 holes */
       width: 100%;
       font-size: 13px;
     }
@@ -313,6 +318,22 @@
       min-width: 52px;
     }
 
+    /* rules card at bottom */
+
+    .rules-card {
+      display: none;
+    }
+
+    .rules-card.visible {
+      display: block;
+    }
+
+    .rules-text {
+      font-size: 13px;
+      line-height: 1.45;
+      white-space: pre-line;
+    }
+
     @media (min-width: 520px) {
       .app-content {
         padding-inline: 16px;
@@ -339,9 +360,17 @@
         <div class="section-title">Course</div>
         <div class="course-row">
           <select class="course-select" id="courseSelect">
-            <option value="bethpage">Bethpage Black</option>
-            <option value="pebble">Pebble Beach</option>
-            <option value="st-andrews">St Andrews</option>
+            <!-- fun spoof names, values match JS keys -->
+            <option value="st-andrews">St. Androos Links</option>
+            <option value="augusta">Azalea National</option>
+            <option value="bully-pulpit">Badlands Pulpit</option>
+            <option value="torrey-pines">Torrey Pints</option>
+            <option value="bethpage-black">Bethpage Back Tees</option>
+            <option value="sweetwater">Sweetwater Country Klub</option>
+            <option value="tpc-sawgrass">TPC Strawgrass</option>
+            <option value="whistling-straits">Whistling Straights</option>
+            <option value="pebble-beach">Pebble Reach</option>
+            <option value="congressional">Congress-ish National</option>
           </select>
 
           <div class="button-row">
@@ -361,7 +390,7 @@
           </label>
 
           <div class="rules-link">
-            <a href="#rules" id="rulesLink">View Pardle Rules</a>
+            <button id="rulesLink" type="button">View Pardle Rules</button>
           </div>
         </div>
       </section>
@@ -380,21 +409,47 @@
                 <th class="hole-header">4</th>
                 <th class="hole-header">5</th>
                 <th class="hole-header">6</th>
+                <th class="hole-header">7</th>
+                <th class="hole-header">8</th>
+                <th class="hole-header">9</th>
+                <th class="hole-header">10</th>
+                <th class="hole-header">11</th>
+                <th class="hole-header">12</th>
+                <th class="hole-header">13</th>
+                <th class="hole-header">14</th>
+                <th class="hole-header">15</th>
+                <th class="hole-header">16</th>
+                <th class="hole-header">17</th>
+                <th class="hole-header">18</th>
                 <th class="hole-header">Total</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
+              <tr id="parRow">
                 <th class="course-label">Par</th>
-                <td class="par-cell">4</td>
-                <td class="par-cell">4</td>
-                <td class="par-cell">3</td>
-                <td class="par-cell">5</td>
-                <td class="par-cell">4</td>
-                <td class="par-cell">4</td>
-                <td class="par-cell">-</td>
+                <!-- par cells populated by JS from course data -->
+                <td class="par-cell" data-hole="0"></td>
+                <td class="par-cell" data-hole="1"></td>
+                <td class="par-cell" data-hole="2"></td>
+                <td class="par-cell" data-hole="3"></td>
+                <td class="par-cell" data-hole="4"></td>
+                <td class="par-cell" data-hole="5"></td>
+                <td class="par-cell" data-hole="6"></td>
+                <td class="par-cell" data-hole="7"></td>
+                <td class="par-cell" data-hole="8"></td>
+                <td class="par-cell" data-hole="9"></td>
+                <td class="par-cell" data-hole="10"></td>
+                <td class="par-cell" data-hole="11"></td>
+                <td class="par-cell" data-hole="12"></td>
+                <td class="par-cell" data-hole="13"></td>
+                <td class="par-cell" data-hole="14"></td>
+                <td class="par-cell" data-hole="15"></td>
+                <td class="par-cell" data-hole="16"></td>
+                <td class="par-cell" data-hole="17"></td>
+                <td class="par-cell par-total">-</td>
               </tr>
 
+              <!-- Player 1 -->
               <tr>
                 <th class="player-label">
                   <input class="player-name" placeholder="Player 1" />
@@ -405,9 +460,22 @@
                 <td><input class="score-input" type="number" min="1" /></td>
                 <td><input class="score-input" type="number" min="1" /></td>
                 <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
                 <td class="total-col">E</td>
               </tr>
 
+              <!-- Player 2 -->
               <tr>
                 <th class="player-label">
                   <input class="player-name" placeholder="Player 2" />
@@ -418,9 +486,22 @@
                 <td><input class="score-input" type="number" min="1" /></td>
                 <td><input class="score-input" type="number" min="1" /></td>
                 <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
                 <td class="total-col">E</td>
               </tr>
 
+              <!-- Player 3 -->
               <tr>
                 <th class="player-label">
                   <input class="player-name" placeholder="Player 3" />
@@ -431,9 +512,22 @@
                 <td><input class="score-input" type="number" min="1" /></td>
                 <td><input class="score-input" type="number" min="1" /></td>
                 <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
                 <td class="total-col">E</td>
               </tr>
 
+              <!-- Player 4 -->
               <tr>
                 <th class="player-label">
                   <input class="player-name" placeholder="Player 4" />
@@ -444,10 +538,46 @@
                 <td><input class="score-input" type="number" min="1" /></td>
                 <td><input class="score-input" type="number" min="1" /></td>
                 <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
                 <td class="total-col">E</td>
               </tr>
+
             </tbody>
           </table>
+        </div>
+      </section>
+
+      <!-- rules card (hidden by default) -->
+      <section class="card rules-card" id="rulesCard">
+        <div class="section-title">Pardle Rules</div>
+        <div class="rules-text">
+Pardle is Wordle meets golf.
+
+- Each "hole" represents one Wordle puzzle.
+- Your score for a hole is the number of guesses it took to solve that Wordle.
+- If you did not solve it, you can score it as 7 or "X" by agreement with your group.
+- Par is the target number of guesses for each hole.
+
+Scoring:
+- Total score is the sum of your guesses over the round.
+- Relative score is total versus par, just like golf.
+  - Lower is better.
+  - "E" means even with par.
+  - "+2" means two over par.
+  - "-1" means one under par.
+
+Use Pardle to track your group scores, talk trash, and keep it friendly.
         </div>
       </section>
 
@@ -455,6 +585,30 @@
   </div>
 
   <script>
+    // real par data for each course - numbers exactly as you provided
+    const COURSES = {
+      // "St. Andrews"
+      "st-andrews": [4,4,4,4,5,4,4,3,4,4,3,4,4,5,4,4,4,4],
+      // "Augusta"
+      "augusta": [4,5,4,3,4,3,4,5,4,4,4,3,5,4,5,3,4,4],
+      // "Bully Pulpit"
+      "bully-pulpit": [4,4,4,5,5,3,4,3,4,4,5,3,4,4,3,4,5,4],
+      // "Torrey Pines"
+      "torrey-pines": [4,4,3,4,5,4,4,3,5,5,4,3,4,4,3,4,5,4],
+      // "Bethpage Black"
+      "bethpage-black": [4,4,3,5,4,4,5,3,4,4,4,4,5,3,4,4,3,4],
+      // "Sweetwater Country Club"
+      "sweetwater": [4,4,3,4,5,3,4,4,3,4,4,3,4,5,3,4,4,3],
+      // "TPC Sawgrass (TPS)"
+      "tpc-sawgrass": [4,5,3,4,4,4,4,3,5,4,5,4,3,4,4,5,3,4],
+      // "Whistling Straits"
+      "whistling-straits": [4,5,3,4,5,4,3,4,4,4,5,3,4,4,4,5,3,4],
+      // "Pebble Beach"
+      "pebble-beach": [4,5,4,4,3,5,3,4,4,4,4,3,4,5,4,4,3,5],
+      // "Congressional"
+      "congressional": [4,3,4,5,4,5,3,4,5,3,5,4,3,4,5,5,4,4]
+    };
+
     // theme toggle
     const themeSwitch = document.getElementById("themeSwitch");
     const body = document.body;
@@ -467,7 +621,7 @@
       }
     });
 
-    // stub actions for buttons so nothing explodes in tests
+    // clear buttons
     document.getElementById("clearScoresBtn").addEventListener("click", () => {
       document.querySelectorAll(".score-input").forEach(el => (el.value = ""));
     });
@@ -476,10 +630,42 @@
       document.querySelectorAll(".player-name").forEach(el => (el.value = ""));
     });
 
-    document.getElementById("rulesLink").addEventListener("click", (e) => {
-      e.preventDefault();
-      alert("Pardle Rules would show in a modal or separate screen here.");
+    // rules toggle
+    const rulesLink = document.getElementById("rulesLink");
+    const rulesCard = document.getElementById("rulesCard");
+
+    rulesLink.addEventListener("click", () => {
+      const isVisible = rulesCard.classList.contains("visible");
+      if (isVisible) {
+        rulesCard.classList.remove("visible");
+        rulesLink.textContent = "View Pardle Rules";
+      } else {
+        rulesCard.classList.add("visible");
+        rulesLink.textContent = "Hide Pardle Rules";
+        rulesCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
     });
+
+    // par row logic - update from course selection
+    const courseSelect = document.getElementById("courseSelect");
+    const parCells = document.querySelectorAll(".par-cell[data-hole]");
+
+    function updateParRow() {
+      const courseId = courseSelect.value;
+      const pars = COURSES[courseId];
+      if (!pars) return;
+
+      parCells.forEach(cell => {
+        const holeIndex = parseInt(cell.dataset.hole, 10);
+        const value = pars[holeIndex];
+        cell.textContent = value != null ? value : "";
+      });
+    }
+
+    courseSelect.addEventListener("change", updateParRow);
+
+    // initial par fill on load
+    updateParRow();
   </script>
 </body>
 </html>
