@@ -246,21 +246,8 @@
     /* scorecard */
 
     .scorecard-wrapper {
-      position: relative;
       overflow-x: auto;
       padding-bottom: 4px;
-    }
-
-    /* subtle fade on right edge to hint more content */
-    .scorecard-wrapper::after {
-      content: "";
-      position: absolute;
-      top: 0;
-      right: 0;
-      width: 24px;
-      height: 100%;
-      pointer-events: none;
-      background: linear-gradient(to right, transparent, var(--bg-card));
     }
 
     .scorecard-table {
@@ -612,25 +599,15 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
   <script>
     // real par data for each course - numbers exactly as you provided
     const COURSES = {
-      // "St. Andrews"
       "st-andrews": [4,4,4,4,5,4,4,3,4,4,3,4,4,5,4,4,4,4],
-      // "Augusta"
       "augusta": [4,5,4,3,4,3,4,5,4,4,4,3,5,4,5,3,4,4],
-      // "Bully Pulpit"
       "bully-pulpit": [4,4,4,5,5,3,4,3,4,4,5,3,4,4,3,4,5,4],
-      // "Torrey Pines"
       "torrey-pines": [4,4,3,4,5,4,4,3,5,5,4,3,4,4,3,4,5,4],
-      // "Bethpage Black"
       "bethpage-black": [4,4,3,5,4,4,5,3,4,4,4,4,5,3,4,4,3,4],
-      // "Sweetwater Country Club"
       "sweetwater": [4,4,3,4,5,3,4,4,3,4,4,3,4,5,3,4,4,3],
-      // "TPC Sawgrass (TPS)"
       "tpc-sawgrass": [4,5,3,4,4,4,4,3,5,4,5,4,3,4,4,5,3,4],
-      // "Whistling Straits"
       "whistling-straits": [4,5,3,4,5,4,3,4,4,4,5,3,4,4,4,5,3,4],
-      // "Pebble Beach"
       "pebble-beach": [4,5,4,4,3,5,3,4,4,4,4,3,4,5,4,4,3,5],
-      // "Congressional"
       "congressional": [4,3,4,5,4,5,3,4,5,3,5,4,3,4,5,5,4,4]
     };
 
