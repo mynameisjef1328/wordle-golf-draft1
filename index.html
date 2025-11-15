@@ -305,7 +305,7 @@
       width: 100%;
       border: none;
       background: transparent;
-      color: var(--table-player-header-text); /* changed from var(--input-text) */
+      color: var(--table-player-header-text);
       text-align: left;
       padding: 0;
       font-weight: 500;
@@ -611,10 +611,10 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
       "congressional": [4,3,4,5,4,5,3,4,5,3,5,4,3,4,5,5,4,4]
     };
 
-    // theme toggle
     const themeSwitch = document.getElementById("themeSwitch");
     const body = document.body;
 
+    // theme toggle
     themeSwitch.addEventListener("change", () => {
       if (themeSwitch.checked) {
         body.classList.add("dark");
@@ -624,11 +624,15 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
     });
 
     // clear buttons
-    document.getElementById("clearScoresBtn").addEventListener("click", () => {
+    const clearScoresBtn = document.getElementById("clearScoresBtn");
+    const clearNamesBtn = document.getElementById("clearNamesBtn");
+
+    clearScoresBtn.addEventListener("click", () => {
       document.querySelectorAll(".score-input").forEach(el => (el.value = ""));
+      recalcAllTotals();
     });
 
-    document.getElementById("clearNamesBtn").addEventListener("click", () => {
+    clearNamesBtn.addEventListener("click", () => {
       document.querySelectorAll(".player-name").forEach(el => (el.value = ""));
     });
 
@@ -651,22 +655,96 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
     // par row logic - update from course selection
     const courseSelect = document.getElementById("courseSelect");
     const parCells = document.querySelectorAll(".par-cell[data-hole]");
+    const parTotalCell = document.querySelector(".par-total");
 
     function updateParRow() {
       const courseId = courseSelect.value;
       const pars = COURSES[courseId];
       if (!pars) return;
 
+      let parTotal = 0;
+
       parCells.forEach(cell => {
         const holeIndex = parseInt(cell.dataset.hole, 10);
         const value = pars[holeIndex];
-        cell.textContent = value != null ? value : "";
+        if (typeof value === "number") {
+          cell.textContent = value;
+          parTotal += value;
+        } else {
+          cell.textContent = "";
+        }
       });
+
+      if (parTotalCell) {
+        parTotalCell.textContent = parTotal > 0 ? parTotal : "-";
+      }
+
+      recalcAllTotals();
     }
 
     courseSelect.addEventListener("change", updateParRow);
 
-    // initial par fill on load
+    // scoring: totals and +/- vs par
+    function recalcAllTotals() {
+      const courseId = courseSelect.value;
+      const pars = COURSES[courseId] || [];
+
+      const rows = document.querySelectorAll("tbody tr");
+
+      rows.forEach(row => {
+        // handle par row separately
+        if (row.id === "parRow") {
+          return;
+        }
+
+        const scoreInputs = row.querySelectorAll(".score-input");
+        if (!scoreInputs.length) return;
+
+        let scoreTotal = 0;
+        let parTotalPlayed = 0;
+
+        scoreInputs.forEach((input, idx) => {
+          const val = parseInt(input.value, 10);
+          if (!isNaN(val) && val > 0) {
+            scoreTotal += val;
+            const parVal = pars[idx];
+            if (typeof parVal === "number") {
+              parTotalPlayed += parVal;
+            }
+          }
+        });
+
+        const totalCell = row.querySelector(".total-col");
+        if (!totalCell) return;
+
+        if (scoreTotal === 0) {
+          totalCell.textContent = "E";
+          return;
+        }
+
+        if (parTotalPlayed === 0) {
+          totalCell.textContent = scoreTotal;
+          return;
+        }
+
+        const diff = scoreTotal - parTotalPlayed;
+        if (diff === 0) {
+          totalCell.textContent = "E";
+        } else if (diff > 0) {
+          totalCell.textContent = "+" + diff;
+        } else {
+          totalCell.textContent = diff.toString(); // includes minus
+        }
+      });
+    }
+
+    // recalc whenever any score changes
+    const allScoreInputs = document.querySelectorAll(".score-input");
+    allScoreInputs.forEach(input => {
+      input.addEventListener("input", recalcAllTotals);
+    });
+
+    // initial par fill and totals on load
     updateParRow();
   </script>
 </body>
