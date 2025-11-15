@@ -1,831 +1,485 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Gate the UI until the password check runs -->
-  <style>
-    html:not(.authed) body { display: none; }
-    html.denied body { display: block; }
-    html.denied body > :not(#deny) { display: none !important; }
-  </style>
-
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pardle</title>
+  <title>Pardle - Mobile</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <style>
-    body{font-family:Arial, sans-serif; margin:20px; background:#f9f9f9;}
-    .table-wrap{overflow-x:auto; -webkit-overflow-scrolling:touch; width:100%;}
-
-    table{border-collapse:collapse; width:100%;}
-    th,td{border:1px solid #ccc; padding:8px; text-align:center;}
-    th{background:#999; color:#fff;}
-
-    /* Course name, hole #s, par #s text color override */
-    #scorecard thead th#courseName,
-    #scorecard thead tr:nth-child(2) th,
-    #scorecard thead tr#parRow th { color:#000 !important; }
-
-    /* inputs */
-    input[type="number"]{width:50px; text-align:center; display:inline-block; vertical-align:middle;}
-    input[type="text"]{width:100px;}
-
-    /* sticky first column + header row */
-    th:first-child, td:first-child{
-      position:sticky; left:0; background:#eee; z-index:2; background-clip:padding-box;
-    }
-    thead th{position:sticky; top:0; z-index:3; background:#999;}
-    th:first-child, td:first-child{box-shadow:2px 0 0 rgba(0,0,0,.06);}
-    .player-label td{font-weight:bold; background:#eee; text-align:left;}
-
-    /* labels in first column */
-    #scorecard thead th#courseLabel,
-    #scorecard thead th#holeLabel,
-    #scorecard thead th.par-label{
-      text-align:left !important; color:#000 !important; background:#eee !important;
-      padding-left:8px; font-weight:bold;
+    :root {
+      --bg: #f5f5f5;
+      --bg-card: #ffffff;
+      --text: #111111;
+      --accent: #ff9800;
+      --accent-soft: #ffe0b2;
+      --border-soft: #dddddd;
+      --header-bg: #ffffff;
+      --sync-bg: #00c853;
+      --sync-text: #ffffff;
+      --table-header-bg: #e0e0e0;
+      --table-header-text: #111111;
+      --table-player-header-bg: #000000;
+      --table-player-header-text: #ffffff;
+      --input-bg: #ffffff;
+      --input-text: #000000;
     }
 
-    /* controls */
-    .btn, #courseSelect{
-      height:40px; padding:6px 14px; font-size:16px; border-radius:6px; border:1px solid #888;
-      background:#fff; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,.1);
-    }
-    .btn + .btn{margin-left:8px;}
-    #courseSelect{margin-left:12px; appearance:none;
-      background-image:url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24'%3E%3Cpath fill='%23666' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
-      background-repeat:no-repeat; background-position:right 10px center; background-size:14px; padding-right:30px;
-    }
-    .btn:hover{background:#4CAF50; color:#fff; border-color:#3e8e41; transition:background-color .2s ease, color .2s ease;}
-
-    /* course banner */
-    #courseName{font-size:16px; font-weight:bold; text-transform:uppercase; text-align:center; background:#999; color:#fff;}
-
-    /* highlight current hole */
-    .current-hole{outline:2px solid rgba(0,120,255,.25); box-shadow:inset 0 0 8px rgba(0,120,255,.25);}
-    thead th.current-hole{outline:2px solid rgba(0,120,255,.35);}
-
-    /* word + rules boxes */
-    #wordBox, #rulesBox{
-      position:fixed; bottom:max(12px, env(safe-area-inset-bottom)); max-width:500px;
-      background:#f9f9f9; border:7px solid #ccc; border-radius:8px; padding:12px 16px;
-      box-shadow:0 2px 10px rgba(0,0,0,.15); color:orange; font-size:14px; line-height:1.5; z-index:4;
-    }
-    #wordBox{left:max(12px, env(safe-area-inset-left));}
-    #rulesBox{right:max(12px, env(safe-area-inset-right));}
-    #wordBox h4, #rulesBox h4{margin-top:0; font-size:16px; font-weight:bold;}
-    #wordBox ul, #rulesBox ul{padding-left:20px; margin:8px 0 0 0;}
-
-    @media (max-width:900px){
-      #wordBox, #rulesBox{position:static; margin-top:12px;}
-    }
-    @media (max-width:768px){
-      input[type="number"]{width:40px; font-size:16px; padding:4px;}
-      input[type="text"]{width:90px; font-size:16px;}
-      th,td{padding:6px;}
+    body.dark {
+      --bg: #101010;
+      --bg-card: #181818;
+      --text: #f5f5f5;
+      --accent: #ff9800;
+      --accent-soft: #664200;
+      --border-soft: #333333;
+      --header-bg: #181818;
+      --sync-bg: #00c853;
+      --sync-text: #ffffff;
+      --table-header-bg: #333333;
+      --table-header-text: #ffffff;
+      --table-player-header-bg: #000000;
+      --table-player-header-text: #ffffff;
+      --input-bg: #202020;
+      --input-text: #ffffff;
     }
 
-    /* dark mode */
-    @media (prefers-color-scheme: dark){
-      body{background:#111; color:#eee;}
-      th{background:#555; color:#fff;}
-      td, th{border-color:#333;}
-      .player-label td{background:#1b1b1b;}
-      #wordBox, #rulesBox{background:#1a1a1a; border-color:orange; color:#eee;}
+    * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
     }
 
-    /* spacing fix for buttons (optional) */
-    #clearBtn, #clearNamesBtn{margin-left:8px;}
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+    }
 
-    /* score coloring */
-    .under-par{background-color:green;}
-    .over-par{background-color:orange;}
-    .even-par{background-color:black;}
+    .app-shell {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
 
-    /* Birdie celebration */
-    @keyframes birdieFlash{0%{box-shadow:inset 0 0 0 0 rgba(46,204,113,0);}35%{box-shadow:inset 0 0 0 4px rgba(46,204,113,.45);}100%{box-shadow:inset 0 0 0 0 rgba(46,204,113,0);}}
-    @keyframes birdieEmoji{0%{opacity:0; transform:translate(-50%, -10%) scale(.6);}60%{opacity:1; transform:translate(-50%, -55%) scale(1.1);}100%{opacity:0; transform:translate(-50%, -80%) scale(.9);}}
-    td.birdie-pop{position:relative; animation:birdieFlash .8s ease-out 1;}
-    td.birdie-pop::after{content:"🐦"; position:absolute; left:50%; top:50%; width:1.4em; height:1.4em;
-      transform:translate(-50%,-50%); pointer-events:none; animation:birdieEmoji .8s ease-out 1 forwards;}
+    /* header */
 
+    .app-header {
+      background: var(--header-bg);
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-soft);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
-    /* Sync badge */
-    #syncBadge{
-      position: static !important;
-      top: auto !important;
-      right: auto !important;
-      transform: none !important;
+    .app-title {
+      font-size: 20px;
+      font-weight: 700;
+    }
 
+    .sync-pill {
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--sync-bg);
+      color: var(--sync-text);
+      font-size: 12px;
+      font-weight: 600;
       display: inline-flex;
       align-items: center;
-      box-sizing: border-box;
-      padding: 6px 10px;
-      gap: 0;
-      font: 600 12px/12px system-ui, Arial, sans-serif;
-      border-radius: 14px;
-
-      color: #000;
-      background: #777;
-      box-shadow: 0 1px 6px rgba(0,0,0,.15);
-    }
-    #syncBadge.is-synced{ background: orange; }
-    #syncBadge.is-syncing{ background: #f39c12; }
-    #syncBadge.is-offline{ background: #e74c3c; }
-
-    /* ========= THEME VARIABLES ========= */
-    :root{
-      --bg: #f9f9f9;
-      --fg: #111;
-      --head-bg: #999;
-      --head-fg: #fff;
-      --cell-border: #ccc;
-      --accent: #4CAF50;
+      gap: 4px;
     }
 
-    /* Dark Knight */
-    body[data-theme="dark"]{
-      --bg:#0e0d15;
-      --fg:#e8e8ff;
-      --head-bg:#2a2540;
-      --head-fg:#e8e8ff;
-      --cell-border:#403a5e;
-      --accent:#00d3ff;
-    }
-
-    /* Wire your existing colors to variables */
-    body{ background: var(--bg); color: var(--fg); }
-    th{ background-color: var(--head-bg); color: var(--head-fg); }
-    td, th{ border-color: var(--cell-border); }
-    .btn:hover{ background-color: var(--accent); border-color: var(--accent); color:#fff; }
-
-   /* Fixed tray that holds both widgets */
-#topRighttTray{
-  position: fixed;
-  top: 12px;
-  right: 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  z-index: 6;
-}
-    
-    /* Shared pill look so heights match perfectly */
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      box-sizing: border-box;
-      padding: 6px 10px;
-      border-radius: 14px;
-      font: 600 12px/1 system-ui, Arial, sans-serif;
-      color: #000;
-      box-shadow: 0 1px 6px rgba(0,0,0,.15);
-    }
-
-    /* Theme toggle */
-    .theme-toggle { background: orange; }
-    .theme-toggle,
-    #syncBadge{
-      display: inline-flex;
-      align-items: center;
-      box-sizing: border-box;
-      padding: 6px 10px;
-      border-radius: 14px;
-      font: 600 12px/1 system-ui, Arial, sans-serif;
-      color: #000;
-      box-shadow: 0 1px 6px rgba(0,0,0,.15);
-    }
-    .theme-toggle .knob{
-      width: 12px;
-      height: 12px;
+    .sync-dot {
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
-      background: #000;
-      flex: 0 0 auto;
+      background: #ffffff;
     }
-    .theme-toggle .label { line-height: 1; }
-    .theme-toggle input{ position:absolute; opacity:0; pointer-events:none; }
-    .theme-toggle input:checked ~ .label::after { content:" Dark"; }
-    .theme-toggle input:not(:checked) ~ .label::after { content:" Light"; }
 
-    /* === Spooky full-screen overlay (single, clean version) === */
-    #spookyOverlay{
-      position: fixed; inset: 0;
-      background: radial-gradient(ellipse at center, rgba(0,0,0,.65), rgba(0,0,0,.95));
-      display: none; /* JS toggles */
-      align-items: center; justify-content: center;
-      z-index: 10000;
+    /* content */
+
+    .app-content {
+      padding: 12px 12px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
     }
-    #spookyOverlay.is-on { display:flex; }
 
-    #spookyOverlay .spooky-card{
+    .card {
+      background: var(--bg-card);
+      border-radius: 14px;
+      padding: 12px;
+      border: 1px solid var(--border-soft);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    /* course selector */
+
+    .course-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .course-select {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border-soft);
+      font-size: 14px;
+      background: var(--input-bg);
+      color: var(--input-text);
+    }
+
+    .button-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      background: var(--accent);
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    .btn.secondary {
+      background: var(--accent-soft);
+      color: #000000;
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    /* theme toggle and rules */
+
+    .toolbar-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 14px;
+    }
+
+    .theme-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .theme-toggle span.label {
+      font-size: 13px;
+    }
+
+    .theme-toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      position: absolute;
+    }
+
+    .theme-toggle .slider {
+      width: 40px;
+      height: 20px;
+      border-radius: 999px;
+      background: #cccccc;
       position: relative;
-      width: min(680px, 92vw); max-height: 92vh;
-      border-radius: 16px; overflow: hidden;
-      box-shadow: 0 20px 60px rgba(0,0,0,.7);
-      background: #000;
-      animation: spookyIn .35s ease-out both;
+      cursor: pointer;
+      transition: background 0.2s ease;
     }
-    #spookyOverlay img{
-      width: 100%; height: auto; display:block; object-fit: cover;
-      filter: contrast(1.05) saturate(1.05) brightness(.95);
-    }
-    #spookyOverlay .caption{
-      position:absolute; left:0; right:0; bottom:0;
-      padding: 10px 14px; color:#f3f3f3; background: linear-gradient(transparent, rgba(0,0,0,.75));
-      font: 600 14px/1.4 system-ui, Arial, sans-serif; text-align:center;
-    }
-    #spookyOverlay .close{
-      position:absolute; top:10px; right:10px;
-      border:0; background:rgba(255,255,255,.1); color:#fff;
-      padding:8px 12px; border-radius: 999px; cursor:pointer;
-      font: 600 12px/1 system-ui, Arial, sans-serif;
-      backdrop-filter: blur(3px);
-    }
-    #spookyOverlay .close:hover{ background: rgba(255,255,255,.2); }
 
-    @keyframes spookyIn{
-      from { transform: translateY(8px) scale(.98); opacity:0; }
-      to   { transform: translateY(0) scale(1);     opacity:1; }
+    .theme-toggle .slider::before {
+      content: "";
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      left: 2px;
+      top: 2px;
+      border-radius: 50%;
+      background: #ffffff;
+      transition: transform 0.2s ease;
     }
+
+    .theme-toggle input:checked + .slider {
+      background: #000000;
+    }
+
+    .theme-toggle input:checked + .slider::before {
+      transform: translateX(20px);
+    }
+
+    .rules-link {
+      font-size: 13px;
+      text-align: right;
+    }
+
+    .rules-link a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .rules-link a:active {
+      opacity: 0.7;
+    }
+
+    /* scorecard */
+
+    .scorecard-wrapper {
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .scorecard-table {
+      border-collapse: collapse;
+      min-width: 420px;
+      width: 100%;
+      font-size: 13px;
+    }
+
+    .scorecard-table th,
+    .scorecard-table td {
+      border: 1px solid var(--border-soft);
+      text-align: center;
+      padding: 6px 4px;
+      white-space: nowrap;
+    }
+
+    .scorecard-table th.course-label {
+      background: var(--table-header-bg);
+      color: var(--table-header-text);
+      text-align: left;
+      padding-left: 8px;
+    }
+
+    .scorecard-table th.player-label {
+      background: var(--table-player-header-bg);
+      color: var(--table-player-header-text);
+      text-align: left;
+      padding-left: 8px;
+    }
+
+    .scorecard-table th.hole-header {
+      background: var(--table-header-bg);
+      color: var(--table-header-text);
+      font-weight: 600;
+    }
+
+    .par-cell {
+      background: #bdbdbd;
+      font-weight: 600;
+    }
+
+    .score-input {
+      width: 34px;
+      height: 30px;
+      border-radius: 8px;
+      border: 1px solid var(--border-soft);
+      background: var(--input-bg);
+      color: var(--input-text);
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .player-name {
+      width: 100%;
+      border: none;
+      background: transparent;
+      color: var(--input-text);
+      text-align: left;
+      padding: 0;
+      font-weight: 500;
+    }
+
+    .total-col {
+      background: #212121;
+      color: #ffffff;
+      font-weight: 600;
+      min-width: 52px;
+    }
+
+    @media (min-width: 520px) {
+      .app-content {
+        padding-inline: 16px;
+      }
+    }
+
   </style>
 </head>
-<body>
+<body class="light">
+  <div class="app-shell">
 
-<script>
-  /* simple pass gate */
-  (function () {
-    const correct = "jef";
-    const input = (prompt("Enter password to access this page:") ?? "")
-      .normalize("NFKC").trim().toLowerCase();
-    if (input === correct.toLowerCase()) {
-      document.documentElement.classList.remove('denied');
-      document.documentElement.classList.add('authed');
-      window.__AUTH_OK__ = true;
-    } else {
-      document.body.innerHTML = '<h1 id="deny">Access Denied</h1>';
-      document.documentElement.classList.remove('authed');
-      document.documentElement.classList.add('denied');
-      window.__AUTH_OK__ = false;
-      throw new Error("Unauthorized");
-    }
-  })();
-</script>
+    <header class="app-header">
+      <div class="app-title">Pardle</div>
+      <div class="sync-pill">
+        <span class="sync-dot"></span>
+        Synced
+      </div>
+    </header>
+
+    <main class="app-content">
+
+      <!-- course selector card -->
+      <section class="card">
+        <div class="section-title">Course</div>
+        <div class="course-row">
+          <select class="course-select" id="courseSelect">
+            <option value="bethpage">Bethpage Black</option>
+            <option value="pebble">Pebble Beach</option>
+            <option value="st-andrews">St Andrews</option>
+          </select>
+
+          <div class="button-row">
+            <button class="btn secondary" id="clearNamesBtn">Clear Names</button>
+            <button class="btn" id="clearScoresBtn">Clear Scores</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- toolbar: theme + rules -->
+      <section class="card">
+        <div class="toolbar-row">
+          <label class="theme-toggle">
+            <span class="label">Theme</span>
+            <input type="checkbox" id="themeSwitch" />
+            <span class="slider"></span>
+          </label>
+
+          <div class="rules-link">
+            <a href="#rules" id="rulesLink">View Pardle Rules</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- scorecard -->
+      <section class="card">
+        <div class="section-title">Scorecard</div>
+        <div class="scorecard-wrapper">
+          <table class="scorecard-table">
+            <thead>
+              <tr>
+                <th class="course-label">Course</th>
+                <th class="hole-header">1</th>
+                <th class="hole-header">2</th>
+                <th class="hole-header">3</th>
+                <th class="hole-header">4</th>
+                <th class="hole-header">5</th>
+                <th class="hole-header">6</th>
+                <th class="hole-header">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th class="course-label">Par</th>
+                <td class="par-cell">4</td>
+                <td class="par-cell">4</td>
+                <td class="par-cell">3</td>
+                <td class="par-cell">5</td>
+                <td class="par-cell">4</td>
+                <td class="par-cell">4</td>
+                <td class="par-cell">-</td>
+              </tr>
+
+              <tr>
+                <th class="player-label">
+                  <input class="player-name" placeholder="Player 1" />
+                </th>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td class="total-col">E</td>
+              </tr>
+
+              <tr>
+                <th class="player-label">
+                  <input class="player-name" placeholder="Player 2" />
+                </th>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td class="total-col">E</td>
+              </tr>
+
+              <tr>
+                <th class="player-label">
+                  <input class="player-name" placeholder="Player 3" />
+                </th>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td class="total-col">E</td>
+              </tr>
+
+              <tr>
+                <th class="player-label">
+                  <input class="player-name" placeholder="Player 4" />
+                </th>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" /></td>
+                <td class="total-col">E</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
 
   <script>
-/* === SPOOKY ON LOGIN === */
-function isHalloween(d = new Date()) {
-  // 👇 Change 18 → 31 later for real Halloween
-  return d.getFullYear() === 2025 && d.getMonth() === 9 && d.getDate() === 18;
-}
+    // theme toggle
+    const themeSwitch = document.getElementById("themeSwitch");
+    const body = document.body;
 
-window.addEventListener('load', () => {
-  if (isHalloween(new Date())) {
-    if (!sessionStorage.getItem('spooky2025Shown')) {
-      sessionStorage.setItem('spooky2025Shown', '1');
-      const overlay = document.getElementById('spookyOverlay');
-      overlay?.classList.add('is-on');
-      document.getElementById('spookyClose')?.addEventListener(
-        'click',
-        () => overlay.classList.remove('is-on'),
-        { once: true }
-      );
-      setTimeout(() => overlay.classList.remove('is-on'), 4000);
-    }
-  }
-});
-</script>
-
-<h2>Pardle</h2>
-
-<label for="courseSelect">Choose a course:</label>
-<select id="courseSelect"></select>
-<button id="clearBtn" class="btn">Clear Scores</button>
-<button id="clearNamesBtn" class="btn" type="button">Clear Names</button>
-
-<div class="table-wrap">
-  <table id="scorecard" role="table" aria-label="Wordle Golf Scorecard">
-    <thead>
-      <tr id="courseHeader">
-        <th id="courseLabel" scope="row">Course</th>
-        <th id="courseName" colspan="18">Torrey Pines</th>
-        <th scope="col">Total</th>
-        <th scope="col">+/-</th>
-      </tr>
-      <tr id="holeHeader">
-        <th id="holeLabel" scope="row">Hole</th>
-        <!-- 1..18 + Par + blank added by JS -->
-      </tr>
-      <tr id="parRow" aria-label="Par values"></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</div>
-
-  <label class="theme-toggle" id="themeToggle">
-    <input type="checkbox" id="themeSwitch" />
-    <span class="knob" aria-hidden="true"></span>
-    <span class="label">Theme:</span>
-  </label>
-
-  <div id="syncBadge" class="">Connecting…</div>
-</div>
-
-<!-- Word of the Day -->
-<div id="wordBox" aria-live="polite"></div>
-
-<!-- Rules -->
-<div id="rulesBox" aria-live="polite">
-  <h4>🏌️ Pardle Rules</h4>
-  <ul>
-    <li>Each hole = one Wordle puzzle (one per day).</li>
-    <li>Your score = number of guesses used to solve the Wordle.</li>
-    <li>Solve it in <strong>3 tries</strong> → you score <strong>3</strong> (like 3 strokes).</li>
-    <li>If you <strong>don’t solve in 6 tries</strong> or <strong>forget to play</strong>, your score = <strong>7</strong>.</li>
-    <li>Lowest total score wins, just like golf.</li>
-    <li>Track progress hole by hole, and compare live scores with friends!</li>
-  </ul>
-</div>
-
-<!-- App -->
-<script type="module">
-if (!window.__AUTH_OK__) throw new Error("Blocked");
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyC9-Z6E59grKoq_pD8acGTre2Jx-1NQ_Qc",
-  authDomain: "wordle-golf-6c636.firebaseapp.com",
-  projectId: "wordle-golf-6c636",
-  storageBucket: "wordle-golf-6c636.appspot.com",
-  messagingSenderId: "672104265687",
-  appId: "1:672104265687:web:2c16b0539fcd52ca4d7d92"
-};
-
-/* sync badge helpers */
-const syncBadge = document.getElementById('syncBadge');
-const setSync = (state, text) => {
-  syncBadge.className = '';
-  if (state) syncBadge.classList.add(state);
-  syncBadge.textContent = text || ({
-    'is-offline':'Offline',
-    'is-syncing':'Syncing…',
-    'is-synced':'Synced'
-  }[state] || '—');
-};
-
-let app, db;
-(async () => {
-  try {
-    app = initializeApp(firebaseConfig);
-    db  = getFirestore(app);
-    setSync('is-syncing', 'Connecting…');
-  } catch (e) {
-    console.error("Firebase init error:", e);
-    setSync('is-offline', 'Offline');
-  }
-})();
-
-/* Data */
-const courses = {
-  'St. Andrews':  [4,4,4,4,5,4,4,3,4,4,3,4,4,5,4,4,4,4],
-  'Augusta':      [4,5,4,3,4,3,4,5,4,4,4,3,5,4,5,3,4,4],
-  'Bully Pulpit': [4,4,4,5,5,3,4,3,4,4,5,3,4,4,3,4,5,4],
-  'Torrey Pines': [4,4,3,4,5,4,4,3,5,5,4,3,4,4,3,4,5,4],
-  'Bethpage Black':[4,4,3,5,4,4,5,3,4,4,4,4,5,3,4,4,3,4],
-  'Sweetwater Country Club': [4,4,3,4,5,3,4,4,3,4,4,3,4,5,3,4,4,3],
-  'TPC Sawgrass (TPS)': [4,5,3,4,4,4,4,3,5,4,5,4,3,4,4,5,3,4],
-  'Whistling Straits':[4,5,3,4,5,4,3,4,4,4,5,3,4,4,4,5,3,4],
-  'Pebble Beach': [4,5,4,4,3,5,3,4,4,4,4,3,4,5,4,4,3,5],
-  'Congressional': [4,3,4,5,4,5,3,4,5,3,5,4,3,4,5,5,4,4],
-};
-
-/* DOM refs */
-const table = document.getElementById('scorecard');
-const holeHeader = document.getElementById('holeHeader');
-const parRow = document.getElementById('parRow');
-const courseNameHeader = document.getElementById('courseName');
-const courseSelect = document.getElementById('courseSelect');
-const tbody = table.querySelector('tbody');
-
-/* ===== Theme toggle (two modes: default / dark) ===== */
-const themeSwitch = document.getElementById("themeSwitch");
-
-function applyTheme(t){
-  if (t === "dark") {
-    document.body.setAttribute("data-theme", "dark");
-    themeSwitch.checked = true;
-  } else {
-    document.body.removeAttribute("data-theme");
-    themeSwitch.checked = false;
-  }
-  localStorage.setItem("pardleTheme", t);
-}
-
-// toggle when the checkbox changes (the label clicks this automatically)
-themeSwitch.addEventListener("change", () => {
-  applyTheme(themeSwitch.checked ? "dark" : "default");
-});
-
-/* Populate course dropdown */
-Object.keys(courses).forEach(course => {
-  const opt = document.createElement('option');
-  opt.value = course; opt.textContent = course;
-  courseSelect.appendChild(opt);
-});
-
-/* Build the "Hole" header (1..18 + Par + blank) */
-function buildHoleHeader(){
-  holeHeader.innerHTML = '';
-  const thLabel = document.createElement('th');
-  thLabel.id = 'holeLabel'; thLabel.scope = 'row'; thLabel.textContent = 'Hole';
-  holeHeader.appendChild(thLabel);
-  for (let i=1;i<=18;i++){
-    const th = document.createElement('th'); th.scope='col'; th.textContent=String(i);
-    holeHeader.appendChild(th);
-  }
-  const thPar = document.createElement('th'); thPar.textContent='Par'; thPar.scope='col';
-  const thBlank = document.createElement('th'); thBlank.textContent='';
-  holeHeader.append(thPar, thBlank);
-}
-buildHoleHeader();
-
-/* State */
-let currentPar = [];
-let unsubscribe = null;
-let applyingRemote = false;
-let effectsEnabled = false; // ← block all celebration/overlays until a user types
-
-/* helpers */
-const buildDefaultPlayers = () =>
-  Array.from({ length: 4 }, (_, i) => ({ name:`Player ${i+1}`, scores:[] }));
-
-function updateParRow(parValues){
-  parRow.innerHTML = '';
-  const label = document.createElement('th');
-  label.className = 'par-label'; label.textContent = 'Par'; label.scope = 'row';
-  parRow.appendChild(label);
-
-  parValues.forEach(p => {
-    const th = document.createElement('th'); th.textContent = p; th.scope = 'col';
-    parRow.appendChild(th);
-  });
-
-  const total = parValues.reduce((s,p)=>s+p,0);
-  parRow.appendChild(Object.assign(document.createElement('th'), {textContent: total}));
-  parRow.appendChild(Object.assign(document.createElement('th'), {textContent: ''}));
-}
-
-function setBirdieAnimation(cell, isBirdie){
-  if (!isBirdie || !effectsEnabled) return;
-  cell.classList.remove('birdie-pop');
-  requestAnimationFrame(() => {
-    cell.classList.add('birdie-pop');
-    cell.addEventListener('animationend', () => cell.classList.remove('birdie-pop'), { once:true });
-  });
-}
-
-
-function setCellClassForScore(input, par){
-  const cell = input.parentElement;
-  cell.className = '';
-
-  const raw = (input.value || '').trim();
-  const val = parseInt(raw, 10);
-
-  // ignore blanks / non-numeric (prevents firing on load)
-  if (!raw || Number.isNaN(val)) {
-    input.dataset.prevScore = '';
-    return;
-  }
-
-if (val < par) {
-  cell.classList.add('under-par');
-  setBirdieAnimation(cell, true);
-
-} else if (val > par) {
-  cell.classList.add('over-par');
-
-} else {
-  cell.classList.add('even-par');
-}
-  
-  input.dataset.prevScore = String(val);
-}
-
-function calculateRowTotals(row){
-  const inputs = row.querySelectorAll('input[type="number"]');
-  let total = 0, parTotal = 0;
-
-  inputs.forEach((input, idx) => {
-    const val = parseInt(input.value, 10);
-    const par = currentPar[idx];
-    setCellClassForScore(input, par);
-    if (!Number.isNaN(val)) { total += val; parTotal += par; }
-  });
-
-  row.querySelector('.total').textContent = total || '0';
-  const diff = total - parTotal;
-  row.querySelector('.diff').textContent = total ? (diff > 0 ? `+${diff}` : `${diff}`) : '0';
-}
-
-/* quick navigation */
-function addNavKeys(input){
-  input.addEventListener('keydown', e => {
-    const row = input.closest('tr');
-    const cells = Array.from(row.querySelectorAll('td input[type="number"]'));
-    const i = cells.indexOf(input);
-    let next=null;
-    if (e.key==='Enter' || e.key==='ArrowRight') next=cells[i+1]||cells[i];
-    else if (e.key==='ArrowLeft') next=cells[i-1]||cells[i];
-    if (next && next!==input){ e.preventDefault(); next.focus(); next.select?.(); }
-  });
-}
-
-function buildPlayerRow(name='', rowIndex=0, savedScores=[]){
-  const row = document.createElement('tr');
-  row.classList.add('player-row');
-
-  const nameCell = document.createElement('td');
-  const nameInput = document.createElement('input');
-  nameInput.type='text'; nameInput.value=name;
-  nameInput.addEventListener('input', () => scheduleSave());
-  nameCell.appendChild(nameInput);
-  row.appendChild(nameCell);
-
-  for (let i=0;i<18;i++){
-    const cell = document.createElement('td');
-    const input = document.createElement('input');
-    input.type='number'; input.min=1; input.inputMode='numeric';
-    input.value = savedScores[i] || '';
-
-    input.addEventListener('input', () => {
-      effectsEnabled = true;            // ← mark that a human is typing now
-      calculateRowTotals(row);
-      scheduleSave();
-
-      // Hook: show spooky overlay after any score input
-      maybeShowSpooky();
+    themeSwitch.addEventListener("change", () => {
+      if (themeSwitch.checked) {
+        body.classList.add("dark");
+      } else {
+        body.classList.remove("dark");
+      }
     });
 
-    addNavKeys(input);
-    cell.appendChild(input);
-    row.appendChild(cell);
-  }
+    // stub actions for buttons so nothing explodes in tests
+    document.getElementById("clearScoresBtn").addEventListener("click", () => {
+      document.querySelectorAll(".score-input").forEach(el => (el.value = ""));
+    });
 
-  const totalCell = Object.assign(document.createElement('td'), {className:'total', textContent:'0'});
-  const diffCell  = Object.assign(document.createElement('td'), {className:'diff',  textContent:'0'});
-  totalCell.setAttribute('aria-live','polite');
-  diffCell.setAttribute('aria-live','polite');
-  row.append(totalCell, diffCell);
+    document.getElementById("clearNamesBtn").addEventListener("click", () => {
+      document.querySelectorAll(".player-name").forEach(el => (el.value = ""));
+    });
 
-  // initial calculation (effects disabled until user types)
-  setTimeout(() => calculateRowTotals(row), 0);
-  return row;
-}
-
-function readTableData(){
-  const data = { course: courseSelect.value, players: [] };
-  table.querySelectorAll('tbody tr.player-row').forEach(row => {
-    const name = row.querySelector('input[type="text"]')?.value || '';
-    const scores = Array.from(row.querySelectorAll('input[type="number"]')).map(i => i.value);
-    data.players.push({ name, scores });
-  });
-  return data;
-}
-
-/* debounced save */
-let saveTimer=null;
-function scheduleSave(){
-  if (saveTimer) clearTimeout(saveTimer);
-  saveTimer = setTimeout(saveScoresToFirestore, 250);
-}
-
-async function saveScoresToFirestore(){
-  if (applyingRemote || !db) return;
-  try{
-    setSync('is-syncing');
-    const data = readTableData();
-    const ref = doc(db,'wordleScorecards', data.course);
-    await setDoc(ref, { course:data.course, players:data.players, updatedAt:serverTimestamp() }, { merge:true });
-    setSync('is-synced');
-  }catch(e){
-    console.error('saveScoresToFirestore error', e);
-    setSync('is-offline', 'Offline');
-  }
-}
-
-function sameData(a,b){ try{return JSON.stringify(a)===JSON.stringify(b);}catch{return false;} }
-
-function renderFromData(docData){
-  applyingRemote = true;          // prevent effects while building
-  effectsEnabled = true;
-
-  tbody.innerHTML = '';
-
-  // sticky label row
-  const labelRow = document.createElement('tr');
-  labelRow.classList.add('player-label');
-  labelRow.appendChild(Object.assign(document.createElement('td'), {textContent:'Player'}));
-  for (let i=0;i<20;i++) labelRow.appendChild(document.createElement('td'));
-  tbody.appendChild(labelRow);
-
-  const raw = Array.isArray(docData?.players) ? docData.players : [];
-  const players = raw.filter(p => {
-    const hasName = !!(p?.name || '').trim();
-    const hasScore = (p?.scores || []).some(s => (s ?? '').toString().trim()!=='');
-    return hasName || hasScore;
-  });
-  while (players.length < 4) players.push({ name:`Player ${players.length+1}`, scores:[] });
-
-  players.forEach((p,i) => tbody.appendChild(buildPlayerRow(p.name || '', i, p.scores || [])));
-
-  applyingRemote = false;         // still no effects until the user types
-}
-
-async function ensureDocExists(courseName){
-  if (!db) return;
-  const ref = doc(db,'wordleScorecards',courseName);
-  const snap = await getDoc(ref);
-  if (!snap.exists()){
-    await setDoc(ref, { course:courseName, players:buildDefaultPlayers(), updatedAt:serverTimestamp() });
-  }
-}
-
-async function attachListenerForCourse(courseName){
-  if (unsubscribe){unsubscribe(); unsubscribe=null;}
-  if (!db) return;
-
-  await ensureDocExists(courseName);
-  const ref = doc(db,'wordleScorecards',courseName);
-
-  unsubscribe = onSnapshot(ref, snap => {
-    if (!snap.exists()) return;
-    const serverData = snap.data();
-    const localData = readTableData();
-
-    if (!sameData({course:localData.course, players:localData.players},
-                  {course:serverData.course, players:serverData.players})) {
-      setSync('is-syncing');
-      currentPar = courses[courseName];
-      updateParRow(currentPar);
-      renderFromData(serverData);
-      setSync('is-synced');
-    } else {
-      setSync('is-synced');
-    }
-  }, err => {
-    console.error('onSnapshot error', err);
-    setSync('is-offline', 'Offline');
-  });
-}
-
-function markCurrentHole(){
-  const now = new Date();
-  const start = new Date(now.getFullYear(),0,0);
-  const doy = Math.floor((now - start)/86400000);
-  const holeIdx = ((doy % 18) + 1);
-
-  document.querySelectorAll('#scorecard .current-hole').forEach(el => el.classList.remove('current-hole'));
-  const headerCells = holeHeader.querySelectorAll('th');
-  if (headerCells[holeIdx]) headerCells[holeIdx].classList.add('current-hole');
-  document.querySelectorAll('#scorecard tbody tr.player-row').forEach(row => {
-    const td = row.querySelectorAll('td')[holeIdx];
-    if (td) td.classList.add('current-hole');
-  });
-}
-
-async function loadScorecard(courseName){
-  currentPar = courses[courseName];
-  updateParRow(currentPar);
-
-  renderFromData({ players: buildDefaultPlayers() });
-  await attachListenerForCourse(courseName);
-  courseNameHeader.textContent = courseName.toUpperCase();
-  markCurrentHole();
-}
-
-/* === SPOOKY OVERLAY – FINAL (Halloween-only) === */
-
-/**
- * Show the overlay on Halloween (October 31, 2025)
- */
-function isHalloween(d = new Date()) {
-  return d.getFullYear() === 2025 && d.getMonth() === 9 && d.getDate() === 31;
-}
-
-function showSpookyOnce() {
-  const overlay = document.getElementById('spookyOverlay');
-  if (!overlay) return;
-
-  // show only once per page load
-  if (sessionStorage.getItem('spooky2025Shown') === '1') return;
-  sessionStorage.setItem('spooky2025Shown', '1');
-
-  overlay.classList.add('is-on');
-
-  const closeBtn = document.getElementById('spookyClose');
-  closeBtn?.addEventListener('click', () => overlay.classList.remove('is-on'), { once: true });
-
-  // auto-hide fallback
-  setTimeout(() => overlay.classList.remove('is-on'), 4000);
-}
-
-function maybeShowSpooky() {
-  if (isHalloween(new Date())) {
-    showSpookyOnce();
-  }
-}
-
-/* Boot */
-const last = localStorage.getItem('lastCourse');
-courseSelect.value = last && courses[last] ? last : Object.keys(courses)[0];
-courseSelect.addEventListener('change', e => {
-  localStorage.setItem('lastCourse', e.target.value);
-  loadScorecard(e.target.value);
-});
-loadScorecard(courseSelect.value);
-
-/* Clear Scores */
-document.getElementById('clearBtn').addEventListener('click', async () => {
-  if (!confirm("Clear all player scores for this course?")) return;
-  const playersCleared = Array.from(
-    document.querySelectorAll('#scorecard tbody tr.player-row')
-  ).map((row,i) => {
-    const name = row.querySelector('input[type="text"]')?.value || `Player ${i+1}`;
-    return { name, scores: [] };
-  });
-
-  renderFromData({ players: playersCleared });
-  updateParRow(currentPar);
-
-  try{
-    const ref = doc(db,'wordleScorecards',courseSelect.value);
-    await setDoc(ref, { course: courseSelect.value, players: playersCleared, updatedAt:serverTimestamp() }, { merge:true });
-    setSync('is-synced');
-  }catch(err){
-    console.error("Clear scores failed:", err);
-    setSync('is-offline','Offline');
-    alert("Clear failed. Check console.");
-  }
-});
-
-/* Clear Names */
-document.getElementById('clearNamesBtn').addEventListener('click', () => {
-  document.querySelectorAll('#scorecard tbody tr.player-row input[type="text"]').forEach((inp, idx) => {
-    inp.value = `Player ${idx+1}`;
-  });
-  scheduleSave();
-});
-</script>
-
-<!-- Word of the Day -->
-<script>
-(function(){
-  const box = document.getElementById('wordBox');
-  if (!box) return;
-  const words = [
-  { word:"Ablorpticon", def:"The mysterious button you mash when no other button seems right." },
-  { word:"Bumblesnack", def:"A snack eaten while loudly insisting you’re not snacking." },
-  { word:"Crumplomancy", def:"Divination by reading the shapes of the laundry pile." },
-  { word:"Dinglequartz", def:"An imaginary mineral that appears only when you’ve lost your keys." },
-  { word:"Eepiphany", def:"The sudden realization your coffee is still on the car roof." },
-  { word:"Fizzlewump", def:"The final bubble in a soda that refuses to pop out of spite." },
-  { word:"Glorpulence", def:"Wealth measured exclusively in leftover pasta sauce." },
-  { word:"Hobbledecho", def:"Repeating a joke no one heard the first time, now 30% more awkward." },
-  { word:"Infinisigh", def:"A sigh so long it qualifies as light cardio." },
-  { word:"Jargonaut", def:"One who sails meetings powered solely by buzzwords." },
-  { word:"Kleptoclip", def:"A binder clip that migrates desks and claims squatter’s rights." },
-  { word:"Lazternoon", def:"That stretch of afternoon where ambition logs off without notice." },
-  { word:"Muffintrance", def:"The hypnotic state between smelling muffins and eating them." },
-  { word:"Noodlegeddon", def:"A catastrophic event involving spaghetti and unchecked confidence." },
-  { word:"Overthinkle", def:"A tiny thought polished into a museum-grade worry." },
-  { word:"Pajamnesia", def:"Forgetting you’re in pajamas until the camera turns on." },
-  { word:"Quackelum", def:"That one duck at the park clearly judging your life choices." },
-  { word:"Rumblepathy", def:"Sensing someone’s hunger via empathic stomach growls." },
-  { word:"Scrumbobulate", def:"To make a simple task confusing by adding extra steps." },
-  { word:"Tangentarium", def:"Where conversations go when they wander off-topic to live free." },
-  { word:"Ughorithm", def:"Any process that gets worse the more you optimize it." },
-  { word:"Vibecrastination", def:"Delaying work until the vibes improve (they won’t)." },
-  { word:"Waffleglare", def:"The look you give when someone suggests pancakes instead." },
-  { word:"Xylawhatnow", def:"A polite response to any instrument you’ve never heard of." },
-  { word:"Yawnaverse", def:"The shared cinematic universe of contagious yawns." },
-  { word:"Zestosterone", def:"Confidence derived entirely from citrus exposure." }
-];
-  const seed = new Date().toDateString();
-  let hash = 0; for (let i=0;i<seed.length;i++) hash = (hash*31 + seed.charCodeAt(i)) >>> 0;
-  const pick = words[hash % words.length];
-  box.innerHTML = `<h4>Word of the Day</h4><span class="w">${pick.word}</span><span class="d"> — ${pick.def}</span>`;
-})();
-</script>
-
-<!-- Spooky overlay -->
-<div id="spookyOverlay" aria-hidden="true">
-  <div class="spooky-card" role="dialog" aria-label="Halloween Surprise">
-    <img id="spookyImg" src="./assets/michael.PNG" alt="Michael Myers" />
-    <div class="caption">Happy Halloween 🎃</div>
-    <button class="close" type="button" id="spookyClose">Close</button>
-  </div>
-</div>
-
+    document.getElementById("rulesLink").addEventListener("click", (e) => {
+      e.preventDefault();
+      alert("Pardle Rules would show in a modal or separate screen here.");
+    });
+  </script>
 </body>
 </html>
