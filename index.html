@@ -246,8 +246,21 @@
     /* scorecard */
 
     .scorecard-wrapper {
+      position: relative;
       overflow-x: auto;
       padding-bottom: 4px;
+    }
+
+    /* subtle fade on right edge to hint more content */
+    .scorecard-wrapper::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 24px;
+      height: 100%;
+      pointer-events: none;
+      background: linear-gradient(to right, transparent, var(--bg-card));
     }
 
     .scorecard-table {
@@ -316,6 +329,15 @@
       color: #ffffff;
       font-weight: 600;
       min-width: 52px;
+    }
+
+    /* swipe hint */
+
+    .swipe-hint {
+      margin-top: 6px;
+      font-size: 11px;
+      text-align: right;
+      opacity: 0.7;
     }
 
     /* rules card at bottom */
@@ -556,6 +578,9 @@
             </tbody>
           </table>
         </div>
+
+        <!-- swipe hint -->
+        <p class="swipe-hint">Swipe sideways to see holes 10–18 ⟶</p>
       </section>
 
       <!-- rules card (hidden by default) -->
