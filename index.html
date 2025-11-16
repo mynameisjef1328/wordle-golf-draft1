@@ -676,6 +676,8 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
 
     // 2. Constants and state
     const STORAGE_PLAYER_ID_KEY = "pardle_online_player_id";
+    const STORAGE_LAST_GAME_ID_KEY = "pardle_online_last_game_id";
+    const STORAGE_LAST_SLOT_KEY = "pardle_online_last_player_slot";
 
     const COURSES = {
       "st-andrews": [4,4,4,4,5,4,4,3,4,4,3,4,4,5,4,4,4,4],
@@ -709,7 +711,6 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
     const createGameBtn = document.getElementById("createGameBtn");
     const joinGameBtn = document.getElementById("joinGameBtn");
     const joinGameIdInput = document.getElementById("joinGameIdInput");
-    const gameIdDisplay = document.getElementById("gameIdDisplay");
     const onlineStatusText = document.getElementById("onlineStatusText");
 
     const courseSelect = document.getElementById("courseSelect");
@@ -737,7 +738,8 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
     }
 
     function setStatus(msg, isError = false) {
-      onlineStatusText.innerHTML = `Game ID: <strong id="gameIdDisplay">${currentGameId || "none"}</strong><br />${msg}`;
+      const gameIdText = currentGameId || "none";
+      onlineStatusText.innerHTML = `Game ID: <strong>${gameIdText}</strong><br />${msg}`;
       if (isError) {
         onlineStatusText.classList.add("error-text");
       } else {
@@ -874,6 +876,11 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
         }
       }
 
+      // mirror your own name into the "Your name" box if we know your slot
+      if (currentPlayerSlot != null && players[currentPlayerSlot]) {
+        playerNameInput.value = players[currentPlayerSlot].name || "";
+      }
+
       recalcAllTotals();
     }
 
@@ -905,6 +912,7 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
         }
         const newCourseId = courseSelect.value;
         const updated = { ...currentGameData, courseId: newCourseId };
+        currentGameData = updated;
         db.collection("games").doc(currentGameId).set(updated);
       });
     }
@@ -964,7 +972,11 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
       });
 
       currentGameId = docRef.id;
-      gameIdDisplay.textContent = currentGameId;
+
+      // remember last game + slot on this device
+      localStorage.setItem(STORAGE_LAST_GAME_ID_KEY, currentGameId);
+      localStorage.setItem(STORAGE_LAST_SLOT_KEY, String(currentPlayerSlot));
+
       setStatus("Game created. Share this code with your friends.");
 
       if (unsubscribeGame) unsubscribeGame();
@@ -979,7 +991,7 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
       });
     }
 
-    // 🔧 FIXED: joinGame now preserves existing scores for returning players
+    // joinGame preserves scores for returning players and remembers last game
     async function joinGame() {
       const name = playerNameInput.value.trim();
       if (!name) {
@@ -1044,8 +1056,54 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
 
       currentGameId = joinId;
       currentPlayerSlot = slot;
-      gameIdDisplay.textContent = currentGameId;
+
+      // remember last game + slot on this device
+      localStorage.setItem(STORAGE_LAST_GAME_ID_KEY, currentGameId);
+      localStorage.setItem(STORAGE_LAST_SLOT_KEY, String(currentPlayerSlot));
+
       setStatus(`Joined game in slot ${slot + 1}.`);
+
+      if (unsubscribeGame) unsubscribeGame();
+      unsubscribeGame = docRef.onSnapshot(s => {
+        if (!s.exists) {
+          setStatus("Game was deleted or not found.", true);
+          enableScorecard(false);
+          return;
+        }
+        applyGameToUI(s.data());
+        enableScorecard(true);
+      });
+    }
+
+    // Auto-rejoin last game on load if possible
+    async function attemptAutoRejoin() {
+      const savedGameId = localStorage.getItem(STORAGE_LAST_GAME_ID_KEY);
+      const savedSlotStr = localStorage.getItem(STORAGE_LAST_SLOT_KEY);
+
+      if (!savedGameId || savedSlotStr == null) {
+        setStatus("Not in a game. Create or join to start.");
+        return;
+      }
+
+      currentPlayerId = getOrCreatePlayerId();
+      currentGameId = savedGameId;
+      currentPlayerSlot = parseInt(savedSlotStr, 10);
+
+      const docRef = db.collection("games").doc(savedGameId);
+      const snap = await docRef.get();
+
+      if (!snap.exists) {
+        // stale reference
+        localStorage.removeItem(STORAGE_LAST_GAME_ID_KEY);
+        localStorage.removeItem(STORAGE_LAST_SLOT_KEY);
+        currentGameId = null;
+        currentPlayerSlot = null;
+        setStatus("Last saved game not found. Create or join a new one.");
+        enableScorecard(false);
+        return;
+      }
+
+      setStatus("Rejoined your last game. Enter scores as normal.");
 
       if (unsubscribeGame) unsubscribeGame();
       unsubscribeGame = docRef.onSnapshot(s => {
@@ -1095,9 +1153,15 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
       });
     });
 
+    // Initial setup
     bindScoreInputs();
     updateParRow();
     enableScorecard(false);
+    // try to auto-attach to last game if one exists
+    attemptAutoRejoin().catch(err => {
+      console.error(err);
+      setStatus("Not in a game. Create or join to start.");
+    });
   </script>
 </body>
 </html>
