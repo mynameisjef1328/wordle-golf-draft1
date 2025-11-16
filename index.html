@@ -2,8 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Pardle - Mobile</title>
+  <title>Pardle Online</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Firebase compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
   <style>
     :root {
@@ -62,8 +66,6 @@
       flex-direction: column;
     }
 
-    /* header */
-
     .app-header {
       background: var(--header-bg);
       padding: 12px 16px;
@@ -97,8 +99,6 @@
       background: #ffffff;
     }
 
-    /* content */
-
     .app-content {
       padding: 12px 12px 24px;
       display: flex;
@@ -121,6 +121,76 @@
       margin-bottom: 6px;
     }
 
+    /* online controls */
+
+    .online-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .online-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .online-row label {
+      min-width: 80px;
+    }
+
+    .online-input {
+      flex: 1;
+      min-width: 0;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border-soft);
+      background: var(--input-bg);
+      color: var(--input-text);
+      font-size: 14px;
+    }
+
+    .online-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .small-btn {
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: none;
+      background: var(--accent);
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      flex: 1;
+      min-width: 0;
+      text-align: center;
+    }
+
+    .small-btn.secondary {
+      background: var(--accent-soft);
+      color: #000000;
+    }
+
+    .online-status {
+      font-size: 12px;
+      line-height: 1.4;
+      color: #555;
+    }
+
+    .online-status strong {
+      color: var(--text);
+    }
+
+    .error-text {
+      color: #d32f2f;
+    }
+
     /* course selector */
 
     .course-row {
@@ -137,33 +207,6 @@
       font-size: 14px;
       background: var(--input-bg);
       color: var(--input-text);
-    }
-
-    .button-row {
-      display: flex;
-      gap: 8px;
-      margin-top: 8px;
-    }
-
-    .btn {
-      flex: 1;
-      padding: 8px 10px;
-      border-radius: 999px;
-      border: none;
-      font-size: 14px;
-      font-weight: 600;
-      background: var(--accent);
-      color: #ffffff;
-      cursor: pointer;
-    }
-
-    .btn.secondary {
-      background: var(--accent-soft);
-      color: #000000;
-    }
-
-    .btn:active {
-      transform: translateY(1px);
     }
 
     /* theme toggle and rules */
@@ -253,7 +296,7 @@
 
     .scorecard-table {
       border-collapse: collapse;
-      min-width: 1000px; /* extra wide for 18 holes */
+      min-width: 1000px;
       width: 100%;
       font-size: 13px;
     }
@@ -308,6 +351,11 @@
       font-size: 14px;
     }
 
+    .score-input:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
     .player-name {
       width: 100%;
       border: none;
@@ -318,6 +366,10 @@
       font-weight: 500;
     }
 
+    .player-name:disabled {
+      opacity: 0.7;
+    }
+
     .total-col {
       background: #212121;
       color: #ffffff;
@@ -325,16 +377,12 @@
       min-width: 52px;
     }
 
-    /* swipe hint */
-
     .swipe-hint {
       margin-top: 6px;
       font-size: 11px;
       text-align: right;
       opacity: 0.7;
     }
-
-    /* rules card at bottom */
 
     .rules-card {
       display: none;
@@ -355,28 +403,47 @@
         padding-inline: 16px;
       }
     }
-
   </style>
 </head>
 <body class="light">
   <div class="app-shell">
-
     <header class="app-header">
-      <div class="app-title">Pardle</div>
+      <div class="app-title">Pardle Online</div>
       <div class="sync-pill">
         <span class="sync-dot"></span>
-        Synced
+        Online
       </div>
     </header>
 
     <main class="app-content">
 
-      <!-- course selector card -->
+      <!-- Online game controls -->
+      <section class="card">
+        <div class="section-title">Online Game</div>
+        <div class="online-grid">
+          <div class="online-row">
+            <label for="playerNameInput">Your name</label>
+            <input id="playerNameInput" class="online-input" placeholder="Jeff, Niece, etc." />
+          </div>
+
+          <div class="online-row online-buttons">
+            <button id="createGameBtn" class="small-btn">Create Game</button>
+            <input id="joinGameIdInput" class="online-input" placeholder="Enter game code" />
+            <button id="joinGameBtn" class="small-btn secondary">Join Game</button>
+          </div>
+
+          <div class="online-status" id="onlineStatusText">
+            Game ID: <strong id="gameIdDisplay">none</strong><br />
+            Not in a game. Create or join to start.
+          </div>
+        </div>
+      </section>
+
+      <!-- Course selector -->
       <section class="card">
         <div class="section-title">Course</div>
         <div class="course-row">
-          <select class="course-select" id="courseSelect">
-            <!-- fun spoof names, values match JS keys -->
+          <select class="course-select" id="courseSelect" disabled>
             <option value="st-andrews">St. Androos Links</option>
             <option value="augusta">Azalea National</option>
             <option value="bully-pulpit">Badlands Pulpit</option>
@@ -388,15 +455,10 @@
             <option value="pebble-beach">Pebble Reach</option>
             <option value="congressional">Congress-ish National</option>
           </select>
-
-          <div class="button-row">
-            <button class="btn secondary" id="clearNamesBtn">Clear Names</button>
-            <button class="btn" id="clearScoresBtn">Clear Scores</button>
-          </div>
         </div>
       </section>
 
-      <!-- toolbar: theme + rules -->
+      <!-- Toolbar -->
       <section class="card">
         <div class="toolbar-row">
           <label class="theme-toggle">
@@ -411,7 +473,7 @@
         </div>
       </section>
 
-      <!-- scorecard -->
+      <!-- Scorecard -->
       <section class="card">
         <div class="section-title">Scorecard</div>
         <div class="scorecard-wrapper">
@@ -443,7 +505,6 @@
             <tbody>
               <tr id="parRow">
                 <th class="course-label">Par</th>
-                <!-- par cells populated by JS from course data -->
                 <td class="par-cell" data-hole="0"></td>
                 <td class="par-cell" data-hole="1"></td>
                 <td class="par-cell" data-hole="2"></td>
@@ -465,119 +526,115 @@
                 <td class="par-cell par-total">-</td>
               </tr>
 
-              <!-- Player 1 -->
-              <tr class="player-row">
+              <!-- Player rows map directly to players[0..3] -->
+
+              <tr class="player-row" data-slot="0">
                 <th class="player-label">
-                  <input class="player-name" placeholder="Player 1" />
+                  <input class="player-name" placeholder="Player 1" disabled />
                 </th>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
+                <!-- 18 holes -->
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
                 <td class="total-col">E</td>
               </tr>
 
-              <!-- Player 2 -->
-              <tr class="player-row">
+              <tr class="player-row" data-slot="1">
                 <th class="player-label">
-                  <input class="player-name" placeholder="Player 2" />
+                  <input class="player-name" placeholder="Player 2" disabled />
                 </th>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
                 <td class="total-col">E</td>
               </tr>
 
-              <!-- Player 3 -->
-              <tr class="player-row">
+              <tr class="player-row" data-slot="2">
                 <th class="player-label">
-                  <input class="player-name" placeholder="Player 3" />
+                  <input class="player-name" placeholder="Player 3" disabled />
                 </th>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
                 <td class="total-col">E</td>
               </tr>
 
-              <!-- Player 4 -->
-              <tr class="player-row">
+              <tr class="player-row" data-slot="3">
                 <th class="player-label">
-                  <input class="player-name" placeholder="Player 4" />
+                  <input class="player-name" placeholder="Player 4" disabled />
                 </th>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
-                <td><input class="score-input" type="number" min="1" /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
+                <td><input class="score-input" type="number" min="1" disabled /></td>
                 <td class="total-col">E</td>
               </tr>
-
             </tbody>
           </table>
         </div>
-
-        <!-- swipe hint -->
-        <p class="swipe-hint">Swipe sideways to see all 18 holes ⟶</p>
+        <p class="swipe-hint">Swipe sideways to see holes 10–18 ⟶</p>
       </section>
 
-      <!-- rules card (hidden by default) -->
+      <!-- Rules -->
       <section class="card rules-card" id="rulesCard">
         <div class="section-title">Pardle Rules</div>
         <div class="rules-text">
@@ -599,14 +656,27 @@ Scoring:
 Use Pardle to track your group scores, talk trash, and keep it friendly.
         </div>
       </section>
-
     </main>
   </div>
 
   <script>
-    const STORAGE_KEY = "pardle_v1_state";
+    // 1. Firebase setup with your config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDxmmTSpvM1xvVRb8qiOQfbbQWHSJEgIrk",
+      authDomain: "pardle-online.firebaseapp.com",
+      projectId: "pardle-online",
+      storageBucket: "pardle-online.firebasestorage.app",
+      messagingSenderId: "552026596516",
+      appId: "1:552026596516:web:779d08f94ef455eda7f231",
+      measurementId: "G-SJLZZ84L8F"
+    };
 
-    // real par data for each course - numbers exactly as you provided
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // 2. Constants and state
+    const STORAGE_PLAYER_ID_KEY = "pardle_online_player_id";
+
     const COURSES = {
       "st-andrews": [4,4,4,4,5,4,4,3,4,4,3,4,4,5,4,4,4,4],
       "augusta": [4,5,4,3,4,3,4,5,4,4,4,3,5,4,5,3,4,4],
@@ -620,63 +690,83 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
       "congressional": [4,3,4,5,4,5,3,4,5,3,5,4,3,4,5,5,4,4]
     };
 
-    const themeSwitch = document.getElementById("themeSwitch");
+    const MAX_PLAYERS = 4;
+    const HOLES = 18;
+
+    let currentGameId = null;
+    let currentPlayerId = null;
+    let currentPlayerSlot = null;
+    let currentGameData = null;
+    let unsubscribeGame = null;
+
+    // DOM references
     const body = document.body;
+    const themeSwitch = document.getElementById("themeSwitch");
+    const rulesLink = document.getElementById("rulesLink");
+    const rulesCard = document.getElementById("rulesCard");
+
+    const playerNameInput = document.getElementById("playerNameInput");
+    const createGameBtn = document.getElementById("createGameBtn");
+    const joinGameBtn = document.getElementById("joinGameBtn");
+    const joinGameIdInput = document.getElementById("joinGameIdInput");
+    const gameIdDisplay = document.getElementById("gameIdDisplay");
+    const onlineStatusText = document.getElementById("onlineStatusText");
+
     const courseSelect = document.getElementById("courseSelect");
     const parCells = document.querySelectorAll(".par-cell[data-hole]");
     const parTotalCell = document.querySelector(".par-total");
-    const clearScoresBtn = document.getElementById("clearScoresBtn");
-    const clearNamesBtn = document.getElementById("clearNamesBtn");
-    const rulesLink = document.getElementById("rulesLink");
-    const rulesCard = document.getElementById("rulesCard");
     const playerRows = document.querySelectorAll(".player-row");
 
-    // theme toggle
-    themeSwitch.addEventListener("change", () => {
-      if (themeSwitch.checked) {
-        body.classList.add("dark");
-      } else {
-        body.classList.remove("dark");
+    // helpers
+    function generateId(len = 20) {
+      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+      let out = "";
+      for (let i = 0; i < len; i++) {
+        out += chars.charAt(Math.floor(Math.random() * chars.length));
       }
-      saveState();
-    });
+      return out;
+    }
 
-    // clear buttons
-    clearScoresBtn.addEventListener("click", () => {
-      document.querySelectorAll(".score-input").forEach(el => (el.value = ""));
-      recalcAllTotals();
-      saveState();
-    });
-
-    clearNamesBtn.addEventListener("click", () => {
-      document.querySelectorAll(".player-name").forEach(el => (el.value = ""));
-      saveState();
-    });
-
-    // rules toggle
-    rulesLink.addEventListener("click", () => {
-      const isVisible = rulesCard.classList.contains("visible");
-      if (isVisible) {
-        rulesCard.classList.remove("visible");
-        rulesLink.textContent = "View Pardle Rules";
-      } else {
-        rulesCard.classList.add("visible");
-        rulesLink.textContent = "Hide Pardle Rules";
-        rulesCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    function getOrCreatePlayerId() {
+      let id = localStorage.getItem(STORAGE_PLAYER_ID_KEY);
+      if (!id) {
+        id = generateId(16);
+        localStorage.setItem(STORAGE_PLAYER_ID_KEY, id);
       }
-    });
+      return id;
+    }
 
-    // par row logic - update from course selection
+    function setStatus(msg, isError = false) {
+      onlineStatusText.innerHTML = `Game ID: <strong id="gameIdDisplay">${currentGameId || "none"}</strong><br />${msg}`;
+      if (isError) {
+        onlineStatusText.classList.add("error-text");
+      } else {
+        onlineStatusText.classList.remove("error-text");
+      }
+    }
+
+    function enableScorecard(enabled) {
+      courseSelect.disabled = !enabled;
+      playerRows.forEach(row => {
+        const slot = parseInt(row.dataset.slot, 10);
+        const isMine = enabled && currentPlayerSlot === slot;
+        const nameInput = row.querySelector(".player-name");
+        const scoreInputs = row.querySelectorAll(".score-input");
+        nameInput.disabled = !isMine;
+        scoreInputs.forEach(inp => inp.disabled = !isMine);
+      });
+    }
+
     function updateParRow() {
-      const courseId = courseSelect.value;
+      const courseId = currentGameData ? currentGameData.courseId : courseSelect.value;
       const pars = COURSES[courseId];
       if (!pars) return;
 
       let parTotal = 0;
 
       parCells.forEach(cell => {
-        const holeIndex = parseInt(cell.dataset.hole, 10);
-        const value = pars[holeIndex];
+        const idx = parseInt(cell.dataset.hole, 10);
+        const value = pars[idx];
         if (typeof value === "number") {
           cell.textContent = value;
           parTotal += value;
@@ -685,30 +775,17 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
         }
       });
 
-      if (parTotalCell) {
-        parTotalCell.textContent = parTotal > 0 ? parTotal : "-";
-      }
-
+      parTotalCell.textContent = parTotal > 0 ? parTotal : "-";
       recalcAllTotals();
     }
 
-    courseSelect.addEventListener("change", () => {
-      updateParRow();
-      saveState();
-    });
-
-    // scoring: totals and +/- vs par
     function recalcAllTotals() {
-      const courseId = courseSelect.value;
+      const courseId = currentGameData ? currentGameData.courseId : courseSelect.value;
       const pars = COURSES[courseId] || [];
 
       const rows = document.querySelectorAll("tbody tr");
-
       rows.forEach(row => {
-        // handle par row separately
-        if (row.id === "parRow") {
-          return;
-        }
+        if (row.id === "parRow") return;
 
         const scoreInputs = row.querySelectorAll(".score-input");
         if (!scoreInputs.length) return;
@@ -746,113 +823,267 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
         } else if (diff > 0) {
           totalCell.textContent = "+" + diff;
         } else {
-          totalCell.textContent = diff.toString(); // includes minus
+          totalCell.textContent = diff.toString();
         }
       });
     }
 
-    // local storage: save current state
-    function saveState() {
-      try {
-        const state = {
-          courseId: courseSelect.value,
-          dark: body.classList.contains("dark"),
-          players: []
-        };
+    function readScoresFromSlot(slot) {
+      const row = document.querySelector(`.player-row[data-slot="${slot}"]`);
+      if (!row) return Array(HOLES).fill(null);
 
-        playerRows.forEach(row => {
-          const nameInput = row.querySelector(".player-name");
-          const scoreInputs = row.querySelectorAll(".score-input");
-          const player = {
-            name: nameInput ? nameInput.value || "" : "",
-            scores: []
-          };
-          scoreInputs.forEach(input => {
-            const val = input.value;
-            player.scores.push(val === "" ? null : Number(val));
-          });
-          state.players.push(player);
-        });
-
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      } catch (e) {
-        // fail silently if storage is blocked
-      }
+      const inputs = row.querySelectorAll(".score-input");
+      const scores = [];
+      inputs.forEach(inp => {
+        const v = inp.value;
+        scores.push(v === "" ? null : Number(v));
+      });
+      return scores;
     }
 
-    // local storage: load state
-    function loadState() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) {
+    function applyGameToUI(data) {
+      if (!data) return;
+
+      currentGameData = data;
+
+      const courseId = data.courseId || "st-andrews";
+      if (COURSES[courseId]) {
+        courseSelect.value = courseId;
+      }
+      updateParRow();
+
+      const players = Array.isArray(data.players) ? data.players : [];
+
+      for (let i = 0; i < MAX_PLAYERS; i++) {
+        const row = document.querySelector(`.player-row[data-slot="${i}"]`);
+        if (!row) continue;
+        const nameInput = row.querySelector(".player-name");
+        const scoreInputs = row.querySelectorAll(".score-input");
+
+        const p = players[i];
+        if (p && p.id) {
+          nameInput.value = p.name || "";
+          const scores = Array.isArray(p.scores) ? p.scores : [];
+          for (let h = 0; h < HOLES; h++) {
+            const score = scores[h];
+            scoreInputs[h].value = score == null ? "" : score;
+          }
+        } else {
+          nameInput.value = "";
+          scoreInputs.forEach(inp => inp.value = "");
+        }
+      }
+
+      recalcAllTotals();
+    }
+
+    function bindScoreInputs() {
+      playerRows.forEach(row => {
+        const slot = parseInt(row.dataset.slot, 10);
+        const nameInput = row.querySelector(".player-name");
+        const scoreInputs = row.querySelectorAll(".score-input");
+
+        nameInput.addEventListener("input", () => {
+          if (currentGameId && currentPlayerSlot === slot) {
+            updatePlayerInGame();
+          }
+        });
+
+        scoreInputs.forEach(inp => {
+          inp.addEventListener("input", () => {
+            if (currentGameId && currentPlayerSlot === slot) {
+              updatePlayerInGame();
+            }
+          });
+        });
+      });
+
+      courseSelect.addEventListener("change", () => {
+        if (!currentGameId || !currentGameData) {
           updateParRow();
           return;
         }
-        const state = JSON.parse(raw);
-
-        // course
-        if (state.courseId && COURSES[state.courseId]) {
-          courseSelect.value = state.courseId;
-        }
-
-        // theme
-        if (state.dark) {
-          body.classList.add("dark");
-          themeSwitch.checked = true;
-        } else {
-          body.classList.remove("dark");
-          themeSwitch.checked = false;
-        }
-
-        updateParRow(); // sets par row and then we restore scores
-
-        // players
-        if (Array.isArray(state.players)) {
-          playerRows.forEach((row, index) => {
-            const playerState = state.players[index];
-            if (!playerState) return;
-
-            const nameInput = row.querySelector(".player-name");
-            const scoreInputs = row.querySelectorAll(".score-input");
-
-            if (nameInput) {
-              nameInput.value = playerState.name || "";
-            }
-
-            if (Array.isArray(playerState.scores)) {
-              scoreInputs.forEach((input, idx) => {
-                const s = playerState.scores[idx];
-                input.value = s == null ? "" : s;
-              });
-            }
-          });
-        }
-
-        recalcAllTotals();
-      } catch (e) {
-        updateParRow();
-      }
+        const newCourseId = courseSelect.value;
+        const updated = { ...currentGameData, courseId: newCourseId };
+        db.collection("games").doc(currentGameId).set(updated);
+      });
     }
 
-    // recalc whenever any score changes + save
-    const allScoreInputs = document.querySelectorAll(".score-input");
-    allScoreInputs.forEach(input => {
-      input.addEventListener("input", () => {
-        recalcAllTotals();
-        saveState();
+    async function updatePlayerInGame() {
+      if (!currentGameId || currentPlayerSlot == null || !currentGameData) return;
+
+      const row = document.querySelector(`.player-row[data-slot="${currentPlayerSlot}"]`);
+      if (!row) return;
+
+      const nameInput = row.querySelector(".player-name");
+      const scores = readScoresFromSlot(currentPlayerSlot);
+
+      const updated = { ...currentGameData };
+      const players = Array.isArray(updated.players) ? [...updated.players] : [];
+
+      while (players.length < MAX_PLAYERS) {
+        players.push({ id: null, name: "", scores: Array(HOLES).fill(null) });
+      }
+
+      players[currentPlayerSlot] = {
+        id: currentPlayerId,
+        name: nameInput.value || "",
+        scores
+      };
+
+      updated.players = players;
+      currentGameData = updated;
+
+      await db.collection("games").doc(currentGameId).set(updated);
+      recalcAllTotals();
+    }
+
+    async function createGame() {
+      const name = playerNameInput.value.trim();
+      if (!name) {
+        setStatus("Enter your name before creating a game.", true);
+        return;
+      }
+
+      currentPlayerId = getOrCreatePlayerId();
+      currentPlayerSlot = 0;
+
+      const emptyScores = Array(HOLES).fill(null);
+      const players = [];
+      for (let i = 0; i < MAX_PLAYERS; i++) {
+        players.push({ id: null, name: "", scores: emptyScores });
+      }
+      players[0] = { id: currentPlayerId, name, scores: emptyScores };
+
+      const initialCourseId = courseSelect.value || "st-andrews";
+
+      const docRef = await db.collection("games").add({
+        courseId: initialCourseId,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        players
+      });
+
+      currentGameId = docRef.id;
+      gameIdDisplay.textContent = currentGameId;
+      setStatus("Game created. Share this code with your friends.");
+
+      if (unsubscribeGame) unsubscribeGame();
+      unsubscribeGame = docRef.onSnapshot(snap => {
+        if (!snap.exists) {
+          setStatus("Game was deleted or not found.", true);
+          enableScorecard(false);
+          return;
+        }
+        applyGameToUI(snap.data());
+        enableScorecard(true);
+      });
+    }
+
+    async function joinGame() {
+      const name = playerNameInput.value.trim();
+      if (!name) {
+        setStatus("Enter your name before joining a game.", true);
+        return;
+      }
+
+      const joinId = joinGameIdInput.value.trim();
+      if (!joinId) {
+        setStatus("Enter a game code to join.", true);
+        return;
+      }
+
+      currentPlayerId = getOrCreatePlayerId();
+
+      const docRef = db.collection("games").doc(joinId);
+      const snap = await docRef.get();
+      if (!snap.exists) {
+        setStatus("Game not found. Check the code and try again.", true);
+        return;
+      }
+
+      const data = snap.data() || {};
+      let players = Array.isArray(data.players) ? [...data.players] : [];
+      while (players.length < MAX_PLAYERS) {
+        players.push({ id: null, name: "", scores: Array(HOLES).fill(null) });
+      }
+
+      let slot = players.findIndex(p => p && p.id === currentPlayerId);
+      if (slot === -1) {
+        slot = players.findIndex(p => !p || !p.id);
+      }
+      if (slot === -1) {
+        setStatus("This game already has 4 players.", true);
+        return;
+      }
+
+      const emptyScores = Array(HOLES).fill(null);
+      players[slot] = {
+        id: currentPlayerId,
+        name,
+        scores: emptyScores
+      };
+
+      await docRef.set({
+        ...data,
+        players
+      });
+
+      currentGameId = joinId;
+      currentPlayerSlot = slot;
+      gameIdDisplay.textContent = currentGameId;
+      setStatus(`Joined game in slot ${slot + 1}.`);
+
+      if (unsubscribeGame) unsubscribeGame();
+      unsubscribeGame = docRef.onSnapshot(s => {
+        if (!s.exists) {
+          setStatus("Game was deleted or not found.", true);
+          enableScorecard(false);
+          return;
+        }
+        applyGameToUI(s.data());
+        enableScorecard(true);
+      });
+    }
+
+    // theme and rules
+    themeSwitch.addEventListener("change", () => {
+      if (themeSwitch.checked) {
+        body.classList.add("dark");
+      } else {
+        body.classList.remove("dark");
+      }
+    });
+
+    rulesLink.addEventListener("click", () => {
+      const isVisible = rulesCard.classList.contains("visible");
+      if (isVisible) {
+        rulesCard.classList.remove("visible");
+        rulesLink.textContent = "View Pardle Rules";
+      } else {
+        rulesCard.classList.add("visible");
+        rulesLink.textContent = "Hide Pardle Rules";
+        rulesCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    });
+
+    // event wiring and initial setup
+    createGameBtn.addEventListener("click", () => {
+      createGame().catch(err => {
+        console.error(err);
+        setStatus("Error creating game.", true);
       });
     });
 
-    // save whenever a player name changes
-    const allNameInputs = document.querySelectorAll(".player-name");
-    allNameInputs.forEach(input => {
-      input.addEventListener("input", () => {
-        saveState();
+    joinGameBtn.addEventListener("click", () => {
+      joinGame().catch(err => {
+        console.error(err);
+        setStatus("Error joining game.", true);
       });
     });
 
-    // initial load
-    loadState();
+    bindScoreInputs();
+    updateParRow();
+    enableScorecard(false);
   </script>
 </body>
 </html>
