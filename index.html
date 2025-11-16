@@ -979,6 +979,7 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
       });
     }
 
+    // 🔧 FIXED: joinGame now preserves existing scores for returning players
     async function joinGame() {
       const name = playerNameInput.value.trim();
       if (!name) {
@@ -1007,21 +1008,34 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
         players.push({ id: null, name: "", scores: Array(HOLES).fill(null) });
       }
 
+      // Look for this player by their stored ID
       let slot = players.findIndex(p => p && p.id === currentPlayerId);
-      if (slot === -1) {
-        slot = players.findIndex(p => !p || !p.id);
-      }
-      if (slot === -1) {
-        setStatus("This game already has 4 players.", true);
-        return;
-      }
 
-      const emptyScores = Array(HOLES).fill(null);
-      players[slot] = {
-        id: currentPlayerId,
-        name,
-        scores: emptyScores
-      };
+      if (slot === -1) {
+        // New player in this game – grab first empty slot, start with empty scores
+        slot = players.findIndex(p => !p || !p.id);
+        if (slot === -1) {
+          setStatus("This game already has 4 players.", true);
+          return;
+        }
+
+        const emptyScores = Array(HOLES).fill(null);
+        players[slot] = {
+          id: currentPlayerId,
+          name,
+          scores: emptyScores
+        };
+      } else {
+        // Existing player – keep their old scores, just update name if changed
+        const existing = players[slot] || {};
+        players[slot] = {
+          id: existing.id || currentPlayerId,
+          name: name || existing.name || "",
+          scores: Array.isArray(existing.scores)
+            ? existing.scores
+            : Array(HOLES).fill(null)
+        };
+      }
 
       await docRef.set({
         ...data,
