@@ -42,8 +42,6 @@
       --sync-text: #ffffff;
       --table-header-bg: #333333;
       --table-header-text: #ffffff;
-      --table-player-header-bg: #000000;
-      --table-player-header-text: #ffffff;
       --input-bg: #202020;
       --input-text: #ffffff;
       --par-bg: #2e3b2f;
@@ -116,7 +114,7 @@
       border-radius: 14px;
       padding: 12px;
       border: 1px solid var(--border-soft);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
     }
 
     .section-title {
@@ -318,6 +316,54 @@
 
     /* scorecard */
 
+    .scorecard-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .scorecard-header .section-title {
+      margin-bottom: 0;
+    }
+
+    .chat-btn {
+      border: none;
+      background: var(--accent);
+      color: #ffffff;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.18);
+      position: relative;
+    }
+
+    .chat-btn:active {
+      transform: scale(0.96);
+      opacity: 0.85;
+    }
+
+    .chat-badge {
+      position: absolute;
+      top: -3px;
+      right: -3px;
+      min-width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #d32f2f;
+      color: #ffffff;
+      font-size: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
     .scorecard-wrapper {
       overflow-x: auto;
       padding-bottom: 4px;
@@ -452,6 +498,121 @@
       white-space: pre-line;
     }
 
+    /* chat sheet */
+
+    .chat-sheet {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 20;
+    }
+
+    .chat-sheet.visible {
+      display: flex;
+    }
+
+    .chat-sheet-inner {
+      width: 100%;
+      max-width: 480px;
+      background: var(--bg-card);
+      border-radius: 16px 16px 0 0;
+      padding: 12px;
+      border-top: 1px solid var(--border-soft);
+    }
+
+    .chat-sheet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .chat-sheet-header button {
+      border: none;
+      background: none;
+      font-size: 16px;
+      cursor: pointer;
+      color: var(--text);
+    }
+
+    .chat-targets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .chat-target-pill {
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      background: var(--bg-card);
+      color: var(--text);
+    }
+
+    .chat-target-pill.selected {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+    }
+
+    .chat-thread {
+      max-height: 180px;
+      overflow-y: auto;
+      padding: 6px 8px;
+      margin-bottom: 8px;
+      border-radius: 8px;
+      background: rgba(0,0,0,0.03);
+      font-size: 12px;
+    }
+
+    body.dark .chat-thread {
+      background: rgba(255,255,255,0.04);
+    }
+
+    .chat-message {
+      margin-bottom: 4px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-message.me {
+      text-align: right;
+    }
+
+    .chat-message span.meta {
+      font-size: 11px;
+      opacity: 0.7;
+    }
+
+    .chat-message span.text {
+      font-size: 12px;
+    }
+
+    .chat-input {
+      width: 100%;
+      min-height: 60px;
+      border-radius: 10px;
+      border: 1px solid var(--border-soft);
+      padding: 6px 8px;
+      font-size: 13px;
+      margin-bottom: 8px;
+      background: var(--input-bg);
+      color: var(--input-text);
+      resize: vertical;
+    }
+
+    .chat-actions {
+      display: flex;
+      gap: 8px;
+    }
+
     @media (min-width: 520px) {
       .app-content {
         padding-inline: 16px;
@@ -532,7 +693,14 @@
 
       <!-- Scorecard -->
       <section class="card">
-        <div class="section-title">Scorecard</div>
+        <div class="scorecard-header">
+          <div class="section-title">Scorecard</div>
+          <button id="chatButton" class="chat-btn" type="button">
+            💬 Chat
+            <span id="chatBadge" class="chat-badge" hidden>‼️</span>
+          </button>
+        </div>
+
         <div class="scorecard-wrapper">
           <table class="scorecard-table">
             <thead>
@@ -583,8 +751,7 @@
                 <td class="par-cell par-total">-</td>
               </tr>
 
-              <!-- Player rows map directly to players[0..3] -->
-
+              <!-- Player rows -->
               <tr class="player-row" data-slot="0">
                 <th class="player-label">
                   <input class="player-name" placeholder="Player 1" disabled />
@@ -703,9 +870,9 @@ Pardle is what happens when Wordle and golf have a beautiful, competitive baby.
 
 ## The Basics
 
-- Each “hole” is one Wordle puzzle.
+- Each hole is one Wordle puzzle.
 - Your score for the hole equals the number of guesses it took you to solve that day’s Wordle.
-- Did not crack it? Mark it as a 7 or an “X” (just make sure your group agrees).
+- Did not crack it? Mark it as a 7 or an X (just make sure your group agrees).
 - Par is the number of guesses you are aiming for (can you beat it?).
 
 ---
@@ -715,9 +882,9 @@ Pardle is what happens when Wordle and golf have a beautiful, competitive baby.
 - Your total score is the sum of guesses across all holes in the round.
 - Relative score equals total score vs. par. Just like golf, lower is better.
 - Score breakdown:
-  - “E” equals even with par
-  - “+2” equals two over par (oof)
-  - “–1” equals one under par (nice work!)
+  - E equals even with par
+  - +2 equals two over par
+  - -1 equals one under par
 
 ---
 
@@ -725,10 +892,27 @@ Pardle is perfect for tracking daily scores with your crew, flexing your vocab g
         </div>
       </section>
     </main>
+
+    <!-- Chat sheet -->
+    <div id="chatSheet" class="chat-sheet">
+      <div class="chat-sheet-inner">
+        <div class="chat-sheet-header">
+          <span>Game chat</span>
+          <button id="chatCloseBtn" type="button">✕</button>
+        </div>
+        <div id="chatTargets" class="chat-targets"></div>
+        <div id="chatThread" class="chat-thread"></div>
+        <textarea id="chatText" class="chat-input" placeholder="Type your masterpiece…"></textarea>
+        <div class="chat-actions">
+          <button id="chatCancelBtn" class="small-btn secondary" type="button">Cancel</button>
+          <button id="chatSendBtn" class="small-btn" type="button">Send</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
-    // 1. Firebase setup with your config
+    // Firebase setup
     const firebaseConfig = {
       apiKey: "AIzaSyDxmmTSpvM1xvVRb8qiOQfbbQWHSJEgIrk",
       authDomain: "pardle-online.firebaseapp.com",
@@ -742,7 +926,7 @@ Pardle is perfect for tracking daily scores with your crew, flexing your vocab g
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // 2. Constants and state
+    // Constants and state
     const STORAGE_PLAYER_ID_KEY = "pardle_online_player_id";
     const STORAGE_LAST_GAME_ID_KEY = "pardle_online_last_game_id";
     const STORAGE_LAST_SLOT_KEY = "pardle_online_last_player_slot";
@@ -768,8 +952,10 @@ Pardle is perfect for tracking daily scores with your crew, flexing your vocab g
     let currentPlayerSlot = null;
     let currentGameData = null;
     let unsubscribeGame = null;
+    let unsubscribeMessages = null;
+    let hasUnreadMessages = false;
 
-    // DOM references
+    // DOM
     const body = document.body;
     const themeSwitch = document.getElementById("themeSwitch");
     const rulesLink = document.getElementById("rulesLink");
@@ -788,6 +974,16 @@ Pardle is perfect for tracking daily scores with your crew, flexing your vocab g
     const parCells = document.querySelectorAll(".par-cell[data-hole]");
     const parTotalCell = document.querySelector(".par-total");
     const playerRows = document.querySelectorAll(".player-row");
+
+    const chatButton = document.getElementById("chatButton");
+    const chatBadge = document.getElementById("chatBadge");
+    const chatSheet = document.getElementById("chatSheet");
+    const chatCloseBtn = document.getElementById("chatCloseBtn");
+    const chatCancelBtn = document.getElementById("chatCancelBtn");
+    const chatTargets = document.getElementById("chatTargets");
+    const chatThread = document.getElementById("chatThread");
+    const chatText = document.getElementById("chatText");
+    const chatSendBtn = document.getElementById("chatSendBtn");
 
     // helpers
     function generateId(len = 20) {
@@ -921,6 +1117,30 @@ Pardle is perfect for tracking daily scores with your crew, flexing your vocab g
       return scores;
     }
 
+    function setActiveHole(holeIndex) {
+      if (holeIndex < 0 || holeIndex >= HOLES) return;
+
+      const headerRow = document.querySelector(".scorecard-table thead tr");
+      if (!headerRow) return;
+
+      headerRow.querySelectorAll(".hole-header").forEach(h => h.classList.remove("active-hole"));
+      document.querySelectorAll(".scorecard-table td.active-hole").forEach(td => td.classList.remove("active-hole"));
+
+      const headerCells = headerRow.querySelectorAll("th");
+      const targetHeader = headerCells[1 + holeIndex];
+      if (targetHeader) {
+        targetHeader.classList.add("active-hole");
+      }
+
+      document.querySelectorAll(".scorecard-table tbody tr").forEach(row => {
+        const cells = row.querySelectorAll("th, td");
+        const targetCell = cells[1 + holeIndex];
+        if (targetCell && targetCell.tagName === "TD") {
+          targetCell.classList.add("active-hole");
+        }
+      });
+    }
+
     function applyGameToUI(data) {
       if (!data) return;
 
@@ -954,36 +1174,35 @@ Pardle is perfect for tracking daily scores with your crew, flexing your vocab g
         }
       }
 
-      // mirror your own name into the "Your name" box if we know your slot
       if (currentPlayerSlot != null && players[currentPlayerSlot]) {
         playerNameInput.value = players[currentPlayerSlot].name || "";
       }
 
-      recalcAllTotals();
-    }
+      let holeForHighlight = 0;
+      if (currentPlayerSlot != null) {
+        const myRow = document.querySelector(`.player-row[data-slot="${currentPlayerSlot}"]`);
+        if (myRow) {
+          const myInputs = myRow.querySelectorAll(".score-input");
+          let firstEmpty = -1;
 
-    function setActiveHole(holeIndex) {
-      if (holeIndex < 0 || holeIndex >= HOLES) return;
+          for (let i = 0; i < myInputs.length; i++) {
+            if (!myInputs[i].value) {
+              firstEmpty = i;
+              break;
+            }
+          }
 
-      const headerRow = document.querySelector(".scorecard-table thead tr");
-      if (!headerRow) return;
-
-      headerRow.querySelectorAll(".hole-header").forEach(h => h.classList.remove("active-hole"));
-      document.querySelectorAll(".scorecard-table td.active-hole").forEach(td => td.classList.remove("active-hole"));
-
-      const headerCells = headerRow.querySelectorAll("th");
-      const targetHeader = headerCells[1 + holeIndex];
-      if (targetHeader) {
-        targetHeader.classList.add("active-hole");
+          if (firstEmpty !== -1) {
+            holeForHighlight = firstEmpty;
+          } else if (myInputs.length > 0) {
+            holeForHighlight = myInputs.length - 1;
+          }
+        }
       }
 
-      document.querySelectorAll(".scorecard-table tbody tr").forEach(row => {
-        const cells = row.querySelectorAll("th, td");
-        const targetCell = cells[1 + holeIndex];
-        if (targetCell && targetCell.tagName === "TD") {
-          targetCell.classList.add("active-hole");
-        }
-      });
+      setActiveHole(holeForHighlight);
+      recalcAllTotals();
+      renderChatTargets();
     }
 
     function bindScoreInputs() {
@@ -1058,7 +1277,6 @@ Pardle is perfect for tracking daily scores with your crew, flexing your vocab g
       await db.collection("games").doc(currentGameId).set(updated);
       recalcAllTotals();
 
-      // micro animation on save
       row.classList.remove("saved-pulse");
       void row.offsetWidth;
       row.classList.add("saved-pulse");
@@ -1106,6 +1324,8 @@ Pardle is perfect for tracking daily scores with your crew, flexing your vocab g
         applyGameToUI(snap.data());
         enableScorecard(true);
       });
+
+      attachMessageListener(currentGameId);
     }
 
     async function joinGame() {
@@ -1185,6 +1405,8 @@ Pardle is perfect for tracking daily scores with your crew, flexing your vocab g
         applyGameToUI(s.data());
         enableScorecard(true);
       });
+
+      attachMessageListener(currentGameId);
     }
 
     async function attemptAutoRejoin() {
@@ -1225,6 +1447,177 @@ Pardle is perfect for tracking daily scores with your crew, flexing your vocab g
         applyGameToUI(s.data());
         enableScorecard(true);
       });
+
+      attachMessageListener(currentGameId);
+    }
+
+    // message / chat logic
+
+    function attachMessageListener(gameId) {
+      if (!gameId) return;
+
+      if (unsubscribeMessages) {
+        unsubscribeMessages();
+        unsubscribeMessages = null;
+      }
+
+      unsubscribeMessages = db.collection("games")
+        .doc(gameId)
+        .collection("messages")
+        .orderBy("createdAt", "desc")
+        .limit(50)
+        .onSnapshot(snapshot => {
+          const all = [];
+          snapshot.forEach(doc => {
+            const msg = doc.data();
+            if (!msg) return;
+
+            const targets = Array.isArray(msg.toSlots) ? msg.toSlots : [];
+            const isBroadcast = targets.length === 0;
+            const isTargeted = currentPlayerSlot != null && targets.includes(currentPlayerSlot);
+            const isMine = msg.fromId === currentPlayerId;
+
+            if (isMine || isBroadcast || isTargeted) {
+              all.push({
+                ...msg,
+                isMine
+              });
+            }
+          });
+
+          renderChatThreadMessages(all);
+
+          snapshot.docChanges().forEach(change => {
+            if (change.type !== "added") return;
+
+            const msg = change.doc.data();
+            if (!msg || msg.fromId === currentPlayerId) return;
+
+            const targets = Array.isArray(msg.toSlots) ? msg.toSlots : [];
+            const isBroadcast = targets.length === 0;
+            const isTargeted = currentPlayerSlot != null && targets.includes(currentPlayerSlot);
+
+            if ((isBroadcast || isTargeted) && chatSheet && !chatSheet.classList.contains("visible")) {
+              setUnreadBadge(true);
+            }
+          });
+        });
+    }
+
+    function renderChatThreadMessages(messages) {
+      if (!chatThread) return;
+      chatThread.innerHTML = "";
+
+      if (!messages || messages.length === 0) {
+        const empty = document.createElement("div");
+        empty.style.opacity = "0.7";
+        empty.style.fontSize = "11px";
+        empty.textContent = "No messages yet. Start the smack talk.";
+        chatThread.appendChild(empty);
+        return;
+      }
+
+      const sorted = messages.slice().sort((a, b) => {
+        const ta = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
+        const tb = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
+        return ta - tb;
+      });
+
+      sorted.forEach(msg => {
+        const wrap = document.createElement("div");
+        wrap.className = "chat-message" + (msg.isMine ? " me" : "");
+
+        const meta = document.createElement("span");
+        meta.className = "meta";
+        const name = msg.fromName || "Player";
+        let scope = "all";
+        if (Array.isArray(msg.toSlots) && msg.toSlots.length) {
+          scope = "to " + msg.toSlots.map(s => `P${s + 1}`).join(", ");
+        }
+        meta.textContent = msg.isMine ? `${name} (${scope})` : name;
+
+        const text = document.createElement("span");
+        text.className = "text";
+        text.textContent = msg.text || "";
+
+        wrap.appendChild(meta);
+        wrap.appendChild(text);
+        chatThread.appendChild(wrap);
+      });
+
+      chatThread.scrollTop = chatThread.scrollHeight;
+    }
+
+    function renderChatTargets() {
+      if (!chatTargets) return;
+      chatTargets.innerHTML = "";
+
+      if (!currentGameData || !Array.isArray(currentGameData.players)) return;
+
+      currentGameData.players.forEach((p, idx) => {
+        if (!p || !p.id) return;
+
+        const pill = document.createElement("button");
+        pill.type = "button";
+        pill.className = "chat-target-pill";
+        pill.dataset.slot = String(idx);
+        pill.textContent = p.name || `Player ${idx + 1}`;
+        if (idx === currentPlayerSlot) {
+          pill.textContent += " (you)";
+        }
+        pill.addEventListener("click", () => {
+          pill.classList.toggle("selected");
+        });
+        chatTargets.appendChild(pill);
+      });
+    }
+
+    function showChatSheet() {
+      if (!chatSheet) return;
+      renderChatTargets();
+      setUnreadBadge(false);
+      chatSheet.classList.add("visible");
+      chatText.value = "";
+      chatText.focus();
+    }
+
+    function hideChatSheet() {
+      if (!chatSheet) return;
+      chatSheet.classList.remove("visible");
+    }
+
+    function setUnreadBadge(flag) {
+      hasUnreadMessages = flag;
+      if (!chatBadge) return;
+      chatBadge.hidden = !flag;
+    }
+
+    async function sendChatMessage() {
+      if (!currentGameId || currentPlayerSlot == null || !currentPlayerId) return;
+
+      const text = chatText.value.trim();
+      if (!text) return;
+
+      const selectedSlots = Array.from(
+        document.querySelectorAll(".chat-target-pill.selected")
+      ).map(pill => parseInt(pill.dataset.slot, 10));
+
+      const toSlots = selectedSlots.length ? selectedSlots : [];
+
+      await db.collection("games")
+        .doc(currentGameId)
+        .collection("messages")
+        .add({
+          fromId: currentPlayerId,
+          fromName: playerNameInput.value || "Player",
+          fromSlot: currentPlayerSlot,
+          toSlots,
+          text,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+      chatText.value = "";
+      hideChatSheet();
     }
 
     if (gameIdPill) {
@@ -1264,7 +1657,38 @@ Pardle is perfect for tracking daily scores with your crew, flexing your vocab g
       }
     });
 
-    // event wiring and initial setup
+    // chat button events
+    if (chatButton) {
+      chatButton.addEventListener("click", () => {
+        if (!currentGameId) {
+          setStatus("Create or join a game before chatting.", true);
+          return;
+        }
+        showChatSheet();
+      });
+    }
+
+    if (chatCloseBtn) {
+      chatCloseBtn.addEventListener("click", () => {
+        hideChatSheet();
+      });
+    }
+
+    if (chatCancelBtn) {
+      chatCancelBtn.addEventListener("click", () => {
+        hideChatSheet();
+      });
+    }
+
+    if (chatSendBtn) {
+      chatSendBtn.addEventListener("click", () => {
+        sendChatMessage().catch(err => {
+          console.error(err);
+        });
+      });
+    }
+
+    // main buttons
     createGameBtn.addEventListener("click", () => {
       createGame().catch(err => {
         console.error(err);
@@ -1279,10 +1703,10 @@ Pardle is perfect for tracking daily scores with your crew, flexing your vocab g
       });
     });
 
+    // init
     bindScoreInputs();
     updateParRow();
     enableScorecard(false);
-    setActiveHole(0);
 
     attemptAutoRejoin().catch(err => {
       console.error(err);
