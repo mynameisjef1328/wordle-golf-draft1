@@ -26,6 +26,8 @@
       --table-player-header-text: #ffffff;
       --input-bg: #ffffff;
       --input-text: #000000;
+      --par-bg: #cde8cf;
+      --active-hole-bg: rgba(255, 152, 0, 0.14);
     }
 
     body.dark {
@@ -44,6 +46,8 @@
       --table-player-header-text: #ffffff;
       --input-bg: #202020;
       --input-text: #ffffff;
+      --par-bg: #2e3b2f;
+      --active-hole-bg: rgba(255, 152, 0, 0.24);
     }
 
     * {
@@ -112,7 +116,7 @@
       border-radius: 14px;
       padding: 12px;
       border: 1px solid var(--border-soft);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
     }
 
     .section-title {
@@ -181,14 +185,40 @@
       font-size: 12px;
       line-height: 1.4;
       color: #555;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .online-status.error-text {
+      color: #d32f2f;
     }
 
     .online-status strong {
       color: var(--text);
     }
 
-    .error-text {
-      color: #d32f2f;
+    .gameid-pill {
+      align-self: flex-start;
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      padding: 4px 10px;
+      background: var(--bg-card);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .gameid-pill .icon {
+      font-size: 12px;
+      opacity: 0.8;
+    }
+
+    .gameid-pill:active {
+      transform: scale(0.97);
+      opacity: 0.85;
     }
 
     /* course selector */
@@ -307,6 +337,7 @@
       text-align: center;
       padding: 6px 4px;
       white-space: nowrap;
+      transition: background 0.15s ease, box-shadow 0.15s ease;
     }
 
     .scorecard-table th.course-label {
@@ -335,20 +366,27 @@
       font-weight: 600;
     }
 
+    .hole-header.active-hole,
+    .scorecard-table td.active-hole {
+      background: var(--active-hole-bg);
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+    }
+
     .par-cell {
-      background: #bdbdbd;
+      background: var(--par-bg);
       font-weight: 600;
     }
 
     .score-input {
       width: 34px;
       height: 30px;
-      border-radius: 8px;
+      border-radius: 10px;
       border: 1px solid var(--border-soft);
       background: var(--input-bg);
       color: var(--input-text);
       text-align: center;
-      font-size: 14px;
+      font-size: 15px;
+      font-weight: 600;
     }
 
     .score-input:disabled {
@@ -370,11 +408,27 @@
       opacity: 0.7;
     }
 
+    .player-row + .player-row th.player-label,
+    .player-row + .player-row td {
+      border-top-width: 2px;
+    }
+
     .total-col {
       background: #212121;
       color: #ffffff;
-      font-weight: 600;
+      font-weight: 700;
       min-width: 52px;
+      font-size: 14px;
+    }
+
+    .player-row.saved-pulse td,
+    .player-row.saved-pulse th.player-label {
+      animation: savedPulse 0.35s ease-out;
+    }
+
+    @keyframes savedPulse {
+      0% { background-color: var(--active-hole-bg); }
+      100% { background-color: transparent; }
     }
 
     .swipe-hint {
@@ -423,18 +477,21 @@
         <div class="online-grid">
           <div class="online-row">
             <label for="playerNameInput">Your name</label>
-            <input id="playerNameInput" class="online-input" placeholder="Jeff, Niece, etc." />
+            <input id="playerNameInput" class="online-input" placeholder="Name" />
           </div>
 
           <div class="online-row online-buttons">
             <button id="createGameBtn" class="small-btn">Create Game</button>
-            <input id="joinGameIdInput" class="online-input" placeholder="Enter game code" />
+            <input id="joinGameIdInput" class="online-input" placeholder="Enter Game ID" />
             <button id="joinGameBtn" class="small-btn secondary">Join Game</button>
           </div>
 
           <div class="online-status" id="onlineStatusText">
-            Game ID: <strong id="gameIdDisplay">none</strong><br />
-            Not in a game. Create or join to start.
+            <button class="gameid-pill" id="gameIdPill" type="button">
+              <span class="icon">⧉</span>
+              <span id="gameIdValue">none</span>
+            </button>
+            <span id="statusMessage">Not in a game. Create or join to start.</span>
           </div>
         </div>
       </section>
@@ -606,7 +663,7 @@
 
               <tr class="player-row" data-slot="3">
                 <th class="player-label">
-                  <input class="player-name" placeholder="Player 4" disabled />
+                  <input class="player-name" placeholder="+ Add Player" disabled />
                 </th>
                 <td><input class="score-input" type="number" min="1" disabled /></td>
                 <td><input class="score-input" type="number" min="1" disabled /></td>
@@ -631,29 +688,40 @@
             </tbody>
           </table>
         </div>
-        <p class="swipe-hint">Swipe sideways to see holes 10–18 ⟶</p>
+        <p class="swipe-hint">Swipe sideways to see all holes ⟶</p>
       </section>
 
       <!-- Rules -->
       <section class="card rules-card" id="rulesCard">
         <div class="section-title">Pardle Rules</div>
         <div class="rules-text">
-Pardle is Wordle meets golf.
+# Pardle Rules
 
-- Each "hole" represents one Wordle puzzle.
-- Your score for a hole is the number of guesses it took to solve that Wordle.
-- If you did not solve it, you can score it as 7 or "X" by agreement with your group.
-- Par is the target number of guesses for each hole.
+Pardle is what happens when Wordle and golf have a beautiful, competitive baby.
 
-Scoring:
-- Total score is the sum of your guesses over the round.
-- Relative score is total versus par, just like golf.
-  - Lower is better.
-  - "E" means even with par.
-  - "+2" means two over par.
-  - "-1" means one under par.
+---
 
-Use Pardle to track your group scores, talk trash, and keep it friendly.
+## The Basics
+
+- Each “hole” is one Wordle puzzle.
+- Your score for the hole equals the number of guesses it took you to solve that day’s Wordle.
+- Did not crack it? Mark it as a 7 or an “X” (just make sure your group agrees).
+- Par is the number of guesses you are aiming for (can you beat it?).
+
+---
+
+## Scoring
+
+- Your total score is the sum of guesses across all holes in the round.
+- Relative score equals total score vs. par. Just like golf, lower is better.
+- Score breakdown:
+  - “E” equals even with par
+  - “+2” equals two over par (oof)
+  - “–1” equals one under par (nice work!)
+
+---
+
+Pardle is perfect for tracking daily scores with your crew, flexing your vocab game, and delivering top-tier trash talk. Keep it competitive, keep it classy(ish), keep it Pardle.
         </div>
       </section>
     </main>
@@ -712,6 +780,9 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
     const joinGameBtn = document.getElementById("joinGameBtn");
     const joinGameIdInput = document.getElementById("joinGameIdInput");
     const onlineStatusText = document.getElementById("onlineStatusText");
+    const gameIdPill = document.getElementById("gameIdPill");
+    const gameIdValue = document.getElementById("gameIdValue");
+    const statusMessage = document.getElementById("statusMessage");
 
     const courseSelect = document.getElementById("courseSelect");
     const parCells = document.querySelectorAll(".par-cell[data-hole]");
@@ -739,7 +810,14 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
 
     function setStatus(msg, isError = false) {
       const gameIdText = currentGameId || "none";
-      onlineStatusText.innerHTML = `Game ID: <strong>${gameIdText}</strong><br />${msg}`;
+
+      if (gameIdValue) {
+        gameIdValue.textContent = gameIdText;
+      }
+      if (statusMessage) {
+        statusMessage.textContent = msg;
+      }
+
       if (isError) {
         onlineStatusText.classList.add("error-text");
       } else {
@@ -884,6 +962,30 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
       recalcAllTotals();
     }
 
+    function setActiveHole(holeIndex) {
+      if (holeIndex < 0 || holeIndex >= HOLES) return;
+
+      const headerRow = document.querySelector(".scorecard-table thead tr");
+      if (!headerRow) return;
+
+      headerRow.querySelectorAll(".hole-header").forEach(h => h.classList.remove("active-hole"));
+      document.querySelectorAll(".scorecard-table td.active-hole").forEach(td => td.classList.remove("active-hole"));
+
+      const headerCells = headerRow.querySelectorAll("th");
+      const targetHeader = headerCells[1 + holeIndex];
+      if (targetHeader) {
+        targetHeader.classList.add("active-hole");
+      }
+
+      document.querySelectorAll(".scorecard-table tbody tr").forEach(row => {
+        const cells = row.querySelectorAll("th, td");
+        const targetCell = cells[1 + holeIndex];
+        if (targetCell && targetCell.tagName === "TD") {
+          targetCell.classList.add("active-hole");
+        }
+      });
+    }
+
     function bindScoreInputs() {
       playerRows.forEach(row => {
         const slot = parseInt(row.dataset.slot, 10);
@@ -897,6 +999,17 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
         });
 
         scoreInputs.forEach(inp => {
+          inp.addEventListener("focus", () => {
+            const cell = inp.closest("td");
+            if (!cell) return;
+            const rowEl = cell.parentElement;
+            const allCells = Array.from(rowEl.querySelectorAll("th, td"));
+            const holeIndex = allCells.indexOf(cell) - 1;
+            if (holeIndex >= 0 && holeIndex < HOLES) {
+              setActiveHole(holeIndex);
+            }
+          });
+
           inp.addEventListener("input", () => {
             if (currentGameId && currentPlayerSlot === slot) {
               updatePlayerInGame();
@@ -944,6 +1057,11 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
 
       await db.collection("games").doc(currentGameId).set(updated);
       recalcAllTotals();
+
+      // micro animation on save
+      row.classList.remove("saved-pulse");
+      void row.offsetWidth;
+      row.classList.add("saved-pulse");
     }
 
     async function createGame() {
@@ -973,7 +1091,6 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
 
       currentGameId = docRef.id;
 
-      // remember last game + slot on this device
       localStorage.setItem(STORAGE_LAST_GAME_ID_KEY, currentGameId);
       localStorage.setItem(STORAGE_LAST_SLOT_KEY, String(currentPlayerSlot));
 
@@ -991,7 +1108,6 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
       });
     }
 
-    // joinGame preserves scores for returning players and remembers last game
     async function joinGame() {
       const name = playerNameInput.value.trim();
       if (!name) {
@@ -1020,11 +1136,9 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
         players.push({ id: null, name: "", scores: Array(HOLES).fill(null) });
       }
 
-      // Look for this player by their stored ID
       let slot = players.findIndex(p => p && p.id === currentPlayerId);
 
       if (slot === -1) {
-        // New player in this game – grab first empty slot, start with empty scores
         slot = players.findIndex(p => !p || !p.id);
         if (slot === -1) {
           setStatus("This game already has 4 players.", true);
@@ -1038,7 +1152,6 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
           scores: emptyScores
         };
       } else {
-        // Existing player – keep their old scores, just update name if changed
         const existing = players[slot] || {};
         players[slot] = {
           id: existing.id || currentPlayerId,
@@ -1057,7 +1170,6 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
       currentGameId = joinId;
       currentPlayerSlot = slot;
 
-      // remember last game + slot on this device
       localStorage.setItem(STORAGE_LAST_GAME_ID_KEY, currentGameId);
       localStorage.setItem(STORAGE_LAST_SLOT_KEY, String(currentPlayerSlot));
 
@@ -1075,7 +1187,6 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
       });
     }
 
-    // Auto-rejoin last game on load if possible
     async function attemptAutoRejoin() {
       const savedGameId = localStorage.getItem(STORAGE_LAST_GAME_ID_KEY);
       const savedSlotStr = localStorage.getItem(STORAGE_LAST_SLOT_KEY);
@@ -1093,7 +1204,6 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
       const snap = await docRef.get();
 
       if (!snap.exists) {
-        // stale reference
         localStorage.removeItem(STORAGE_LAST_GAME_ID_KEY);
         localStorage.removeItem(STORAGE_LAST_SLOT_KEY);
         currentGameId = null;
@@ -1114,6 +1224,22 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
         }
         applyGameToUI(s.data());
         enableScorecard(true);
+      });
+    }
+
+    if (gameIdPill) {
+      gameIdPill.addEventListener("click", async () => {
+        if (!currentGameId) return;
+        try {
+          await navigator.clipboard.writeText(currentGameId);
+          const original = gameIdValue.textContent;
+          gameIdValue.textContent = "Copied!";
+          setTimeout(() => {
+            gameIdValue.textContent = original;
+          }, 1000);
+        } catch (err) {
+          console.error(err);
+        }
       });
     }
 
@@ -1153,11 +1279,11 @@ Use Pardle to track your group scores, talk trash, and keep it friendly.
       });
     });
 
-    // Initial setup
     bindScoreInputs();
     updateParRow();
     enableScorecard(false);
-    // try to auto-attach to last game if one exists
+    setActiveHole(0);
+
     attemptAutoRejoin().catch(err => {
       console.error(err);
       setStatus("Not in a game. Create or join to start.");
