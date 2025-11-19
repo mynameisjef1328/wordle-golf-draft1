@@ -352,7 +352,7 @@
     }
 
     /* unread badge: small solid green dot */
-    .chat-badge {
+        .chat-badge {
       position: absolute;
       top: -2px;
       right: -2px;
@@ -360,8 +360,9 @@
       height: 10px;
       border-radius: 50%;
       background: #2ecc71;
-      display: inline-block;
+      display: none; /* off by default */
     }
+
 
     .scorecard-wrapper {
       overflow-x: auto;
@@ -722,7 +723,7 @@
           <div class="section-title">Scorecard</div>
           <button id="chatButton" class="chat-btn" type="button">
             💬 Chat
-            <span id="chatBadge" class="chat-badge" hidden></span>
+            <span id="chatBadge" class="chat-badge"></span>
           </button>
         </div>
 
@@ -1015,6 +1016,8 @@
     const chatThread = document.getElementById("chatThread");
     const chatText = document.getElementById("chatText");
     const chatSendBtn = document.getElementById("chatSendBtn");
+    setUnreadBadge(false);
+
 
     // helpers
     function generateId(len = 20) {
@@ -1639,12 +1642,12 @@
       chatSheet.classList.remove("visible");
     }
 
-    function setUnreadBadge(flag) {
+     function setUnreadBadge(flag) {
       hasUnreadMessages = flag;
-      if (chatBadge) {
-        chatBadge.hidden = !flag;
-      }
+      if (!chatBadge) return;
+      chatBadge.style.display = flag ? "inline-block" : "none";
     }
+
 
     async function sendChatMessage() {
       if (!currentGameId || currentPlayerSlot == null || !currentPlayerId) return;
