@@ -984,6 +984,7 @@
     let unsubscribeGame = null;
     let unsubscribeMessages = null;
     let hasUnreadMessages = false;
+    let messagesInitialized = false;
 
     // DOM
     const body = document.body;
@@ -1360,6 +1361,8 @@
         enableScorecard(true);
       });
 
+      setUnreadBadge(false);
+      messagesInitialized = false;
       attachMessageListener(currentGameId);
     }
 
@@ -1441,6 +1444,8 @@
         enableScorecard(true);
       });
 
+      setUnreadBadge(false);
+      messagesInitialized = false;
       attachMessageListener(currentGameId);
     }
 
@@ -1467,6 +1472,7 @@
         currentPlayerSlot = null;
         setStatus("Last saved game not found. Create or join a new one.");
         enableScorecard(false);
+        setUnreadBadge(false);
         return;
       }
 
@@ -1483,6 +1489,8 @@
         enableScorecard(true);
       });
 
+      setUnreadBadge(false);
+      messagesInitialized = false;
       attachMessageListener(currentGameId);
     }
 
@@ -1495,6 +1503,8 @@
         unsubscribeMessages();
         unsubscribeMessages = null;
       }
+
+      messagesInitialized = false;
 
       unsubscribeMessages = db.collection("games")
         .doc(gameId)
@@ -1522,6 +1532,13 @@
 
           renderChatThreadMessages(all);
 
+          // Ignore unread logic on first snapshot (history)
+          if (!messagesInitialized) {
+            messagesInitialized = true;
+            return;
+          }
+
+          // From here on, only truly new messages
           snapshot.docChanges().forEach(change => {
             if (change.type !== "added") return;
 
