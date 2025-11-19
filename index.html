@@ -351,32 +351,17 @@
       opacity: 0.85;
     }
 
-    /* bounce animation when unread messages are waiting */
-    .chat-btn.has-unread {
-      animation: chatBounce 0.7s ease-in-out infinite;
-    }
-
-    @keyframes chatBounce {
-      0% { transform: scale(1); }
-      30% { transform: scale(1.08) translateY(-1px); }
-      60% { transform: scale(0.97) translateY(1px); }
-      100% { transform: scale(1); }
-    }
-
+    /* unread badge: small solid green dot */
     .chat-badge {
       position: absolute;
-      top: -3px;
-      right: -3px;
-      border-radius: 0;         /* no forced circle box */
-      min-width: auto;
-      height: auto;
-      padding: 0;
-      font-size: 9px;          /* adjust size if needed */
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      top: -2px;
+      right: -2px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #2ecc71;
+      display: inline-block;
     }
-
 
     .scorecard-wrapper {
       overflow-x: auto;
@@ -737,7 +722,7 @@
           <div class="section-title">Scorecard</div>
           <button id="chatButton" class="chat-btn" type="button">
             💬 Chat
-            <span id="chatBadge" class="chat-badge" hidden>🟢</span>
+            <span id="chatBadge" class="chat-badge" hidden></span>
           </button>
         </div>
 
@@ -1017,7 +1002,7 @@
 
     const courseSelect = document.getElementById("courseSelect");
     const parCells = document.querySelectorAll(".par-cell[data-hole]");
-    theParTotalCell = document.querySelector(".par-total");
+    const parTotalCell = document.querySelector(".par-total");
     const playerRows = document.querySelectorAll(".player-row");
 
     const chatButton = document.getElementById("chatButton");
@@ -1641,13 +1626,6 @@
       hasUnreadMessages = flag;
       if (chatBadge) {
         chatBadge.hidden = !flag;
-      }
-      if (chatButton) {
-        if (flag) {
-          chatButton.classList.add("has-unread");
-        } else {
-          chatButton.classList.remove("has-unread");
-        }
       }
     }
 
