@@ -1017,7 +1017,7 @@
 
     const courseSelect = document.getElementById("courseSelect");
     const parCells = document.querySelectorAll(".par-cell[data-hole]");
-    const parTotalCell = document.querySelector(".par-total");
+    theParTotalCell = document.querySelector(".par-total");
     const playerRows = document.querySelectorAll(".player-row");
 
     const chatButton = document.getElementById("chatButton");
@@ -1076,6 +1076,11 @@
         nameInput.disabled = !isMine;
         scoreInputs.forEach(inp => inp.disabled = !isMine);
       });
+    }
+
+    function scrollChatToBottom() {
+      if (!chatThread) return;
+      chatThread.scrollTop = chatThread.scrollHeight;
     }
 
     function updateParRow() {
@@ -1590,7 +1595,7 @@
         chatThread.appendChild(wrap);
       });
 
-      chatThread.scrollTop = chatThread.scrollHeight;
+      scrollChatToBottom();
     }
 
     function renderChatTargets() {
@@ -1624,6 +1629,7 @@
       chatSheet.classList.add("visible");
       chatText.value = "";
       chatText.focus();
+      setTimeout(scrollChatToBottom, 50);
     }
 
     function hideChatSheet() {
