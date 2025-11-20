@@ -87,19 +87,22 @@
       font-weight: 700;
     }
 
-     .sync-pill {
-      padding: 3px 12px;          /* slightly tighter + symmetrical */
+     /* shared pill style so Online + Chat match */
+    .pardle-pill {
       border-radius: 999px;
-      background: var(--sync-bg);
-      color: var(--sync-text);
-      font-size: 12px;
+      padding: 4px 12px;
+      font-size: 13px;
       font-weight: 600;
       display: inline-flex;
       align-items: center;
-      justify-content: center;    /* centers the text horizontally */
-      line-height: 1;             /* keeps it vertically centered */
+      justify-content: center;
+      line-height: 1;
     }
-
+   
+    .sync-pill {
+      background: var(--sync-bg);
+      color: var(--sync-text);
+    }
 
     .sync-dot {
       width: 6px;
@@ -339,18 +342,13 @@
       border: none;
       background: var(--accent);
       color: #ffffff;
-      border-radius: 999px;
-      padding: 4px 10px;
-      font-size: 13px;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      cursor: pointer;
       box-shadow: 0 2px 4px rgba(0,0,0,0.18);
+      cursor: pointer;
       position: relative;
+      gap: 4px;
       transition: transform 0.12s ease, box-shadow 0.12s ease;
     }
+
 
     .chat-btn:active {
       transform: scale(0.96);
@@ -725,11 +723,15 @@
       <section class="card">
         <div class="scorecard-header">
           <div class="section-title">Scorecard</div>
-          <button id="chatButton" class="chat-btn" type="button">
-            💬 Chat
-            <span id="chatBadge" class="chat-badge"></span>
-          </button>
-        </div>
+          
+          <div class="sync-pill pardle-pill">
+      Online
+    </div>
+    
+    <button id="chatButton" class="chat-btn pardle-pill" type="button">
+      💬 Chat
+      <span id="chatBadge" class="chat-badge"></span>
+    </button>
 
         <div class="scorecard-wrapper">
           <table class="scorecard-table">
