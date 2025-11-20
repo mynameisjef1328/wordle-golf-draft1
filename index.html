@@ -87,8 +87,8 @@
       font-weight: 700;
     }
 
-    .sync-pill {
-      padding: 4px 10px;
+     .sync-pill {
+      padding: 3px 12px;          /* slightly tighter + symmetrical */
       border-radius: 999px;
       background: var(--sync-bg);
       color: var(--sync-text);
@@ -96,8 +96,10 @@
       font-weight: 600;
       display: inline-flex;
       align-items: center;
-      gap: 4px;
+      justify-content: center;    /* centers the text horizontally */
+      line-height: 1;             /* keeps it vertically centered */
     }
+
 
     .sync-dot {
       width: 6px;
