@@ -87,25 +87,21 @@
       font-weight: 700;
     }
 
-     .sync-pill {
-      padding: 3px 12px;          /* slightly tighter + symmetrical */
+    /* shared pill style for Online and Chat */
+    .pardle-pill {
+      padding: 4px 12px;
       border-radius: 999px;
-      background: var(--sync-bg);
-      color: var(--sync-text);
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 600;
       display: inline-flex;
       align-items: center;
-      justify-content: center;    /* centers the text horizontally */
-      line-height: 1;             /* keeps it vertically centered */
+      justify-content: center;
+      line-height: 1;
     }
 
-
-    .sync-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #ffffff;
+    .sync-pill {
+      background: var(--sync-bg);
+      color: var(--sync-text);
     }
 
     .app-content {
@@ -339,16 +335,10 @@
       border: none;
       background: var(--accent);
       color: #ffffff;
-      border-radius: 999px;
-      padding: 4px 10px;
-      font-size: 13px;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      cursor: pointer;
       box-shadow: 0 2px 4px rgba(0,0,0,0.18);
+      cursor: pointer;
       position: relative;
+      gap: 4px;
       transition: transform 0.12s ease, box-shadow 0.12s ease;
     }
 
@@ -357,7 +347,7 @@
       opacity: 0.85;
     }
 
-    /* unread badge: small solid green dot */
+    /* unread badge small solid green dot */
     .chat-badge {
       position: absolute;
       top: -2px;
@@ -366,7 +356,7 @@
       height: 10px;
       border-radius: 50%;
       background: #2ecc71;
-      display: none; /* off by default */
+      display: none;
     }
 
     .scorecard-wrapper {
@@ -655,7 +645,7 @@
   <div class="app-shell">
     <header class="app-header">
       <div class="app-title">Pardle Online</div>
-      <div class="sync-pill">
+      <div class="sync-pill pardle-pill">
         Online
       </div>
     </header>
@@ -725,7 +715,7 @@
       <section class="card">
         <div class="scorecard-header">
           <div class="section-title">Scorecard</div>
-          <button id="chatButton" class="chat-btn" type="button">
+          <button id="chatButton" class="chat-btn pardle-pill" type="button">
             💬 Chat
             <span id="chatBadge" class="chat-badge"></span>
           </button>
@@ -903,26 +893,26 @@
             <li>Each “hole” is one Wordle puzzle.</li>
             <li>Your score for the hole equals the number of guesses it took you to solve that day’s Wordle.</li>
             <li>Didn’t crack it? Mark it as a 7 or an “X” (just make sure your group agrees).</li>
-            <li>Par is the number of guesses you’re aiming for (can you beat it?).</li>
+            <li>Par is the number of guesses you are aiming for (can you beat it?).</li>
           </ul>
 
           <h3>Scoring</h3>
           <ul>
             <li>Your total score is the sum of guesses across all holes in the round.</li>
-            <li>Relative score = total score vs. par. Just like golf, lower is better.</li>
+            <li>Relative score equals total score vs. par. Just like golf, lower is better.</li>
             <li>
               Score breakdown:
               <ul>
-                <li>“E” = even with par</li>
-                <li>“+2” = two over par (oof)</li>
-                <li>“-1” = one under par (nice work!)</li>
+                <li>“E” equals even with par</li>
+                <li>“+2” equals two over par</li>
+                <li>“-1” equals one under par</li>
               </ul>
             </li>
           </ul>
 
           <p>
             Pardle is perfect for tracking daily scores with your crew, flexing your vocab game, and delivering
-            top-tier trash talk. Keep it competitive, keep it classy(ish), keep it Pardle.
+            top tier trash talk. Keep it competitive, keep it classy, keep it Pardle.
           </p>
         </div>
       </section>
@@ -1500,7 +1490,7 @@
       attachMessageListener(currentGameId);
     }
 
-    // message / chat logic
+    // message and chat logic
 
     function attachMessageListener(gameId) {
       if (!gameId) return;
@@ -1538,13 +1528,11 @@
 
           renderChatThreadMessages(all);
 
-          // Ignore unread logic on first snapshot (history)
           if (!messagesInitialized) {
             messagesInitialized = true;
             return;
           }
 
-          // From here on, only truly new messages
           snapshot.docChanges().forEach(change => {
             if (change.type !== "added") return;
 
