@@ -70,7 +70,7 @@
       gap: 12px;
     }
 
-    /* header now styled like a card */
+    /* header styled like a card */
     .app-header {
       background: var(--bg-card);
       padding: 10px 16px;
@@ -634,6 +634,59 @@
       gap: 8px;
     }
 
+    /* New game confirmation modal */
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 30;
+    }
+
+    .modal-backdrop.visible {
+      display: flex;
+    }
+
+    .modal-card {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 14px 16px 12px;
+      max-width: 320px;
+      width: 90%;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+      border: 1px solid var(--border-soft);
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .modal-body {
+      font-size: 13px;
+      line-height: 1.4;
+      margin-bottom: 12px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .modal-actions .small-btn {
+      flex: 1;
+    }
+
+    .modal-actions .secondary {
+      background: var(--accent-soft);
+      color: #000000;
+    }
+
     @media (min-width: 520px) {
       .app-shell {
         padding-inline: 16px;
@@ -892,7 +945,7 @@
           <ul>
             <li>Each “hole” is one Wordle puzzle.</li>
             <li>Your score for the hole equals the number of guesses it took you to solve that day’s Wordle.</li>
-            <li>Didn’t crack it? Mark it as a 7 or an “X” (just make sure your group agrees).</li>
+            <li>Did not crack it? Mark it as a 7 or an “X” (just make sure your group agrees).</li>
             <li>Par is the number of guesses you are aiming for (can you beat it?).</li>
           </ul>
 
@@ -931,6 +984,21 @@
         <div class="chat-actions">
           <button id="chatCancelBtn" class="small-btn secondary" type="button">Cancel</button>
           <button id="chatSendBtn" class="small-btn" type="button">Send</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- New Game confirmation modal -->
+    <div id="newGameConfirm" class="modal-backdrop">
+      <div class="modal-card">
+        <div class="modal-title">Start a new game?</div>
+        <div class="modal-body">
+          <p>This will clear all player names and scores on this device.</p>
+          <p>If you are mid round, tap Cancel. If you are ready to wipe the slate and that triple bogey, tap Start New Game.</p>
+        </div>
+        <div class="modal-actions">
+          <button id="newGameCancelBtn" class="small-btn secondary" type="button">Cancel</button>
+          <button id="newGameConfirmBtn" class="small-btn" type="button">Start New Game</button>
         </div>
       </div>
     </div>
@@ -1010,6 +1078,11 @@
     const chatThread = document.getElementById("chatThread");
     const chatText = document.getElementById("chatText");
     const chatSendBtn = document.getElementById("chatSendBtn");
+
+    const newGameConfirm = document.getElementById("newGameConfirm");
+    const newGameCancelBtn = document.getElementById("newGameCancelBtn");
+    const newGameConfirmBtn = document.getElementById("newGameConfirmBtn");
+
     setUnreadBadge(false);
 
     // helpers
@@ -1683,6 +1756,65 @@
       });
     }
 
+    // new game confirm helpers
+
+    function hasExistingGameData() {
+      if (currentGameId) return true;
+
+      let hasStuff = false;
+
+      document.querySelectorAll(".player-name").forEach(inp => {
+        if (inp.value && inp.value.trim() !== "") {
+          hasStuff = true;
+        }
+      });
+
+      document.querySelectorAll(".score-input").forEach(inp => {
+        if (inp.value && inp.value.trim() !== "") {
+          hasStuff = true;
+        }
+      });
+
+      return hasStuff;
+    }
+
+    function showNewGameConfirm() {
+      if (!newGameConfirm) return;
+      newGameConfirm.classList.add("visible");
+    }
+
+    function hideNewGameConfirm() {
+      if (!newGameConfirm) return;
+      newGameConfirm.classList.remove("visible");
+    }
+
+    function handleCreateGameClick() {
+      if (hasExistingGameData()) {
+        showNewGameConfirm();
+      } else {
+        createGame().catch(err => {
+          console.error(err);
+          setStatus("Error creating game.", true);
+        });
+      }
+    }
+
+    if (newGameCancelBtn) {
+      newGameCancelBtn.addEventListener("click", () => {
+        hideNewGameConfirm();
+      });
+    }
+
+    if (newGameConfirmBtn) {
+      newGameConfirmBtn.addEventListener("click", () => {
+        hideNewGameConfirm();
+        createGame().catch(err => {
+          console.error(err);
+          setStatus("Error creating game.", true);
+        });
+      });
+    }
+
     // theme and rules
     themeSwitch.addEventListener("change", () => {
       if (themeSwitch.checked) {
@@ -1736,19 +1868,18 @@
     }
 
     // main buttons
-    createGameBtn.addEventListener("click", () => {
-      createGame().catch(err => {
-        console.error(err);
-        setStatus("Error creating game.", true);
-      });
-    });
+    if (createGameBtn) {
+      createGameBtn.addEventListener("click", handleCreateGameClick);
+    }
 
-    joinGameBtn.addEventListener("click", () => {
-      joinGame().catch(err => {
-        console.error(err);
-        setStatus("Error joining game.", true);
+    if (joinGameBtn) {
+      joinGameBtn.addEventListener("click", () => {
+        joinGame().catch(err => {
+          console.error(err);
+          setStatus("Error joining game.", true);
+        });
       });
-    });
+    }
 
     // init
     bindScoreInputs();
