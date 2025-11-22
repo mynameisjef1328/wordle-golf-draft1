@@ -107,27 +107,24 @@
     /* settings button in header */
     .settings-btn {
       border: none;
-      background: var(--sync-bg);
-      color: var(--sync-text);
-      border-radius: 999px;
-      padding: 6px 10px;
-      font-size: 18px;
+      background: transparent;
+      padding: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.18);
-      transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
+      transition: transform 0.12s ease, opacity 0.12s ease;
     }
-
+    
     .settings-btn:active {
-      transform: scale(0.96);
-      opacity: 0.85;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.16);
+      transform: scale(0.94);
+      opacity: 0.8;
     }
-
+    
     .gear-icon {
       display: inline-block;
+      font-size: 24px;      /* bigger gear */
+      color: var(--sync-bg); /* green gear */
       transform: translateY(-1px);
     }
 
