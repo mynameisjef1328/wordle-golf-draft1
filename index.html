@@ -87,7 +87,7 @@
       font-weight: 700;
     }
 
-    /* shared pill style for Online and Chat */
+    /* shared pill style */
     .pardle-pill {
       padding: 4px 12px;
       border-radius: 999px;
@@ -102,6 +102,33 @@
     .sync-pill {
       background: var(--sync-bg);
       color: var(--sync-text);
+    }
+
+    /* settings button in header */
+    .settings-btn {
+      border: none;
+      background: var(--sync-bg);
+      color: var(--sync-text);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.18);
+      transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
+    }
+
+    .settings-btn:active {
+      transform: scale(0.96);
+      opacity: 0.85;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.16);
+    }
+
+    .gear-icon {
+      display: inline-block;
+      transform: translateY(-1px);
     }
 
     .app-content {
@@ -240,15 +267,7 @@
       color: var(--input-text);
     }
 
-    /* theme toggle and rules */
-
-    .toolbar-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      font-size: 14px;
-    }
+    /* theme toggle (reused inside settings) */
 
     .theme-toggle {
       display: inline-flex;
@@ -297,26 +316,6 @@
       transform: translateX(20px);
     }
 
-    .rules-link {
-      font-size: 13px;
-      text-align: right;
-    }
-
-    .rules-link button {
-      border: none;
-      background: none;
-      color: var(--accent);
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 13px;
-      padding: 0;
-      cursor: pointer;
-    }
-
-    .rules-link button:active {
-      opacity: 0.7;
-    }
-
     /* scorecard */
 
     .scorecard-header {
@@ -359,7 +358,7 @@
       display: none;
     }
 
-    /* UPDATED: wrapper now has rounded corners and clipping */
+    /* wrapper now has rounded corners and clipping */
     .scorecard-wrapper {
       position: relative;
       border-radius: 14px;
@@ -641,7 +640,7 @@
       gap: 8px;
     }
 
-    /* New game confirmation modal */
+    /* New game confirmation modal + settings modal share styles */
 
     .modal-backdrop {
       position: fixed;
@@ -694,6 +693,14 @@
       color: #000000;
     }
 
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
     @media (min-width: 520px) {
       .app-shell {
         padding-inline: 16px;
@@ -705,9 +712,9 @@
   <div class="app-shell">
     <header class="app-header">
       <div class="app-title">Pardle Online</div>
-      <div class="sync-pill pardle-pill">
-        Online
-      </div>
+      <button class="settings-btn" id="settingsButton" type="button" aria-label="Settings">
+        <span class="gear-icon">⚙︎</span>
+      </button>
     </header>
 
     <main class="app-content">
@@ -753,21 +760,6 @@
             <option value="pebble-beach">Pebble Reach</option>
             <option value="congressional">Congress-ish National</option>
           </select>
-        </div>
-      </section>
-
-      <!-- Toolbar -->
-      <section class="card">
-        <div class="toolbar-row">
-          <label class="theme-toggle">
-            <span class="label">Theme</span>
-            <input type="checkbox" id="themeSwitch" />
-            <span class="slider"></span>
-          </label>
-
-          <div class="rules-link">
-            <button id="rulesLink" type="button">View Pardle Rules</button>
-          </div>
         </div>
       </section>
 
@@ -1011,6 +1003,31 @@
         </div>
       </div>
     </div>
+
+    <!-- Settings modal -->
+    <div id="settingsModal" class="modal-backdrop">
+      <div class="modal-card">
+        <div class="modal-title">Settings</div>
+        <div class="modal-body">
+          <div class="settings-row">
+            <span>Theme</span>
+            <label class="theme-toggle">
+              <input type="checkbox" id="themeSwitch" />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="settings-row">
+            <span>Pardle Rules</span>
+            <button id="settingsRulesToggle" class="small-btn secondary" type="button">
+              View Pardle Rules
+            </button>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button id="settingsCloseBtn" class="small-btn" type="button">Done</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -1060,10 +1077,6 @@
 
     // DOM
     const body = document.body;
-    const themeSwitch = document.getElementById("themeSwitch");
-    const rulesLink = document.getElementById("rulesLink");
-    const rulesCard = document.getElementById("rulesCard");
-
     const playerNameInput = document.getElementById("playerNameInput");
     const createGameBtn = document.getElementById("createGameBtn");
     const joinGameBtn = document.getElementById("joinGameBtn");
@@ -1091,6 +1104,14 @@
     const newGameConfirm = document.getElementById("newGameConfirm");
     const newGameCancelBtn = document.getElementById("newGameCancelBtn");
     const newGameConfirmBtn = document.getElementById("newGameConfirmBtn");
+
+    // settings elements
+    const settingsButton = document.getElementById("settingsButton");
+    const settingsModal = document.getElementById("settingsModal");
+    const settingsCloseBtn = document.getElementById("settingsCloseBtn");
+    const themeSwitch = document.getElementById("themeSwitch");
+    const rulesCard = document.getElementById("rulesCard");
+    const settingsRulesToggle = document.getElementById("settingsRulesToggle");
 
     setUnreadBadge(false);
 
@@ -1824,26 +1845,52 @@
       });
     }
 
-    // theme and rules
-    themeSwitch.addEventListener("change", () => {
-      if (themeSwitch.checked) {
-        body.classList.add("dark");
-      } else {
-        body.classList.remove("dark");
-      }
-    });
+    // settings modal logic
 
-    rulesLink.addEventListener("click", () => {
-      const isVisible = rulesCard.classList.contains("visible");
-      if (isVisible) {
-        rulesCard.classList.remove("visible");
-        rulesLink.textContent = "View Pardle Rules";
-      } else {
-        rulesCard.classList.add("visible");
-        rulesLink.textContent = "Hide Pardle Rules";
-        rulesCard.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-    });
+    if (settingsButton && settingsModal) {
+      settingsButton.addEventListener("click", () => {
+        settingsModal.classList.add("visible");
+      });
+    }
+
+    if (settingsCloseBtn && settingsModal) {
+      settingsCloseBtn.addEventListener("click", () => {
+        settingsModal.classList.remove("visible");
+      });
+
+      // optional: close when tapping outside card
+      settingsModal.addEventListener("click", (e) => {
+        if (e.target === settingsModal) {
+          settingsModal.classList.remove("visible");
+        }
+      });
+    }
+
+    // theme toggle
+    if (themeSwitch) {
+      themeSwitch.addEventListener("change", () => {
+        if (themeSwitch.checked) {
+          body.classList.add("dark");
+        } else {
+          body.classList.remove("dark");
+        }
+      });
+    }
+
+    // rules toggle from settings
+    if (settingsRulesToggle && rulesCard) {
+      settingsRulesToggle.addEventListener("click", () => {
+        const isVisible = rulesCard.classList.contains("visible");
+        if (isVisible) {
+          rulesCard.classList.remove("visible");
+          settingsRulesToggle.textContent = "View Pardle Rules";
+        } else {
+          rulesCard.classList.add("visible");
+          settingsRulesToggle.textContent = "Hide Pardle Rules";
+          rulesCard.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      });
+    }
 
     // chat button events
     if (chatButton) {
