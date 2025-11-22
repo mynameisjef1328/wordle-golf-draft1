@@ -87,6 +87,66 @@
       font-weight: 700;
     }
 
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .icon-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      border: none;
+      background: transparent;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0;
+      outline: none;
+      transition: background 0.12s ease, transform 0.12s ease, box-shadow 0.12s ease;
+    }
+
+    .icon-btn:active {
+      transform: scale(0.95);
+      opacity: 0.85;
+    }
+
+    .icon-btn:hover {
+      background: rgba(0,0,0,0.04);
+    }
+
+    body.dark .icon-btn:hover {
+      background: rgba(255,255,255,0.05);
+    }
+
+    .icon-btn-gear span {
+      font-size: 18px;
+      color: var(--sync-bg);
+    }
+
+    .icon-btn-analytics {
+      gap: 2px;
+    }
+
+    .icon-btn-analytics .bar {
+      display: inline-block;
+      width: 4px;
+      border-radius: 999px;
+      background: var(--sync-bg);
+    }
+
+    .icon-btn-analytics .bar.left {
+      height: 10px;
+    }
+    .icon-btn-analytics .bar.middle {
+      height: 16px;
+    }
+    .icon-btn-analytics .bar.right {
+      height: 10px;
+    }
+
     /* shared pill style */
     .pardle-pill {
       padding: 4px 12px;
@@ -102,30 +162,6 @@
     .sync-pill {
       background: var(--sync-bg);
       color: var(--sync-text);
-    }
-
-    /* settings button in header */
-    .settings-btn {
-      border: none;
-      background: transparent;
-      padding: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: transform 0.12s ease, opacity 0.12s ease;
-    }
-    
-    .settings-btn:active {
-      transform: scale(0.94);
-      opacity: 0.8;
-    }
-    
-    .gear-icon {
-      display: inline-block;
-      font-size: 24px;      /* bigger gear */
-      color: var(--sync-bg); /* green gear */
-      transform: translateY(-1px);
     }
 
     .app-content {
@@ -264,55 +300,6 @@
       color: var(--input-text);
     }
 
-    /* theme toggle (reused inside settings) */
-
-    .theme-toggle {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .theme-toggle span.label {
-      font-size: 13px;
-    }
-
-    .theme-toggle input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-      position: absolute;
-    }
-
-    .theme-toggle .slider {
-      width: 40px;
-      height: 20px;
-      border-radius: 999px;
-      background: #cccccc;
-      position: relative;
-      cursor: pointer;
-      transition: background 0.2s ease;
-    }
-
-    .theme-toggle .slider::before {
-      content: "";
-      position: absolute;
-      width: 16px;
-      height: 16px;
-      left: 2px;
-      top: 2px;
-      border-radius: 50%;
-      background: #ffffff;
-      transition: transform 0.2s ease;
-    }
-
-    .theme-toggle input:checked + .slider {
-      background: #000000;
-    }
-
-    .theme-toggle input:checked + .slider::before {
-      transform: translateX(20px);
-    }
-
     /* scorecard */
 
     .scorecard-header {
@@ -343,7 +330,6 @@
       opacity: 0.85;
     }
 
-    /* unread badge small solid green dot */
     .chat-badge {
       position: absolute;
       top: -2px;
@@ -355,7 +341,6 @@
       display: none;
     }
 
-    /* wrapper now has rounded corners and clipping */
     .scorecard-wrapper {
       position: relative;
       border-radius: 14px;
@@ -487,7 +472,6 @@
       display: none;
     }
 
-    /* Tighten spacing inside Pardle Rules */
     #rulesCard .rules-text h2 {
       margin-top: 6px;
       margin-bottom: 10px;
@@ -520,7 +504,7 @@
       line-height: 1.45;
     }
 
-    /* chat sheet */
+    /* generic bottom sheet styling, shared by chat, settings, analytics */
 
     .chat-sheet {
       position: fixed;
@@ -547,7 +531,7 @@
       overflow-y: auto;
     }
 
-    .chat-sheet-header {
+    .sheet-header-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -556,7 +540,7 @@
       font-weight: 600;
     }
 
-    .chat-sheet-header button {
+    .sheet-header-row button {
       border: none;
       background: none;
       font-size: 18px;
@@ -564,27 +548,7 @@
       color: var(--text);
     }
 
-    .chat-targets {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-bottom: 6px;
-    }
-
-    .chat-target-pill {
-      border-radius: 999px;
-      border: 1px solid var(--border-soft);
-      padding: 4px 10px;
-      font-size: 12px;
-      cursor: pointer;
-      background: var(--bg-card);
-      color: var(--text);
-    }
-
-    .chat-target-pill.selected {
-      background: var(--accent-soft);
-      border-color: var(--accent);
-    }
+    /* chat specific */
 
     .chat-thread {
       max-height: 180px;
@@ -637,7 +601,149 @@
       gap: 8px;
     }
 
-    /* New game confirmation modal + settings modal share styles */
+    .chat-targets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .chat-target-pill {
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      background: var(--bg-card);
+      color: var(--text);
+    }
+
+    .chat-target-pill.selected {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+    }
+
+    /* settings sheet */
+
+    .settings-section {
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+
+    .settings-section:last-of-type {
+      border-bottom: none;
+    }
+
+    .settings-label {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .settings-link-btn {
+      border: none;
+      background: none;
+      padding: 0;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      cursor: pointer;
+    }
+
+    /* theme toggle reused */
+
+    .theme-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .theme-toggle span.label {
+      font-size: 13px;
+    }
+
+    .theme-toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      position: absolute;
+    }
+
+    .theme-toggle .slider {
+      width: 40px;
+      height: 20px;
+      border-radius: 999px;
+      background: #cccccc;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .theme-toggle .slider::before {
+      content: "";
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      left: 2px;
+      top: 2px;
+      border-radius: 50%;
+      background: #ffffff;
+      transition: transform 0.2s ease;
+    }
+
+    .theme-toggle input:checked + .slider {
+      background: #000000;
+    }
+
+    .theme-toggle input:checked + .slider::before {
+      transform: translateX(20px);
+    }
+
+    /* analytics sheet */
+
+    .analytics-intro {
+      font-size: 13px;
+      line-height: 1.4;
+      margin-bottom: 10px;
+    }
+
+    .analytics-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 13px;
+    }
+
+    .analytics-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 8px;
+      border-radius: 10px;
+      background: rgba(0,0,0,0.03);
+    }
+
+    body.dark .analytics-row {
+      background: rgba(255,255,255,0.04);
+    }
+
+    .analytics-name {
+      font-weight: 600;
+    }
+
+    .analytics-score {
+      font-weight: 700;
+    }
+
+    /* New game confirmation modal */
 
     .modal-backdrop {
       position: fixed;
@@ -690,14 +796,6 @@
       color: #000000;
     }
 
-    .settings-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 10px;
-    }
-
     @media (min-width: 520px) {
       .app-shell {
         padding-inline: 16px;
@@ -709,9 +807,16 @@
   <div class="app-shell">
     <header class="app-header">
       <div class="app-title">Pardle Online</div>
-      <button class="settings-btn" id="settingsButton" type="button" aria-label="Settings">
-        <span class="gear-icon">⚙︎</span>
-      </button>
+      <div class="header-actions">
+        <button id="analyticsButton" class="icon-btn icon-btn-analytics" type="button" aria-label="View round stats">
+          <span class="bar left"></span>
+          <span class="bar middle"></span>
+          <span class="bar right"></span>
+        </button>
+        <button id="settingsButton" class="icon-btn icon-btn-gear" type="button" aria-label="Settings">
+          <span>⚙︎</span>
+        </button>
+      </div>
     </header>
 
     <main class="app-content">
@@ -929,7 +1034,7 @@
         <p class="swipe-hint">Swipe sideways to see all holes ⟶</p>
       </section>
 
-      <!-- Rules -->
+      <!-- Rules card lives below and is toggled from Settings -->
       <section class="card rules-card" id="rulesCard">
         <div class="section-title">Follow The Rules Or Follow The Fools</div>
         <div class="rules-text">
@@ -972,7 +1077,7 @@
     <!-- Chat sheet -->
     <div id="chatSheet" class="chat-sheet">
       <div class="chat-sheet-inner">
-        <div class="chat-sheet-header">
+        <div class="sheet-header-row">
           <span>Game chat</span>
           <button id="chatCloseBtn" type="button">✕</button>
         </div>
@@ -983,6 +1088,49 @@
           <button id="chatCancelBtn" class="small-btn secondary" type="button">Cancel</button>
           <button id="chatSendBtn" class="small-btn" type="button">Send</button>
         </div>
+      </div>
+    </div>
+
+    <!-- Settings sheet -->
+    <div id="settingsSheet" class="chat-sheet">
+      <div class="chat-sheet-inner">
+        <div class="sheet-header-row">
+          <span>Settings</span>
+          <button id="settingsCloseBtn" type="button">✕</button>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-label">Appearance</div>
+          <div class="settings-row">
+            <span style="font-size:13px;">Theme</span>
+            <label class="theme-toggle">
+              <span class="label">Dark</span>
+              <input type="checkbox" id="themeSwitch" />
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-label">Rules</div>
+          <button id="rulesLink" class="settings-link-btn" type="button">
+            View Pardle Rules
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Analytics sheet -->
+    <div id="analyticsSheet" class="chat-sheet">
+      <div class="chat-sheet-inner">
+        <div class="sheet-header-row">
+          <span>Round stats</span>
+          <button id="analyticsCloseBtn" type="button">✕</button>
+        </div>
+        <p class="analytics-intro">
+          Pardle handicap and deeper analytics are coming soon. For now, here is a quick summary of this round.
+        </p>
+        <div id="analyticsList" class="analytics-list"></div>
       </div>
     </div>
 
@@ -997,31 +1145,6 @@
         <div class="modal-actions">
           <button id="newGameCancelBtn" class="small-btn secondary" type="button">Cancel</button>
           <button id="newGameConfirmBtn" class="small-btn" type="button">Start New Game</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Settings modal -->
-    <div id="settingsModal" class="modal-backdrop">
-      <div class="modal-card">
-        <div class="modal-title">Settings</div>
-        <div class="modal-body">
-          <div class="settings-row">
-            <span>Theme</span>
-            <label class="theme-toggle">
-              <input type="checkbox" id="themeSwitch" />
-              <span class="slider"></span>
-            </label>
-          </div>
-          <div class="settings-row">
-            <span>Pardle Rules</span>
-            <button id="settingsRulesToggle" class="small-btn secondary" type="button">
-              View Pardle Rules
-            </button>
-          </div>
-        </div>
-        <div class="modal-actions">
-          <button id="settingsCloseBtn" class="small-btn" type="button">Done</button>
         </div>
       </div>
     </div>
@@ -1074,6 +1197,7 @@
 
     // DOM
     const body = document.body;
+
     const playerNameInput = document.getElementById("playerNameInput");
     const createGameBtn = document.getElementById("createGameBtn");
     const joinGameBtn = document.getElementById("joinGameBtn");
@@ -1102,13 +1226,17 @@
     const newGameCancelBtn = document.getElementById("newGameCancelBtn");
     const newGameConfirmBtn = document.getElementById("newGameConfirmBtn");
 
-    // settings elements
     const settingsButton = document.getElementById("settingsButton");
-    const settingsModal = document.getElementById("settingsModal");
+    const settingsSheet = document.getElementById("settingsSheet");
     const settingsCloseBtn = document.getElementById("settingsCloseBtn");
     const themeSwitch = document.getElementById("themeSwitch");
+    const rulesLink = document.getElementById("rulesLink");
     const rulesCard = document.getElementById("rulesCard");
-    const settingsRulesToggle = document.getElementById("settingsRulesToggle");
+
+    const analyticsButton = document.getElementById("analyticsButton");
+    const analyticsSheet = document.getElementById("analyticsSheet");
+    const analyticsCloseBtn = document.getElementById("analyticsCloseBtn");
+    const analyticsList = document.getElementById("analyticsList");
 
     setUnreadBadge(false);
 
@@ -1221,7 +1349,7 @@
         }
 
         if (parTotalPlayed === 0) {
-          totalCell.textContent = scoreTotal;
+          totalCell.textContent = String(scoreTotal);
           return;
         }
 
@@ -1842,28 +1970,28 @@
       });
     }
 
-    // settings modal logic
+    // theme, settings, rules
 
-    if (settingsButton && settingsModal) {
-      settingsButton.addEventListener("click", () => {
-        settingsModal.classList.add("visible");
-      });
+    function openSettingsSheet() {
+      if (!settingsSheet) return;
+      // sync switch with current theme
+      themeSwitch.checked = body.classList.contains("dark");
+      settingsSheet.classList.add("visible");
     }
 
-    if (settingsCloseBtn && settingsModal) {
-      settingsCloseBtn.addEventListener("click", () => {
-        settingsModal.classList.remove("visible");
-      });
-
-      // optional: close when tapping outside card
-      settingsModal.addEventListener("click", (e) => {
-        if (e.target === settingsModal) {
-          settingsModal.classList.remove("visible");
-        }
-      });
+    function closeSettingsSheet() {
+      if (!settingsSheet) return;
+      settingsSheet.classList.remove("visible");
     }
 
-    // theme toggle
+    if (settingsButton) {
+      settingsButton.addEventListener("click", openSettingsSheet);
+    }
+
+    if (settingsCloseBtn) {
+      settingsCloseBtn.addEventListener("click", closeSettingsSheet);
+    }
+
     if (themeSwitch) {
       themeSwitch.addEventListener("change", () => {
         if (themeSwitch.checked) {
@@ -1874,19 +2002,83 @@
       });
     }
 
-    // rules toggle from settings
-    if (settingsRulesToggle && rulesCard) {
-      settingsRulesToggle.addEventListener("click", () => {
+    if (rulesLink) {
+      rulesLink.addEventListener("click", () => {
         const isVisible = rulesCard.classList.contains("visible");
         if (isVisible) {
           rulesCard.classList.remove("visible");
-          settingsRulesToggle.textContent = "View Pardle Rules";
+          rulesLink.textContent = "View Pardle Rules";
         } else {
           rulesCard.classList.add("visible");
-          settingsRulesToggle.textContent = "Hide Pardle Rules";
+          rulesLink.textContent = "Hide Pardle Rules";
           rulesCard.scrollIntoView({ behavior: "smooth", block: "start" });
         }
+        closeSettingsSheet();
       });
+    }
+
+    // analytics
+
+    function openAnalyticsSheet() {
+      if (!analyticsSheet) return;
+      buildAnalyticsSummary();
+      analyticsSheet.classList.add("visible");
+    }
+
+    function closeAnalyticsSheet() {
+      if (!analyticsSheet) return;
+      analyticsSheet.classList.remove("visible");
+    }
+
+    function buildAnalyticsSummary() {
+      if (!analyticsList) return;
+      analyticsList.innerHTML = "";
+
+      const rows = document.querySelectorAll(".player-row");
+      let hasAny = false;
+
+      rows.forEach(row => {
+        const nameInput = row.querySelector(".player-name");
+        const totalCell = row.querySelector(".total-col");
+        if (!nameInput || !totalCell) return;
+
+        const name = nameInput.value.trim();
+        if (!name) return;
+
+        const totalText = totalCell.textContent || "E";
+
+        const rowDiv = document.createElement("div");
+        rowDiv.className = "analytics-row";
+
+        const nameSpan = document.createElement("span");
+        nameSpan.className = "analytics-name";
+        nameSpan.textContent = name;
+
+        const scoreSpan = document.createElement("span");
+        scoreSpan.className = "analytics-score";
+        scoreSpan.textContent = totalText;
+
+        rowDiv.appendChild(nameSpan);
+        rowDiv.appendChild(scoreSpan);
+        analyticsList.appendChild(rowDiv);
+        hasAny = true;
+      });
+
+      if (!hasAny) {
+        const empty = document.createElement("div");
+        empty.style.fontSize = "13px";
+        empty.style.opacity = "0.7";
+        empty.textContent = "No scores yet. Fill in a few holes and your Pardle recap will appear here.";
+        analyticsList.appendChild(empty);
+      }
+    }
+
+    if (analyticsButton) {
+      analyticsButton.addEventListener("click", openAnalyticsSheet);
+    }
+
+    if (analyticsCloseBtn) {
+      analyticsCloseBtn.addEventListener("click", closeAnalyticsSheet);
     }
 
     // chat button events
