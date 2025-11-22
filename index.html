@@ -359,10 +359,17 @@
       display: none;
     }
 
+    /* UPDATED: wrapper now has rounded corners and clipping */
     .scorecard-wrapper {
+      position: relative;
+      border-radius: 14px;
+      overflow: hidden;
+      background: var(--bg-card);
+    }
+
+    .scorecard-scroll {
       overflow-x: auto;
       padding-bottom: 4px;
-      position: relative;
     }
 
     .scorecard-table {
@@ -775,158 +782,160 @@
         </div>
 
         <div class="scorecard-wrapper">
-          <table class="scorecard-table">
-            <thead>
-              <tr>
-                <th class="course-label">Course</th>
-                <th class="hole-header">1</th>
-                <th class="hole-header">2</th>
-                <th class="hole-header">3</th>
-                <th class="hole-header">4</th>
-                <th class="hole-header">5</th>
-                <th class="hole-header">6</th>
-                <th class="hole-header">7</th>
-                <th class="hole-header">8</th>
-                <th class="hole-header">9</th>
-                <th class="hole-header">10</th>
-                <th class="hole-header">11</th>
-                <th class="hole-header">12</th>
-                <th class="hole-header">13</th>
-                <th class="hole-header">14</th>
-                <th class="hole-header">15</th>
-                <th class="hole-header">16</th>
-                <th class="hole-header">17</th>
-                <th class="hole-header">18</th>
-                <th class="hole-header">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr id="parRow">
-                <th class="course-label">Par</th>
-                <td class="par-cell" data-hole="0"></td>
-                <td class="par-cell" data-hole="1"></td>
-                <td class="par-cell" data-hole="2"></td>
-                <td class="par-cell" data-hole="3"></td>
-                <td class="par-cell" data-hole="4"></td>
-                <td class="par-cell" data-hole="5"></td>
-                <td class="par-cell" data-hole="6"></td>
-                <td class="par-cell" data-hole="7"></td>
-                <td class="par-cell" data-hole="8"></td>
-                <td class="par-cell" data-hole="9"></td>
-                <td class="par-cell" data-hole="10"></td>
-                <td class="par-cell" data-hole="11"></td>
-                <td class="par-cell" data-hole="12"></td>
-                <td class="par-cell" data-hole="13"></td>
-                <td class="par-cell" data-hole="14"></td>
-                <td class="par-cell" data-hole="15"></td>
-                <td class="par-cell" data-hole="16"></td>
-                <td class="par-cell" data-hole="17"></td>
-                <td class="par-cell par-total">-</td>
-              </tr>
+          <div class="scorecard-scroll">
+            <table class="scorecard-table">
+              <thead>
+                <tr>
+                  <th class="course-label">Course</th>
+                  <th class="hole-header">1</th>
+                  <th class="hole-header">2</th>
+                  <th class="hole-header">3</th>
+                  <th class="hole-header">4</th>
+                  <th class="hole-header">5</th>
+                  <th class="hole-header">6</th>
+                  <th class="hole-header">7</th>
+                  <th class="hole-header">8</th>
+                  <th class="hole-header">9</th>
+                  <th class="hole-header">10</th>
+                  <th class="hole-header">11</th>
+                  <th class="hole-header">12</th>
+                  <th class="hole-header">13</th>
+                  <th class="hole-header">14</th>
+                  <th class="hole-header">15</th>
+                  <th class="hole-header">16</th>
+                  <th class="hole-header">17</th>
+                  <th class="hole-header">18</th>
+                  <th class="hole-header">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr id="parRow">
+                  <th class="course-label">Par</th>
+                  <td class="par-cell" data-hole="0"></td>
+                  <td class="par-cell" data-hole="1"></td>
+                  <td class="par-cell" data-hole="2"></td>
+                  <td class="par-cell" data-hole="3"></td>
+                  <td class="par-cell" data-hole="4"></td>
+                  <td class="par-cell" data-hole="5"></td>
+                  <td class="par-cell" data-hole="6"></td>
+                  <td class="par-cell" data-hole="7"></td>
+                  <td class="par-cell" data-hole="8"></td>
+                  <td class="par-cell" data-hole="9"></td>
+                  <td class="par-cell" data-hole="10"></td>
+                  <td class="par-cell" data-hole="11"></td>
+                  <td class="par-cell" data-hole="12"></td>
+                  <td class="par-cell" data-hole="13"></td>
+                  <td class="par-cell" data-hole="14"></td>
+                  <td class="par-cell" data-hole="15"></td>
+                  <td class="par-cell" data-hole="16"></td>
+                  <td class="par-cell" data-hole="17"></td>
+                  <td class="par-cell par-total">-</td>
+                </tr>
 
-              <!-- Player rows -->
-              <tr class="player-row" data-slot="0">
-                <th class="player-label">
-                  <input class="player-name" placeholder="Player 1" disabled />
-                </th>
-                <!-- 18 holes -->
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td class="total-col">E</td>
-              </tr>
+                <!-- Player rows -->
+                <tr class="player-row" data-slot="0">
+                  <th class="player-label">
+                    <input class="player-name" placeholder="Player 1" disabled />
+                  </th>
+                  <!-- 18 holes -->
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td class="total-col">E</td>
+                </tr>
 
-              <tr class="player-row" data-slot="1">
-                <th class="player-label">
-                  <input class="player-name" placeholder="Player 2" disabled />
-                </th>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td class="total-col">E</td>
-              </tr>
+                <tr class="player-row" data-slot="1">
+                  <th class="player-label">
+                    <input class="player-name" placeholder="Player 2" disabled />
+                  </th>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td class="total-col">E</td>
+                </tr>
 
-              <tr class="player-row" data-slot="2">
-                <th class="player-label">
-                  <input class="player-name" placeholder="Player 3" disabled />
-                </th>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td class="total-col">E</td>
-              </tr>
+                <tr class="player-row" data-slot="2">
+                  <th class="player-label">
+                    <input class="player-name" placeholder="Player 3" disabled />
+                  </th>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td class="total-col">E</td>
+                </tr>
 
-              <tr class="player-row" data-slot="3">
-                <th class="player-label">
-                  <input class="player-name" placeholder="+ Add Player" disabled />
-                </th>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td><input class="score-input" type="number" min="1" disabled /></td>
-                <td class="total-col">E</td>
-              </tr>
-            </tbody>
-          </table>
+                <tr class="player-row" data-slot="3">
+                  <th class="player-label">
+                    <input class="player-name" placeholder="+ Add Player" disabled />
+                  </th>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td class="total-col">E</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
         <p class="swipe-hint">Swipe sideways to see all holes ⟶</p>
       </section>
