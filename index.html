@@ -126,10 +126,10 @@
       color: var(--sync-bg);
     }
 
-      .icon-btn-analytics {
+    .icon-btn-analytics {
       gap: 2px;
       position: relative;
-      top: 3px;    /* nudge down a bit; try 1–4px */
+      top: 3px;
     }
 
     .icon-btn-analytics .bar {
@@ -1493,6 +1493,32 @@
           inp.addEventListener("input", () => {
             if (currentGameId && currentPlayerSlot === slot) {
               updatePlayerInGame();
+            }
+          });
+
+          // new over par logic
+          inp.addEventListener("change", () => {
+            const raw = inp.value;
+            const score = parseInt(raw, 10);
+            if (isNaN(score) || score <= 0) return;
+
+            const cell = inp.closest("td");
+            if (!cell) return;
+            const rowEl = cell.parentElement;
+            const allCells = Array.from(rowEl.querySelectorAll("th, td"));
+            const holeIndex = allCells.indexOf(cell) - 1;
+            if (holeIndex < 0 || holeIndex >= HOLES) return;
+
+            const courseId = currentGameData ? currentGameData.courseId : courseSelect.value;
+            const pars = COURSES[courseId];
+            if (!pars) return;
+
+            const parVal = pars[holeIndex];
+            if (typeof parVal !== "number") return;
+
+            if (score > parVal) {
+              const diff = score - parVal;
+              alert(`Bruh. ${score} on a par ${parVal} is ${diff} over. You good?`);
             }
           });
         });
