@@ -126,10 +126,10 @@
       color: var(--sync-bg);
     }
 
-    .icon-btn-analytics {
+      .icon-btn-analytics {
       gap: 2px;
       position: relative;
-      top: 3px;
+      top: 3px;    /* nudge down a bit; try 1–4px */
     }
 
     .icon-btn-analytics .bar {
@@ -506,24 +506,6 @@
       line-height: 1.45;
     }
 
-    /* Over-par popup */
-    .overpar-popup {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #ff3b30;
-      color: white;
-      padding: 10px 18px;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: 700;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      pointer-events: none;
-      z-index: 9999;
-    }
-
     /* generic bottom sheet styling, shared by chat, settings, analytics */
 
     .chat-sheet {
@@ -823,7 +805,7 @@
     }
   </style>
 </head>
-<body class="dark">
+<body class="light">
   <div class="app-shell">
     <header class="app-header">
       <div class="app-title">Pardle</div>
@@ -993,6 +975,7 @@
                   <td><input class="score-input" type="number" min="1" disabled /></td>
                   <td><input class="score-input" type="number" min="1" disabled /></td>
                   <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
                   <td class="total-col">E</td>
                 </tr>
 
@@ -1017,6 +1000,7 @@
                   <td><input class="score-input" type="number" min="1" disabled /></td>
                   <td><input class="score-input" type="number" min="1" disabled /></td>
                   <td><input class="score-input" type="number" min="1" disabled /></td>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
                   <td class="total-col">E</td>
                 </tr>
 
@@ -1024,6 +1008,7 @@
                   <th class="player-label">
                     <input class="player-name" placeholder="+ Add Player" disabled />
                   </th>
+                  <td><input class="score-input" type="number" min="1" disabled /></td>
                   <td><input class="score-input" type="number" min="1" disabled /></td>
                   <td><input class="score-input" type="number" min="1" disabled /></td>
                   <td><input class="score-input" type="number" min="1" disabled /></td>
@@ -1089,1009 +1074,1068 @@
         </div>
       </section>
     </main>
+
+    <!-- Chat sheet -->
+    <div id="chatSheet" class="chat-sheet">
+      <div class="chat-sheet-inner">
+        <div class="sheet-header-row">
+          <span>Game chat</span>
+          <button id="chatCloseBtn" type="button">✕</button>
+        </div>
+        <div id="chatTargets" class="chat-targets"></div>
+        <div id="chatThread" class="chat-thread"></div>
+        <textarea id="chatText" class="chat-input" placeholder="Type your masterpiece…"></textarea>
+        <div class="chat-actions">
+          <button id="chatCancelBtn" class="small-btn secondary" type="button">Cancel</button>
+          <button id="chatSendBtn" class="small-btn" type="button">Send</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings sheet -->
+    <div id="settingsSheet" class="chat-sheet">
+      <div class="chat-sheet-inner">
+        <div class="sheet-header-row">
+          <span>Settings</span>
+          <button id="settingsCloseBtn" type="button">✕</button>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-label">Appearance</div>
+          <div class="settings-row">
+            <span style="font-size:13px;">Theme</span>
+            <label class="theme-toggle">
+              <span class="label">Dark</span>
+              <input type="checkbox" id="themeSwitch" />
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-label">Rules</div>
+          <button id="rulesLink" class="settings-link-btn" type="button">
+            View Pardle Rules
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Analytics sheet -->
+    <div id="analyticsSheet" class="chat-sheet">
+      <div class="chat-sheet-inner">
+        <div class="sheet-header-row">
+          <span>Round stats</span>
+          <button id="analyticsCloseBtn" type="button">✕</button>
+        </div>
+        <p class="analytics-intro">
+          Pardle handicap and deeper analytics are coming soon. For now, here is a quick summary of this round.
+        </p>
+        <div id="analyticsList" class="analytics-list"></div>
+      </div>
+    </div>
+
+    <!-- New Game confirmation modal -->
+    <div id="newGameConfirm" class="modal-backdrop">
+      <div class="modal-card">
+        <div class="modal-title">Start a new game?</div>
+        <div class="modal-body">
+          <p>This will clear all player names and scores on this device.</p>
+          <p>If you are mid round, tap Cancel. If you are ready to wipe the slate and that triple bogey, tap Start New Game.</p>
+        </div>
+        <div class="modal-actions">
+          <button id="newGameCancelBtn" class="small-btn secondary" type="button">Cancel</button>
+          <button id="newGameConfirmBtn" class="small-btn" type="button">Start New Game</button>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- Over-par popup now placed before the script so JS can find it -->
-  <div id="overparPopup" class="overpar-popup">Bruh…</div>
-
   <script>
-  // Firebase setup
-  const firebaseConfig = {
-    apiKey: "AIzaSyDxmmTSpvM1xvVRb8qiOQfbbQWHSJEgIrk",
-    authDomain: "pardle-online.firebaseapp.com",
-    projectId: "pardle-online",
-    storageBucket: "pardle-online.firebasestorage.app",
-    messagingSenderId: "552026596516",
-    appId: "1:552026596516:web:779d08f94ef455eda7f231",
-    measurementId: "G-SJLZZ84L8F"
-  };
-
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-
-  // Constants and state
-  const STORAGE_PLAYER_ID_KEY = "pardle_online_player_id";
-  const STORAGE_LAST_GAME_ID_KEY = "pardle_online_last_game_id";
-  const STORAGE_LAST_SLOT_KEY = "pardle_online_last_player_slot";
-
-  const COURSES = {
-    "st-andrews": [4,4,4,4,5,4,4,3,4,4,3,4,4,5,4,4,4,4],
-    "augusta": [4,5,4,3,4,3,4,5,4,4,4,3,5,4,5,3,4,4],
-    "bully-pulpit": [4,4,4,5,5,3,4,3,4,4,5,3,4,4,3,4,5,4],
-    "torrey-pines": [4,4,3,4,5,4,4,3,5,5,4,3,4,4,3,4,5,4],
-    "bethpage-black": [4,4,3,5,4,4,5,3,4,4,4,4,5,3,4,4,3,4],
-    "sweetwater": [4,4,3,4,5,3,4,4,3,4,4,3,4,5,3,4,4,3],
-    "tpc-sawgrass": [4,5,3,4,4,4,4,3,5,4,5,4,3,4,4,5,3,4],
-    "whistling-straits": [4,5,3,4,5,4,3,4,4,4,5,3,4,4,4,5,3,4],
-    "pebble-beach": [4,5,4,4,3,5,3,4,4,4,4,3,4,5,4,4,3,5],
-    "congressional": [4,3,4,5,4,5,3,4,5,3,5,4,3,4,5,5,4,4]
-  };
-
-  const MAX_PLAYERS = 4;
-  const HOLES = 18;
-
-  let currentGameId = null;
-  let currentPlayerId = null;
-  let currentPlayerSlot = null;
-  let currentGameData = null;
-  let unsubscribeGame = null;
-  let unsubscribeMessages = null;
-  let hasUnreadMessages = false;
-  let messagesInitialized = false;
-
-  // DOM
-  const body = document.body;
-
-  const playerNameInput = document.getElementById("playerNameInput");
-  const createGameBtn = document.getElementById("createGameBtn");
-  const joinGameBtn = document.getElementById("joinGameBtn");
-  const joinGameIdInput = document.getElementById("joinGameIdInput");
-  const onlineStatusText = document.getElementById("onlineStatusText");
-  const gameIdPill = document.getElementById("gameIdPill");
-  const gameIdValue = document.getElementById("gameIdValue");
-  const statusMessage = document.getElementById("statusMessage");
-
-  const courseSelect = document.getElementById("courseSelect");
-  const parCells = document.querySelectorAll(".par-cell[data-hole]");
-  const parTotalCell = document.querySelector(".par-total");
-  const playerRows = document.querySelectorAll(".player-row");
-
-  const chatButton = document.getElementById("chatButton");
-  const chatBadge = document.getElementById("chatBadge");
-  const chatSheet = document.getElementById("chatSheet");
-  const chatCloseBtn = document.getElementById("chatCloseBtn");
-  const chatCancelBtn = document.getElementById("chatCancelBtn");
-  const chatTargets = document.getElementById("chatTargets");
-  const chatThread = document.getElementById("chatThread");
-  const chatText = document.getElementById("chatText");
-  const chatSendBtn = document.getElementById("chatSendBtn");
-
-  const newGameConfirm = document.getElementById("newGameConfirm");
-  const newGameCancelBtn = document.getElementById("newGameCancelBtn");
-  const newGameConfirmBtn = document.getElementById("newGameConfirmBtn");
-
-  const settingsButton = document.getElementById("settingsButton");
-  const settingsSheet = document.getElementById("settingsSheet");
-  const settingsCloseBtn = document.getElementById("settingsCloseBtn");
-  const themeSwitch = document.getElementById("themeSwitch");
-  const rulesLink = document.getElementById("rulesLink");
-  const rulesCard = document.getElementById("rulesCard");
-
-  const analyticsButton = document.getElementById("analyticsButton");
-  const analyticsSheet = document.getElementById("analyticsSheet");
-  const analyticsCloseBtn = document.getElementById("analyticsCloseBtn");
-  const analyticsList = document.getElementById("analyticsList");
-
-  const overparPopup = document.getElementById("overparPopup");
-
-  setUnreadBadge(false);
-
-  // helpers
-  function generateId(len = 20) {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    let out = "";
-    for (let i = 0; i < len; i++) {
-      out += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return out;
-  }
-
-  function getOrCreatePlayerId() {
-    let id = localStorage.getItem(STORAGE_PLAYER_ID_KEY);
-    if (!id) {
-      id = generateId(16);
-      localStorage.setItem(STORAGE_PLAYER_ID_KEY, id);
-    }
-    return id;
-  }
-
-  function setStatus(msg, isError = false) {
-    const gameIdText = currentGameId || "none";
-
-    if (gameIdValue) {
-      gameIdValue.textContent = gameIdText;
-    }
-    if (statusMessage) {
-      statusMessage.textContent = msg;
-    }
-
-    if (isError) {
-      onlineStatusText.classList.add("error-text");
-    } else {
-      onlineStatusText.classList.remove("error-text");
-    }
-  }
-
-  function enableScorecard(enabled) {
-    courseSelect.disabled = !enabled;
-    playerRows.forEach(row => {
-      const slot = parseInt(row.dataset.slot, 10);
-      const isMine = enabled && currentPlayerSlot === slot;
-      const nameInput = row.querySelector(".player-name");
-      const scoreInputs = row.querySelectorAll(".score-input");
-      nameInput.disabled = !isMine;
-      scoreInputs.forEach(inp => inp.disabled = !isMine);
-    });
-  }
-
-  function scrollChatToBottom() {
-    if (!chatThread) return;
-    chatThread.scrollTop = chatThread.scrollHeight;
-  }
-
-  function updateParRow() {
-    const courseId = currentGameData ? currentGameData.courseId : courseSelect.value;
-    const pars = COURSES[courseId];
-    if (!pars) return;
-
-    let parTotal = 0;
-
-    parCells.forEach(cell => {
-      const idx = parseInt(cell.dataset.hole, 10);
-      const value = pars[idx];
-      if (typeof value === "number") {
-        cell.textContent = value;
-        parTotal += value;
-      } else {
-        cell.textContent = "";
-      }
-    });
-
-    parTotalCell.textContent = parTotal > 0 ? parTotal : "-";
-    recalcAllTotals();
-  }
-
-  function recalcAllTotals() {
-    const courseId = currentGameData ? currentGameData.courseId : courseSelect.value;
-    const pars = COURSES[courseId] || [];
-
-    const rows = document.querySelectorAll("tbody tr");
-    rows.forEach(row => {
-      if (row.id === "parRow") return;
-
-      const scoreInputs = row.querySelectorAll(".score-input");
-      if (!scoreInputs.length) return;
-
-      let scoreTotal = 0;
-      let parTotalPlayed = 0;
-
-      scoreInputs.forEach((input, idx) => {
-        const val = parseInt(input.value, 10);
-        if (!isNaN(val) && val > 0) {
-          scoreTotal += val;
-          const parVal = pars[idx];
-          if (typeof parVal === "number") {
-            parTotalPlayed += parVal;
-          }
-        }
-      });
-
-      const totalCell = row.querySelector(".total-col");
-      if (!totalCell) return;
-
-      if (scoreTotal === 0) {
-        totalCell.textContent = "E";
-        return;
-      }
-
-      if (parTotalPlayed === 0) {
-        totalCell.textContent = String(scoreTotal);
-        return;
-      }
-
-      const diff = scoreTotal - parTotalPlayed;
-      if (diff === 0) {
-        totalCell.textContent = "E";
-      } else if (diff > 0) {
-        totalCell.textContent = "+" + diff;
-      } else {
-        totalCell.textContent = diff.toString();
-      }
-    });
-  }
-
-  // popup function
-  function showOverparPopup() {
-    if (!overparPopup) return;
-    overparPopup.style.opacity = "1";
-    setTimeout(() => {
-      overparPopup.style.opacity = "0";
-    }, 1500);
-  }
-
-  function readScoresFromSlot(slot) {
-    const row = document.querySelector(`.player-row[data-slot="${slot}"]`);
-    if (!row) return Array(HOLES).fill(null);
-
-    const inputs = row.querySelectorAll(".score-input");
-    const scores = [];
-    inputs.forEach(inp => {
-      const v = inp.value;
-      scores.push(v === "" ? null : Number(v));
-    });
-    return scores;
-  }
-
-  function setActiveHole(holeIndex) {
-    if (holeIndex < 0 || holeIndex >= HOLES) return;
-
-    const headerRow = document.querySelector(".scorecard-table thead tr");
-    if (!headerRow) return;
-
-    headerRow.querySelectorAll(".hole-header").forEach(h => h.classList.remove("active-hole"));
-    document.querySelectorAll(".scorecard-table td.active-hole").forEach(td => td.classList.remove("active-hole"));
-
-    const headerCells = headerRow.querySelectorAll("th");
-    const targetHeader = headerCells[1 + holeIndex];
-    if (targetHeader) {
-      targetHeader.classList.add("active-hole");
-    }
-
-    document.querySelectorAll(".scorecard-table tbody tr").forEach(row => {
-      const cells = row.querySelectorAll("th, td");
-      const targetCell = cells[1 + holeIndex];
-      if (targetCell && targetCell.tagName === "TD") {
-        targetCell.classList.add("active-hole");
-      }
-    });
-  }
-
-  function applyGameToUI(data) {
-    if (!data) return;
-
-    currentGameData = data;
-
-    const courseId = data.courseId || "st-andrews";
-    if (COURSES[courseId]) {
-      courseSelect.value = courseId;
-    }
-    updateParRow();
-
-    const players = Array.isArray(data.players) ? data.players : [];
-
-    for (let i = 0; i < MAX_PLAYERS; i++) {
-      const row = document.querySelector(`.player-row[data-slot="${i}"]`);
-      if (!row) continue;
-      const nameInput = row.querySelector(".player-name");
-      const scoreInputs = row.querySelectorAll(".score-input");
-
-      const p = players[i];
-      if (p && p.id) {
-        nameInput.value = p.name || "";
-        const scores = Array.isArray(p.scores) ? p.scores : [];
-        for (let h = 0; h < HOLES; h++) {
-          const score = scores[h];
-          scoreInputs[h].value = score == null ? "" : score;
-        }
-      } else {
-        nameInput.value = "";
-        scoreInputs.forEach(inp => inp.value = "");
-      }
-    }
-
-    if (currentPlayerSlot != null && players[currentPlayerSlot]) {
-      playerNameInput.value = players[currentPlayerSlot].name || "";
-    }
-
-    let holeForHighlight = 0;
-    if (currentPlayerSlot != null) {
-      const myRow = document.querySelector(`.player-row[data-slot="${currentPlayerSlot}"]`);
-      if (myRow) {
-        const myInputs = myRow.querySelectorAll(".score-input");
-        let firstEmpty = -1;
-
-        for (let i = 0; i < myInputs.length; i++) {
-          if (!myInputs[i].value) {
-            firstEmpty = i;
-            break;
-          }
-        }
-
-        if (firstEmpty !== -1) {
-          holeForHighlight = firstEmpty;
-        } else if (myInputs.length > 0) {
-          holeForHighlight = myInputs.length - 1;
-        }
-      }
-    }
-
-    setActiveHole(holeForHighlight);
-    recalcAllTotals();
-    renderChatTargets();
-  }
-
-  function bindScoreInputs() {
-    playerRows.forEach(row => {
-      const slot = parseInt(row.dataset.slot, 10);
-      const nameInput = row.querySelector(".player-name");
-      const scoreInputs = row.querySelectorAll(".score-input");
-
-      nameInput.addEventListener("input", () => {
-        if (currentGameId && currentPlayerSlot === slot) {
-          updatePlayerInGame();
-        }
-      });
-
-      scoreInputs.forEach((inp, index) => {
-
-        // highlight active hole
-        inp.addEventListener("focus", () => {
-          const cell = inp.closest("td");
-          if (!cell) return;
-          const rowEl = cell.parentElement;
-          const allCells = Array.from(rowEl.querySelectorAll("th, td"));
-          const holeIndex = allCells.indexOf(cell) - 1;
-          if (holeIndex >= 0 && holeIndex < HOLES) {
-            setActiveHole(holeIndex);
-          }
-        });
-
-        // Over-par detection
-        inp.addEventListener("input", () => {
-          if (currentGameId && currentPlayerSlot === slot) {
-
-            const courseId = currentGameData ? currentGameData.courseId : courseSelect.value;
-            const pars = COURSES[courseId];
-            const parForHole = pars ? pars[index] : undefined;
-
-            const val = parseInt(inp.value, 10);
-            if (!isNaN(val) && typeof parForHole === "number" && val > parForHole) {
-              showOverparPopup();
-            }
-
-            updatePlayerInGame();
-          }
-        });
-      });
-    });
-
-    courseSelect.addEventListener("change", () => {
-      if (!currentGameId || !currentGameData) {
-        updateParRow();
-        return;
-      }
-      const newCourseId = courseSelect.value;
-      const updated = { ...currentGameData, courseId: newCourseId };
-      currentGameData = updated;
-      db.collection("games").doc(currentGameId).set(updated);
-    });
-  }
-
-  async function updatePlayerInGame() {
-    if (!currentGameId || currentPlayerSlot == null || !currentGameData) return;
-
-    const row = document.querySelector(`.player-row[data-slot="${currentPlayerSlot}"]`);
-    if (!row) return;
-
-    const nameInput = row.querySelector(".player-name");
-    const scores = readScoresFromSlot(currentPlayerSlot);
-
-    const updated = { ...currentGameData };
-    const players = Array.isArray(updated.players) ? [...updated.players] : [];
-
-    while (players.length < MAX_PLAYERS) {
-      players.push({ id: null, name: "", scores: Array(HOLES).fill(null) });
-    }
-
-    players[currentPlayerSlot] = {
-      id: currentPlayerId,
-      name: nameInput.value || "",
-      scores
+    // Firebase setup
+    const firebaseConfig = {
+      apiKey: "AIzaSyDxmmTSpvM1xvVRb8qiOQfbbQWHSJEgIrk",
+      authDomain: "pardle-online.firebaseapp.com",
+      projectId: "pardle-online",
+      storageBucket: "pardle-online.firebasestorage.app",
+      messagingSenderId: "552026596516",
+      appId: "1:552026596516:web:779d08f94ef455eda7f231",
+      measurementId: "G-SJLZZ84L8F"
     };
 
-    updated.players = players;
-    currentGameData = updated;
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-    await db.collection("games").doc(currentGameId).set(updated);
-    recalcAllTotals();
+    // Constants and state
+    const STORAGE_PLAYER_ID_KEY = "pardle_online_player_id";
+    const STORAGE_LAST_GAME_ID_KEY = "pardle_online_last_game_id";
+    const STORAGE_LAST_SLOT_KEY = "pardle_online_last_player_slot";
 
-    row.classList.remove("saved-pulse");
-    void row.offsetWidth;
-    row.classList.add("saved-pulse");
-  }
+    const COURSES = {
+      "st-andrews": [4,4,4,4,5,4,4,3,4,4,3,4,4,5,4,4,4,4],
+      "augusta": [4,5,4,3,4,3,4,5,4,4,4,3,5,4,5,3,4,4],
+      "bully-pulpit": [4,4,4,5,5,3,4,3,4,4,5,3,4,4,3,4,5,4],
+      "torrey-pines": [4,4,3,4,5,4,4,3,5,5,4,3,4,4,3,4,5,4],
+      "bethpage-black": [4,4,3,5,4,4,5,3,4,4,4,4,5,3,4,4,3,4],
+      "sweetwater": [4,4,3,4,5,3,4,4,3,4,4,3,4,5,3,4,4,3],
+      "tpc-sawgrass": [4,5,3,4,4,4,4,3,5,4,5,4,3,4,4,5,3,4],
+      "whistling-straits": [4,5,3,4,5,4,3,4,4,4,5,3,4,4,4,5,3,4],
+      "pebble-beach": [4,5,4,4,3,5,3,4,4,4,4,3,4,5,4,4,3,5],
+      "congressional": [4,3,4,5,4,5,3,4,5,3,5,4,3,4,5,5,4,4]
+    };
 
-  async function createGame() {
-    const name = playerNameInput.value.trim();
-    if (!name) {
-      setStatus("Enter your name before creating a game.", true);
-      return;
-    }
+    const MAX_PLAYERS = 4;
+    const HOLES = 18;
 
-    currentPlayerId = getOrCreatePlayerId();
-    currentPlayerSlot = 0;
+    let currentGameId = null;
+    let currentPlayerId = null;
+    let currentPlayerSlot = null;
+    let currentGameData = null;
+    let unsubscribeGame = null;
+    let unsubscribeMessages = null;
+    let hasUnreadMessages = false;
+    let messagesInitialized = false;
 
-    const emptyScores = Array(HOLES).fill(null);
-    const players = [];
-    for (let i = 0; i < MAX_PLAYERS; i++) {
-      players.push({ id: null, name: "", scores: emptyScores });
-    }
-    players[0] = { id: currentPlayerId, name, scores: emptyScores };
+    // DOM
+    const body = document.body;
 
-    const initialCourseId = courseSelect.value || "st-andrews";
+    const playerNameInput = document.getElementById("playerNameInput");
+    const createGameBtn = document.getElementById("createGameBtn");
+    const joinGameBtn = document.getElementById("joinGameBtn");
+    const joinGameIdInput = document.getElementById("joinGameIdInput");
+    const onlineStatusText = document.getElementById("onlineStatusText");
+    const gameIdPill = document.getElementById("gameIdPill");
+    const gameIdValue = document.getElementById("gameIdValue");
+    const statusMessage = document.getElementById("statusMessage");
 
-    const docRef = await db.collection("games").add({
-      courseId: initialCourseId,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      players
-    });
+    const courseSelect = document.getElementById("courseSelect");
+    const parCells = document.querySelectorAll(".par-cell[data-hole]");
+    const parTotalCell = document.querySelector(".par-total");
+    const playerRows = document.querySelectorAll(".player-row");
 
-    currentGameId = docRef.id;
+    const chatButton = document.getElementById("chatButton");
+    const chatBadge = document.getElementById("chatBadge");
+    const chatSheet = document.getElementById("chatSheet");
+    const chatCloseBtn = document.getElementById("chatCloseBtn");
+    const chatCancelBtn = document.getElementById("chatCancelBtn");
+    const chatTargets = document.getElementById("chatTargets");
+    const chatThread = document.getElementById("chatThread");
+    const chatText = document.getElementById("chatText");
+    const chatSendBtn = document.getElementById("chatSendBtn");
 
-    localStorage.setItem(STORAGE_LAST_GAME_ID_KEY, currentGameId);
-    localStorage.setItem(STORAGE_LAST_SLOT_KEY, String(currentPlayerSlot));
+    const newGameConfirm = document.getElementById("newGameConfirm");
+    const newGameCancelBtn = document.getElementById("newGameCancelBtn");
+    const newGameConfirmBtn = document.getElementById("newGameConfirmBtn");
 
-    setStatus("Game created. Share this code with your friends.");
+    const settingsButton = document.getElementById("settingsButton");
+    const settingsSheet = document.getElementById("settingsSheet");
+    const settingsCloseBtn = document.getElementById("settingsCloseBtn");
+    const themeSwitch = document.getElementById("themeSwitch");
+    const rulesLink = document.getElementById("rulesLink");
+    const rulesCard = document.getElementById("rulesCard");
 
-    if (unsubscribeGame) unsubscribeGame();
-    unsubscribeGame = docRef.onSnapshot(snap => {
-      if (!snap.exists) {
-        setStatus("Game was deleted or not found.", true);
-        enableScorecard(false);
-        return;
-      }
-      applyGameToUI(snap.data());
-      enableScorecard(true);
-    });
-
-    setUnreadBadge(false);
-    messagesInitialized = false;
-    attachMessageListener(currentGameId);
-  }
-
-  async function joinGame() {
-    const name = playerNameInput.value.trim();
-    if (!name) {
-      setStatus("Enter your name before joining a game.", true);
-      return;
-    }
-
-    const joinId = joinGameIdInput.value.trim();
-    if (!joinId) {
-      setStatus("Enter a game code to join.", true);
-      return;
-    }
-
-    currentPlayerId = getOrCreatePlayerId();
-
-    const docRef = db.collection("games").doc(joinId);
-    const snap = await docRef.get();
-    if (!snap.exists) {
-      setStatus("Game not found. Check the code and try again.", true);
-      return;
-    }
-
-    const data = snap.data() || {};
-    let players = Array.isArray(data.players) ? [...data.players] : [];
-    while (players.length < MAX_PLAYERS) {
-      players.push({ id: null, name: "", scores: Array(HOLES).fill(null) });
-    }
-
-    let slot = players.findIndex(p => p && p.id === currentPlayerId);
-
-    if (slot === -1) {
-      slot = players.findIndex(p => !p || !p.id);
-      if (slot === -1) {
-        setStatus("This game already has 4 players.", true);
-        return;
-      }
-
-      const emptyScores = Array(HOLES).fill(null);
-      players[slot] = {
-        id: currentPlayerId,
-        name,
-        scores: emptyScores
-      };
-    } else {
-      const existing = players[slot] || {};
-      players[slot] = {
-        id: existing.id || currentPlayerId,
-        name: name || existing.name || "",
-        scores: Array.isArray(existing.scores)
-          ? existing.scores
-          : Array(HOLES).fill(null)
-      };
-    }
-
-    await docRef.set({
-      ...data,
-      players
-    });
-
-    currentGameId = joinId;
-    currentPlayerSlot = slot;
-
-    localStorage.setItem(STORAGE_LAST_GAME_ID_KEY, currentGameId);
-    localStorage.setItem(STORAGE_LAST_SLOT_KEY, String(currentPlayerSlot));
-
-    setStatus(`Joined game in slot ${slot + 1}.`);
-
-    if (unsubscribeGame) unsubscribeGame();
-    unsubscribeGame = docRef.onSnapshot(s => {
-      if (!s.exists) {
-        setStatus("Game was deleted or not found.", true);
-        enableScorecard(false);
-        return;
-      }
-      applyGameToUI(s.data());
-      enableScorecard(true);
-    });
+    const analyticsButton = document.getElementById("analyticsButton");
+    const analyticsSheet = document.getElementById("analyticsSheet");
+    const analyticsCloseBtn = document.getElementById("analyticsCloseBtn");
+    const analyticsList = document.getElementById("analyticsList");
 
     setUnreadBadge(false);
-    messagesInitialized = false;
-    attachMessageListener(currentGameId);
-  }
 
-  async function attemptAutoRejoin() {
-    const savedGameId = localStorage.getItem(STORAGE_LAST_GAME_ID_KEY);
-    const savedSlotStr = localStorage.getItem(STORAGE_LAST_SLOT_KEY);
-
-    if (!savedGameId || savedSlotStr == null) {
-      setStatus("Not in a game. Create or join to start.");
-      return;
-    }
-
-    currentPlayerId = getOrCreatePlayerId();
-    currentGameId = savedGameId;
-    currentPlayerSlot = parseInt(savedSlotStr, 10);
-
-    const docRef = db.collection("games").doc(savedGameId);
-    const snap = await docRef.get();
-
-    if (!snap.exists) {
-      localStorage.removeItem(STORAGE_LAST_GAME_ID_KEY);
-      localStorage.removeItem(STORAGE_LAST_SLOT_KEY);
-      currentGameId = null;
-      currentPlayerSlot = null;
-      setStatus("Last saved game not found. Create or join a new one.");
-      enableScorecard(false);
-      setUnreadBadge(false);
-      return;
-    }
-
-    setStatus("Rejoined your last game. Enter scores as normal.");
-
-    if (unsubscribeGame) unsubscribeGame();
-    unsubscribeGame = docRef.onSnapshot(s => {
-      if (!s.exists) {
-        setStatus("Game was deleted or not found.", true);
-        enableScorecard(false);
-        return;
+    // helpers
+    function generateId(len = 20) {
+      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+      let out = "";
+      for (let i = 0; i < len; i++) {
+        out += chars.charAt(Math.floor(Math.random() * chars.length));
       }
-      applyGameToUI(s.data());
-      enableScorecard(true);
-    });
-
-    setUnreadBadge(false);
-    messagesInitialized = false;
-    attachMessageListener(currentGameId);
-  }
-
-  // message and chat logic
-  function attachMessageListener(gameId) {
-    if (!gameId) return;
-
-    if (unsubscribeMessages) {
-      unsubscribeMessages();
-      unsubscribeMessages = null;
+      return out;
     }
 
-    messagesInitialized = false;
+    function getOrCreatePlayerId() {
+      let id = localStorage.getItem(STORAGE_PLAYER_ID_KEY);
+      if (!id) {
+        id = generateId(16);
+        localStorage.setItem(STORAGE_PLAYER_ID_KEY, id);
+      }
+      return id;
+    }
 
-    unsubscribeMessages = db.collection("games")
-      .doc(gameId)
-      .collection("messages")
-      .orderBy("createdAt", "desc")
-      .limit(50)
-      .onSnapshot(snapshot => {
-        const all = [];
-        snapshot.forEach(doc => {
-          const msg = doc.data();
-          if (!msg) return;
+    function setStatus(msg, isError = false) {
+      const gameIdText = currentGameId || "none";
 
-          const targets = Array.isArray(msg.toSlots) ? msg.toSlots : [];
-          const isBroadcast = targets.length === 0;
-          const isTargeted = currentPlayerSlot != null && targets.includes(currentPlayerSlot);
-          const isMine = msg.fromId === currentPlayerId;
+      if (gameIdValue) {
+        gameIdValue.textContent = gameIdText;
+      }
+      if (statusMessage) {
+        statusMessage.textContent = msg;
+      }
 
-          if (isMine || isBroadcast || isTargeted) {
-            all.push({
-              ...msg,
-              isMine
-            });
+      if (isError) {
+        onlineStatusText.classList.add("error-text");
+      } else {
+        onlineStatusText.classList.remove("error-text");
+      }
+    }
+
+    function enableScorecard(enabled) {
+      courseSelect.disabled = !enabled;
+      playerRows.forEach(row => {
+        const slot = parseInt(row.dataset.slot, 10);
+        const isMine = enabled && currentPlayerSlot === slot;
+        const nameInput = row.querySelector(".player-name");
+        const scoreInputs = row.querySelectorAll(".score-input");
+        nameInput.disabled = !isMine;
+        scoreInputs.forEach(inp => inp.disabled = !isMine);
+      });
+    }
+
+    function scrollChatToBottom() {
+      if (!chatThread) return;
+      chatThread.scrollTop = chatThread.scrollHeight;
+    }
+
+    function updateParRow() {
+      const courseId = currentGameData ? currentGameData.courseId : courseSelect.value;
+      const pars = COURSES[courseId];
+      if (!pars) return;
+
+      let parTotal = 0;
+
+      parCells.forEach(cell => {
+        const idx = parseInt(cell.dataset.hole, 10);
+        const value = pars[idx];
+        if (typeof value === "number") {
+          cell.textContent = value;
+          parTotal += value;
+        } else {
+          cell.textContent = "";
+        }
+      });
+
+      parTotalCell.textContent = parTotal > 0 ? parTotal : "-";
+      recalcAllTotals();
+    }
+
+    function recalcAllTotals() {
+      const courseId = currentGameData ? currentGameData.courseId : courseSelect.value;
+      const pars = COURSES[courseId] || [];
+
+      const rows = document.querySelectorAll("tbody tr");
+      rows.forEach(row => {
+        if (row.id === "parRow") return;
+
+        const scoreInputs = row.querySelectorAll(".score-input");
+        if (!scoreInputs.length) return;
+
+        let scoreTotal = 0;
+        let parTotalPlayed = 0;
+
+        scoreInputs.forEach((input, idx) => {
+          const val = parseInt(input.value, 10);
+          if (!isNaN(val) && val > 0) {
+            scoreTotal += val;
+            const parVal = pars[idx];
+            if (typeof parVal === "number") {
+              parTotalPlayed += parVal;
+            }
           }
         });
 
-        renderChatThreadMessages(all);
+        const totalCell = row.querySelector(".total-col");
+        if (!totalCell) return;
 
-        if (!messagesInitialized) {
-          messagesInitialized = true;
+        if (scoreTotal === 0) {
+          totalCell.textContent = "E";
           return;
         }
 
-        snapshot.docChanges().forEach(change => {
-          if (change.type !== "added") return;
+        if (parTotalPlayed === 0) {
+          totalCell.textContent = String(scoreTotal);
+          return;
+        }
 
-          const msg = change.doc.data();
-          if (!msg || msg.fromId === currentPlayerId) return;
+        const diff = scoreTotal - parTotalPlayed;
+        if (diff === 0) {
+          totalCell.textContent = "E";
+        } else if (diff > 0) {
+          totalCell.textContent = "+" + diff;
+        } else {
+          totalCell.textContent = diff.toString();
+        }
+      });
+    }
 
-          const targets = Array.isArray(msg.toSlots) ? msg.toSlots : [];
-          const isBroadcast = targets.length === 0;
-          const isTargeted = currentPlayerSlot != null && targets.includes(currentPlayerSlot);
+    function readScoresFromSlot(slot) {
+      const row = document.querySelector(`.player-row[data-slot="${slot}"]`);
+      if (!row) return Array(HOLES).fill(null);
 
-          if ((isBroadcast || isTargeted) && chatSheet && !chatSheet.classList.contains("visible")) {
-            setUnreadBadge(true);
+      const inputs = row.querySelectorAll(".score-input");
+      const scores = [];
+      inputs.forEach(inp => {
+        const v = inp.value;
+        scores.push(v === "" ? null : Number(v));
+      });
+      return scores;
+    }
+
+    function setActiveHole(holeIndex) {
+      if (holeIndex < 0 || holeIndex >= HOLES) return;
+
+      const headerRow = document.querySelector(".scorecard-table thead tr");
+      if (!headerRow) return;
+
+      headerRow.querySelectorAll(".hole-header").forEach(h => h.classList.remove("active-hole"));
+      document.querySelectorAll(".scorecard-table td.active-hole").forEach(td => td.classList.remove("active-hole"));
+
+      const headerCells = headerRow.querySelectorAll("th");
+      const targetHeader = headerCells[1 + holeIndex];
+      if (targetHeader) {
+        targetHeader.classList.add("active-hole");
+      }
+
+      document.querySelectorAll(".scorecard-table tbody tr").forEach(row => {
+        const cells = row.querySelectorAll("th, td");
+        const targetCell = cells[1 + holeIndex];
+        if (targetCell && targetCell.tagName === "TD") {
+          targetCell.classList.add("active-hole");
+        }
+      });
+    }
+
+    function applyGameToUI(data) {
+      if (!data) return;
+
+      currentGameData = data;
+
+      const courseId = data.courseId || "st-andrews";
+      if (COURSES[courseId]) {
+        courseSelect.value = courseId;
+      }
+      updateParRow();
+
+      const players = Array.isArray(data.players) ? data.players : [];
+
+      for (let i = 0; i < MAX_PLAYERS; i++) {
+        const row = document.querySelector(`.player-row[data-slot="${i}"]`);
+        if (!row) continue;
+        const nameInput = row.querySelector(".player-name");
+        const scoreInputs = row.querySelectorAll(".score-input");
+
+        const p = players[i];
+        if (p && p.id) {
+          nameInput.value = p.name || "";
+          const scores = Array.isArray(p.scores) ? p.scores : [];
+          for (let h = 0; h < HOLES; h++) {
+            const score = scores[h];
+            scoreInputs[h].value = score == null ? "" : score;
+          }
+        } else {
+          nameInput.value = "";
+          scoreInputs.forEach(inp => inp.value = "");
+        }
+      }
+
+      if (currentPlayerSlot != null && players[currentPlayerSlot]) {
+        playerNameInput.value = players[currentPlayerSlot].name || "";
+      }
+
+      let holeForHighlight = 0;
+      if (currentPlayerSlot != null) {
+        const myRow = document.querySelector(`.player-row[data-slot="${currentPlayerSlot}"]`);
+        if (myRow) {
+          const myInputs = myRow.querySelectorAll(".score-input");
+          let firstEmpty = -1;
+
+          for (let i = 0; i < myInputs.length; i++) {
+            if (!myInputs[i].value) {
+              firstEmpty = i;
+              break;
+            }
+          }
+
+          if (firstEmpty !== -1) {
+            holeForHighlight = firstEmpty;
+          } else if (myInputs.length > 0) {
+            holeForHighlight = myInputs.length - 1;
+          }
+        }
+      }
+
+      setActiveHole(holeForHighlight);
+      recalcAllTotals();
+      renderChatTargets();
+    }
+
+    function bindScoreInputs() {
+      playerRows.forEach(row => {
+        const slot = parseInt(row.dataset.slot, 10);
+        const nameInput = row.querySelector(".player-name");
+        const scoreInputs = row.querySelectorAll(".score-input");
+
+        nameInput.addEventListener("input", () => {
+          if (currentGameId && currentPlayerSlot === slot) {
+            updatePlayerInGame();
           }
         });
-      });
-  }
 
-  function renderChatThreadMessages(messages) {
-    if (!chatThread) return;
-    chatThread.innerHTML = "";
+        scoreInputs.forEach(inp => {
+          inp.addEventListener("focus", () => {
+            const cell = inp.closest("td");
+            if (!cell) return;
+            const rowEl = cell.parentElement;
+            const allCells = Array.from(rowEl.querySelectorAll("th, td"));
+            const holeIndex = allCells.indexOf(cell) - 1;
+            if (holeIndex >= 0 && holeIndex < HOLES) {
+              setActiveHole(holeIndex);
+            }
+          });
 
-    if (!messages || messages.length === 0) {
-      const empty = document.createElement("div");
-      empty.style.opacity = "0.7";
-      empty.style.fontSize = "11px";
-      empty.textContent = "No messages yet. Start the smack talk.";
-      chatThread.appendChild(empty);
-      return;
-    }
-
-    const sorted = messages.slice().sort((a, b) => {
-      const ta = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
-      const tb = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
-      return ta - tb;
-    });
-
-    sorted.forEach(msg => {
-      const wrap = document.createElement("div");
-      wrap.className = "chat-message" + (msg.isMine ? " me" : "");
-
-      const meta = document.createElement("span");
-      meta.className = "meta";
-      const name = msg.fromName || "Player";
-      let scope = "all";
-      if (Array.isArray(msg.toSlots) && msg.toSlots.length) {
-        scope = "to " + msg.toSlots.map(s => `P${s + 1}`).join(", ");
-      }
-      meta.textContent = msg.isMine ? `${name} (${scope})` : name;
-
-      const text = document.createElement("span");
-      text.className = "text";
-      text.textContent = msg.text || "";
-
-      wrap.appendChild(meta);
-      wrap.appendChild(text);
-      chatThread.appendChild(wrap);
-    });
-
-    scrollChatToBottom();
-  }
-
-  function renderChatTargets() {
-    if (!chatTargets) return;
-    chatTargets.innerHTML = "";
-
-    if (!currentGameData || !Array.isArray(currentGameData.players)) return;
-
-    currentGameData.players.forEach((p, idx) => {
-      if (!p || !p.id) return;
-
-      const pill = document.createElement("button");
-      pill.type = "button";
-      pill.className = "chat-target-pill";
-      pill.dataset.slot = String(idx);
-      pill.textContent = p.name || `Player ${idx + 1}`;
-      if (idx === currentPlayerSlot) {
-        pill.textContent += " (you)";
-      }
-      pill.addEventListener("click", () => {
-        pill.classList.toggle("selected");
-      });
-      chatTargets.appendChild(pill);
-    });
-  }
-
-  function showChatSheet() {
-    if (!chatSheet) return;
-    renderChatTargets();
-    setUnreadBadge(false);
-    chatSheet.classList.add("visible");
-    chatText.value = "";
-    chatText.focus();
-    setTimeout(scrollChatToBottom, 50);
-  }
-
-  function hideChatSheet() {
-    if (!chatSheet) return;
-    chatSheet.classList.remove("visible");
-  }
-
-  function setUnreadBadge(flag) {
-    hasUnreadMessages = flag;
-    if (!chatBadge) return;
-    chatBadge.style.display = flag ? "inline-block" : "none";
-  }
-
-  async function sendChatMessage() {
-    if (!currentGameId || currentPlayerSlot == null || !currentPlayerId) return;
-
-    const text = chatText.value.trim();
-    if (!text) return;
-
-    const selectedSlots = Array.from(
-      document.querySelectorAll(".chat-target-pill.selected")
-    ).map(pill => parseInt(pill.dataset.slot, 10));
-
-    const toSlots = selectedSlots.length ? selectedSlots : [];
-
-    await db.collection("games")
-      .doc(currentGameId)
-      .collection("messages")
-      .add({
-        fromId: currentPlayerId,
-        fromName: playerNameInput.value || "Player",
-        fromSlot: currentPlayerSlot,
-        toSlots,
-        text,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          inp.addEventListener("input", () => {
+            if (currentGameId && currentPlayerSlot === slot) {
+              updatePlayerInGame();
+            }
+          });
+        });
       });
 
-    chatText.value = "";
-    hideChatSheet();
-  }
-
-  if (gameIdPill) {
-    gameIdPill.addEventListener("click", async () => {
-      if (!currentGameId) return;
-      try {
-        await navigator.clipboard.writeText(currentGameId);
-        const original = gameIdValue.textContent;
-        gameIdValue.textContent = "Copied!";
-        setTimeout(() => {
-          gameIdValue.textContent = original;
-        }, 1000);
-      } catch (err) {
-        console.error(err);
-      }
-    });
-  }
-
-  function hasExistingGameData() {
-    if (currentGameId) return true;
-
-    let hasStuff = false;
-
-    document.querySelectorAll(".player-name").forEach(inp => {
-      if (inp.value && inp.value.trim() !== "") {
-        hasStuff = true;
-      }
-    });
-
-    document.querySelectorAll(".score-input").forEach(inp => {
-      if (inp.value && inp.value.trim() !== "") {
-        hasStuff = true;
-      }
-    });
-
-    return hasStuff;
-  }
-
-  function showNewGameConfirm() {
-    if (!newGameConfirm) return;
-    newGameConfirm.classList.add("visible");
-  }
-
-  function hideNewGameConfirm() {
-    if (!newGameConfirm) return;
-    newGameConfirm.classList.remove("visible");
-  }
-
-  function handleCreateGameClick() {
-    if (hasExistingGameData()) {
-      showNewGameConfirm();
-    } else {
-      createGame().catch(err => {
-        console.error(err);
-        setStatus("Error creating game.", true);
+      courseSelect.addEventListener("change", () => {
+        if (!currentGameId || !currentGameData) {
+          updateParRow();
+          return;
+        }
+        const newCourseId = courseSelect.value;
+        const updated = { ...currentGameData, courseId: newCourseId };
+        currentGameData = updated;
+        db.collection("games").doc(currentGameId).set(updated);
       });
     }
-  }
 
-  if (newGameCancelBtn) {
-    newGameCancelBtn.addEventListener("click", () => {
-      hideNewGameConfirm();
-    });
-  }
+    async function updatePlayerInGame() {
+      if (!currentGameId || currentPlayerSlot == null || !currentGameData) return;
 
-  if (newGameConfirmBtn) {
-    newGameConfirmBtn.addEventListener("click", () => {
-      hideNewGameConfirm();
-      createGame().catch(err => {
-        console.error(err);
-        setStatus("Error creating game.", true);
-      });
-    });
-  }
+      const row = document.querySelector(`.player-row[data-slot="${currentPlayerSlot}"]`);
+      if (!row) return;
 
-  function openSettingsSheet() {
-    if (!settingsSheet) return;
-    themeSwitch.checked = body.classList.contains("dark");
-    settingsSheet.classList.add("visible");
-  }
-
-  function closeSettingsSheet() {
-    if (!settingsSheet) return;
-    settingsSheet.classList.remove("visible");
-  }
-
-  if (settingsButton) {
-    settingsButton.addEventListener("click", openSettingsSheet);
-  }
-
-  if (settingsCloseBtn) {
-    settingsCloseBtn.addEventListener("click", closeSettingsSheet);
-  }
-
-  if (themeSwitch) {
-    themeSwitch.addEventListener("change", () => {
-      if (themeSwitch.checked) {
-        body.classList.add("dark");
-      } else {
-        body.classList.remove("dark");
-      }
-    });
-  }
-
-  if (rulesLink) {
-    rulesLink.addEventListener("click", () => {
-      const isVisible = rulesCard.classList.contains("visible");
-      if (isVisible) {
-        rulesCard.classList.remove("visible");
-        rulesLink.textContent = "View Pardle Rules";
-      } else {
-        rulesCard.classList.add("visible");
-        rulesLink.textContent = "Hide Pardle Rules";
-        rulesCard.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-      closeSettingsSheet();
-    });
-  }
-
-  function openAnalyticsSheet() {
-    if (!analyticsSheet) return;
-    buildAnalyticsSummary();
-    analyticsSheet.classList.add("visible");
-  }
-
-  function closeAnalyticsSheet() {
-    if (!analyticsSheet) return;
-    analyticsSheet.classList.remove("visible");
-  }
-
-  function buildAnalyticsSummary() {
-    if (!analyticsList) return;
-    analyticsList.innerHTML = "";
-
-    const rows = document.querySelectorAll(".player-row");
-    let hasAny = false;
-
-    rows.forEach(row => {
       const nameInput = row.querySelector(".player-name");
-      const totalCell = row.querySelector(".total-col");
-      if (!nameInput || !totalCell) return;
+      const scores = readScoresFromSlot(currentPlayerSlot);
 
-      const name = nameInput.value.trim();
-      if (!name) return;
+      const updated = { ...currentGameData };
+      const players = Array.isArray(updated.players) ? [...updated.players] : [];
 
-      const totalText = totalCell.textContent || "E";
+      while (players.length < MAX_PLAYERS) {
+        players.push({ id: null, name: "", scores: Array(HOLES).fill(null) });
+      }
 
-      const rowDiv = document.createElement("div");
-      rowDiv.className = "analytics-row";
+      players[currentPlayerSlot] = {
+        id: currentPlayerId,
+        name: nameInput.value || "",
+        scores
+      };
 
-      const nameSpan = document.createElement("span");
-      nameSpan.className = "analytics-name";
-      nameSpan.textContent = name;
+      updated.players = players;
+      currentGameData = updated;
 
-      const scoreSpan = document.createElement("span");
-      scoreSpan.className = "analytics-score";
-      scoreSpan.textContent = totalText;
+      await db.collection("games").doc(currentGameId).set(updated);
+      recalcAllTotals();
 
-      rowDiv.appendChild(nameSpan);
-      rowDiv.appendChild(scoreSpan);
-      analyticsList.appendChild(rowDiv);
-      hasAny = true;
-    });
-
-    if (!hasAny) {
-      const empty = document.createElement("div");
-      empty.style.fontSize = "13px";
-      empty.style.opacity = "0.7";
-      empty.textContent = "No scores yet. Fill in a few holes and your Pardle recap will appear here.";
-      analyticsList.appendChild(empty);
+      row.classList.remove("saved-pulse");
+      void row.offsetWidth;
+      row.classList.add("saved-pulse");
     }
-  }
 
-  if (analyticsButton) {
-    analyticsButton.addEventListener("click", openAnalyticsSheet);
-  }
-
-  if (analyticsCloseBtn) {
-    analyticsCloseBtn.addEventListener("click", closeAnalyticsSheet);
-  }
-
-  if (chatButton) {
-    chatButton.addEventListener("click", () => {
-      if (!currentGameId) {
-        setStatus("Create or join a game before chatting.", true);
+    async function createGame() {
+      const name = playerNameInput.value.trim();
+      if (!name) {
+        setStatus("Enter your name before creating a game.", true);
         return;
       }
-      showChatSheet();
-    });
-  }
 
-  if (chatCloseBtn) {
-    chatCloseBtn.addEventListener("click", () => {
-      hideChatSheet();
-    });
-  }
+      currentPlayerId = getOrCreatePlayerId();
+      currentPlayerSlot = 0;
 
-  if (chatCancelBtn) {
-    chatCancelBtn.addEventListener("click", () => {
-      hideChatSheet();
-    });
-  }
+      const emptyScores = Array(HOLES).fill(null);
+      const players = [];
+      for (let i = 0; i < MAX_PLAYERS; i++) {
+        players.push({ id: null, name: "", scores: emptyScores });
+      }
+      players[0] = { id: currentPlayerId, name, scores: emptyScores };
 
-  if (chatSendBtn) {
-    chatSendBtn.addEventListener("click", () => {
-      sendChatMessage().catch(err => {
-        console.error(err);
+      const initialCourseId = courseSelect.value || "st-andrews";
+
+      const docRef = await db.collection("games").add({
+        courseId: initialCourseId,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        players
       });
-    });
-  }
 
-  if (createGameBtn) {
-    createGameBtn.addEventListener("click", handleCreateGameClick);
-  }
+      currentGameId = docRef.id;
 
-  if (joinGameBtn) {
-    joinGameBtn.addEventListener("click", () => {
-      joinGame().catch(err => {
-        console.error(err);
-        setStatus("Error joining game.", true);
+      localStorage.setItem(STORAGE_LAST_GAME_ID_KEY, currentGameId);
+      localStorage.setItem(STORAGE_LAST_SLOT_KEY, String(currentPlayerSlot));
+
+      setStatus("Game created. Share this code with your friends.");
+
+      if (unsubscribeGame) unsubscribeGame();
+      unsubscribeGame = docRef.onSnapshot(snap => {
+        if (!snap.exists) {
+          setStatus("Game was deleted or not found.", true);
+          enableScorecard(false);
+          return;
+        }
+        applyGameToUI(snap.data());
+        enableScorecard(true);
       });
+
+      setUnreadBadge(false);
+      messagesInitialized = false;
+      attachMessageListener(currentGameId);
+    }
+
+    async function joinGame() {
+      const name = playerNameInput.value.trim();
+      if (!name) {
+        setStatus("Enter your name before joining a game.", true);
+        return;
+      }
+
+      const joinId = joinGameIdInput.value.trim();
+      if (!joinId) {
+        setStatus("Enter a game code to join.", true);
+        return;
+      }
+
+      currentPlayerId = getOrCreatePlayerId();
+
+      const docRef = db.collection("games").doc(joinId);
+      const snap = await docRef.get();
+      if (!snap.exists) {
+        setStatus("Game not found. Check the code and try again.", true);
+        return;
+      }
+
+      const data = snap.data() || {};
+      let players = Array.isArray(data.players) ? [...data.players] : [];
+      while (players.length < MAX_PLAYERS) {
+        players.push({ id: null, name: "", scores: Array(HOLES).fill(null) });
+      }
+
+      let slot = players.findIndex(p => p && p.id === currentPlayerId);
+
+      if (slot === -1) {
+        slot = players.findIndex(p => !p || !p.id);
+        if (slot === -1) {
+          setStatus("This game already has 4 players.", true);
+          return;
+        }
+
+        const emptyScores = Array(HOLES).fill(null);
+        players[slot] = {
+          id: currentPlayerId,
+          name,
+          scores: emptyScores
+        };
+      } else {
+        const existing = players[slot] || {};
+        players[slot] = {
+          id: existing.id || currentPlayerId,
+          name: name || existing.name || "",
+          scores: Array.isArray(existing.scores)
+            ? existing.scores
+            : Array(HOLES).fill(null)
+        };
+      }
+
+      await docRef.set({
+        ...data,
+        players
+      });
+
+      currentGameId = joinId;
+      currentPlayerSlot = slot;
+
+      localStorage.setItem(STORAGE_LAST_GAME_ID_KEY, currentGameId);
+      localStorage.setItem(STORAGE_LAST_SLOT_KEY, String(currentPlayerSlot));
+
+      setStatus(`Joined game in slot ${slot + 1}.`);
+
+      if (unsubscribeGame) unsubscribeGame();
+      unsubscribeGame = docRef.onSnapshot(s => {
+        if (!s.exists) {
+          setStatus("Game was deleted or not found.", true);
+          enableScorecard(false);
+          return;
+        }
+        applyGameToUI(s.data());
+        enableScorecard(true);
+      });
+
+      setUnreadBadge(false);
+      messagesInitialized = false;
+      attachMessageListener(currentGameId);
+    }
+
+    async function attemptAutoRejoin() {
+      const savedGameId = localStorage.getItem(STORAGE_LAST_GAME_ID_KEY);
+      const savedSlotStr = localStorage.getItem(STORAGE_LAST_SLOT_KEY);
+
+      if (!savedGameId || savedSlotStr == null) {
+        setStatus("Not in a game. Create or join to start.");
+        return;
+      }
+
+      currentPlayerId = getOrCreatePlayerId();
+      currentGameId = savedGameId;
+      currentPlayerSlot = parseInt(savedSlotStr, 10);
+
+      const docRef = db.collection("games").doc(savedGameId);
+      const snap = await docRef.get();
+
+      if (!snap.exists) {
+        localStorage.removeItem(STORAGE_LAST_GAME_ID_KEY);
+        localStorage.removeItem(STORAGE_LAST_SLOT_KEY);
+        currentGameId = null;
+        currentPlayerSlot = null;
+        setStatus("Last saved game not found. Create or join a new one.");
+        enableScorecard(false);
+        setUnreadBadge(false);
+        return;
+      }
+
+      setStatus("Rejoined your last game. Enter scores as normal.");
+
+      if (unsubscribeGame) unsubscribeGame();
+      unsubscribeGame = docRef.onSnapshot(s => {
+        if (!s.exists) {
+          setStatus("Game was deleted or not found.", true);
+          enableScorecard(false);
+          return;
+        }
+        applyGameToUI(s.data());
+        enableScorecard(true);
+      });
+
+      setUnreadBadge(false);
+      messagesInitialized = false;
+      attachMessageListener(currentGameId);
+    }
+
+    // message and chat logic
+
+    function attachMessageListener(gameId) {
+      if (!gameId) return;
+
+      if (unsubscribeMessages) {
+        unsubscribeMessages();
+        unsubscribeMessages = null;
+      }
+
+      messagesInitialized = false;
+
+      unsubscribeMessages = db.collection("games")
+        .doc(gameId)
+        .collection("messages")
+        .orderBy("createdAt", "desc")
+        .limit(50)
+        .onSnapshot(snapshot => {
+          const all = [];
+          snapshot.forEach(doc => {
+            const msg = doc.data();
+            if (!msg) return;
+
+            const targets = Array.isArray(msg.toSlots) ? msg.toSlots : [];
+            const isBroadcast = targets.length === 0;
+            const isTargeted = currentPlayerSlot != null && targets.includes(currentPlayerSlot);
+            const isMine = msg.fromId === currentPlayerId;
+
+            if (isMine || isBroadcast || isTargeted) {
+              all.push({
+                ...msg,
+                isMine
+              });
+            }
+          });
+
+          renderChatThreadMessages(all);
+
+          if (!messagesInitialized) {
+            messagesInitialized = true;
+            return;
+          }
+
+          snapshot.docChanges().forEach(change => {
+            if (change.type !== "added") return;
+
+            const msg = change.doc.data();
+            if (!msg || msg.fromId === currentPlayerId) return;
+
+            const targets = Array.isArray(msg.toSlots) ? msg.toSlots : [];
+            const isBroadcast = targets.length === 0;
+            const isTargeted = currentPlayerSlot != null && targets.includes(currentPlayerSlot);
+
+            if ((isBroadcast || isTargeted) && chatSheet && !chatSheet.classList.contains("visible")) {
+              setUnreadBadge(true);
+            }
+          });
+        });
+    }
+
+    function renderChatThreadMessages(messages) {
+      if (!chatThread) return;
+      chatThread.innerHTML = "";
+
+      if (!messages || messages.length === 0) {
+        const empty = document.createElement("div");
+        empty.style.opacity = "0.7";
+        empty.style.fontSize = "11px";
+        empty.textContent = "No messages yet. Start the smack talk.";
+        chatThread.appendChild(empty);
+        return;
+      }
+
+      const sorted = messages.slice().sort((a, b) => {
+        const ta = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
+        const tb = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
+        return ta - tb;
+      });
+
+      sorted.forEach(msg => {
+        const wrap = document.createElement("div");
+        wrap.className = "chat-message" + (msg.isMine ? " me" : "");
+
+        const meta = document.createElement("span");
+        meta.className = "meta";
+        const name = msg.fromName || "Player";
+        let scope = "all";
+        if (Array.isArray(msg.toSlots) && msg.toSlots.length) {
+          scope = "to " + msg.toSlots.map(s => `P${s + 1}`).join(", ");
+        }
+        meta.textContent = msg.isMine ? `${name} (${scope})` : name;
+
+        const text = document.createElement("span");
+        text.className = "text";
+        text.textContent = msg.text || "";
+
+        wrap.appendChild(meta);
+        wrap.appendChild(text);
+        chatThread.appendChild(wrap);
+      });
+
+      scrollChatToBottom();
+    }
+
+    function renderChatTargets() {
+      if (!chatTargets) return;
+      chatTargets.innerHTML = "";
+
+      if (!currentGameData || !Array.isArray(currentGameData.players)) return;
+
+      currentGameData.players.forEach((p, idx) => {
+        if (!p || !p.id) return;
+
+        const pill = document.createElement("button");
+        pill.type = "button";
+        pill.className = "chat-target-pill";
+        pill.dataset.slot = String(idx);
+        pill.textContent = p.name || `Player ${idx + 1}`;
+        if (idx === currentPlayerSlot) {
+          pill.textContent += " (you)";
+        }
+        pill.addEventListener("click", () => {
+          pill.classList.toggle("selected");
+        });
+        chatTargets.appendChild(pill);
+      });
+    }
+
+    function showChatSheet() {
+      if (!chatSheet) return;
+      renderChatTargets();
+      setUnreadBadge(false);
+      chatSheet.classList.add("visible");
+      chatText.value = "";
+      chatText.focus();
+      setTimeout(scrollChatToBottom, 50);
+    }
+
+    function hideChatSheet() {
+      if (!chatSheet) return;
+      chatSheet.classList.remove("visible");
+    }
+
+    function setUnreadBadge(flag) {
+      hasUnreadMessages = flag;
+      if (!chatBadge) return;
+      chatBadge.style.display = flag ? "inline-block" : "none";
+    }
+
+    async function sendChatMessage() {
+      if (!currentGameId || currentPlayerSlot == null || !currentPlayerId) return;
+
+      const text = chatText.value.trim();
+      if (!text) return;
+
+      const selectedSlots = Array.from(
+        document.querySelectorAll(".chat-target-pill.selected")
+      ).map(pill => parseInt(pill.dataset.slot, 10));
+
+      const toSlots = selectedSlots.length ? selectedSlots : [];
+
+      await db.collection("games")
+        .doc(currentGameId)
+        .collection("messages")
+        .add({
+          fromId: currentPlayerId,
+          fromName: playerNameInput.value || "Player",
+          fromSlot: currentPlayerSlot,
+          toSlots,
+          text,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+      chatText.value = "";
+      hideChatSheet();
+    }
+
+    if (gameIdPill) {
+      gameIdPill.addEventListener("click", async () => {
+        if (!currentGameId) return;
+        try {
+          await navigator.clipboard.writeText(currentGameId);
+          const original = gameIdValue.textContent;
+          gameIdValue.textContent = "Copied!";
+          setTimeout(() => {
+            gameIdValue.textContent = original;
+          }, 1000);
+        } catch (err) {
+          console.error(err);
+        }
+      });
+    }
+
+    // new game confirm helpers
+
+    function hasExistingGameData() {
+      if (currentGameId) return true;
+
+      let hasStuff = false;
+
+      document.querySelectorAll(".player-name").forEach(inp => {
+        if (inp.value && inp.value.trim() !== "") {
+          hasStuff = true;
+        }
+      });
+
+      document.querySelectorAll(".score-input").forEach(inp => {
+        if (inp.value && inp.value.trim() !== "") {
+          hasStuff = true;
+        }
+      });
+
+      return hasStuff;
+    }
+
+    function showNewGameConfirm() {
+      if (!newGameConfirm) return;
+      newGameConfirm.classList.add("visible");
+    }
+
+    function hideNewGameConfirm() {
+      if (!newGameConfirm) return;
+      newGameConfirm.classList.remove("visible");
+    }
+
+    function handleCreateGameClick() {
+      if (hasExistingGameData()) {
+        showNewGameConfirm();
+      } else {
+        createGame().catch(err => {
+          console.error(err);
+          setStatus("Error creating game.", true);
+        });
+      }
+    }
+
+    if (newGameCancelBtn) {
+      newGameCancelBtn.addEventListener("click", () => {
+        hideNewGameConfirm();
+      });
+    }
+
+    if (newGameConfirmBtn) {
+      newGameConfirmBtn.addEventListener("click", () => {
+        hideNewGameConfirm();
+        createGame().catch(err => {
+          console.error(err);
+          setStatus("Error creating game.", true);
+        });
+      });
+    }
+
+    // theme, settings, rules
+
+    function openSettingsSheet() {
+      if (!settingsSheet) return;
+      // sync switch with current theme
+      themeSwitch.checked = body.classList.contains("dark");
+      settingsSheet.classList.add("visible");
+    }
+
+    function closeSettingsSheet() {
+      if (!settingsSheet) return;
+      settingsSheet.classList.remove("visible");
+    }
+
+    if (settingsButton) {
+      settingsButton.addEventListener("click", openSettingsSheet);
+    }
+
+    if (settingsCloseBtn) {
+      settingsCloseBtn.addEventListener("click", closeSettingsSheet);
+    }
+
+    if (themeSwitch) {
+      themeSwitch.addEventListener("change", () => {
+        if (themeSwitch.checked) {
+          body.classList.add("dark");
+        } else {
+          body.classList.remove("dark");
+        }
+      });
+    }
+
+    if (rulesLink) {
+      rulesLink.addEventListener("click", () => {
+        const isVisible = rulesCard.classList.contains("visible");
+        if (isVisible) {
+          rulesCard.classList.remove("visible");
+          rulesLink.textContent = "View Pardle Rules";
+        } else {
+          rulesCard.classList.add("visible");
+          rulesLink.textContent = "Hide Pardle Rules";
+          rulesCard.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+        closeSettingsSheet();
+      });
+    }
+
+    // analytics
+
+    function openAnalyticsSheet() {
+      if (!analyticsSheet) return;
+      buildAnalyticsSummary();
+      analyticsSheet.classList.add("visible");
+    }
+
+    function closeAnalyticsSheet() {
+      if (!analyticsSheet) return;
+      analyticsSheet.classList.remove("visible");
+    }
+
+    function buildAnalyticsSummary() {
+      if (!analyticsList) return;
+      analyticsList.innerHTML = "";
+
+      const rows = document.querySelectorAll(".player-row");
+      let hasAny = false;
+
+      rows.forEach(row => {
+        const nameInput = row.querySelector(".player-name");
+        const totalCell = row.querySelector(".total-col");
+        if (!nameInput || !totalCell) return;
+
+        const name = nameInput.value.trim();
+        if (!name) return;
+
+        const totalText = totalCell.textContent || "E";
+
+        const rowDiv = document.createElement("div");
+        rowDiv.className = "analytics-row";
+
+        const nameSpan = document.createElement("span");
+        nameSpan.className = "analytics-name";
+        nameSpan.textContent = name;
+
+        const scoreSpan = document.createElement("span");
+        scoreSpan.className = "analytics-score";
+        scoreSpan.textContent = totalText;
+
+        rowDiv.appendChild(nameSpan);
+        rowDiv.appendChild(scoreSpan);
+        analyticsList.appendChild(rowDiv);
+        hasAny = true;
+      });
+
+      if (!hasAny) {
+        const empty = document.createElement("div");
+        empty.style.fontSize = "13px";
+        empty.style.opacity = "0.7";
+        empty.textContent = "No scores yet. Fill in a few holes and your Pardle recap will appear here.";
+        analyticsList.appendChild(empty);
+      }
+    }
+
+    if (analyticsButton) {
+      analyticsButton.addEventListener("click", openAnalyticsSheet);
+    }
+
+    if (analyticsCloseBtn) {
+      analyticsCloseBtn.addEventListener("click", closeAnalyticsSheet);
+    }
+
+    // chat button events
+    if (chatButton) {
+      chatButton.addEventListener("click", () => {
+        if (!currentGameId) {
+          setStatus("Create or join a game before chatting.", true);
+          return;
+        }
+        showChatSheet();
+      });
+    }
+
+    if (chatCloseBtn) {
+      chatCloseBtn.addEventListener("click", () => {
+        hideChatSheet();
+      });
+    }
+
+    if (chatCancelBtn) {
+      chatCancelBtn.addEventListener("click", () => {
+        hideChatSheet();
+      });
+    }
+
+    if (chatSendBtn) {
+      chatSendBtn.addEventListener("click", () => {
+        sendChatMessage().catch(err => {
+          console.error(err);
+        });
+      });
+    }
+
+    // main buttons
+    if (createGameBtn) {
+      createGameBtn.addEventListener("click", handleCreateGameClick);
+    }
+
+    if (joinGameBtn) {
+      joinGameBtn.addEventListener("click", () => {
+        joinGame().catch(err => {
+          console.error(err);
+          setStatus("Error joining game.", true);
+        });
+      });
+    }
+
+    // init
+    bindScoreInputs();
+    updateParRow();
+    enableScorecard(false);
+
+    attemptAutoRejoin().catch(err => {
+      console.error(err);
+      setStatus("Not in a game. Create or join to start.");
     });
-  }
-
-  bindScoreInputs();
-  updateParRow();
-  enableScorecard(false);
-
-  attemptAutoRejoin().catch(err => {
-    console.error(err);
-    setStatus("Not in a game. Create or join to start.");
-  });
   </script>
 </body>
 </html>
