@@ -11,6 +11,7 @@
 
   <style>
     :root {
+      /* default: light mode, normal accents */
       --bg: #f5f5f5;
       --bg-card: #ffffff;
       --text: #111111;
@@ -30,7 +31,8 @@
       --active-hole-bg: rgba(255, 152, 0, 0.14);
     }
 
-    body.dark {
+    /* Dark mode overrides */
+    body[data-mode="dark"] {
       --bg: #101010;
       --bg-card: #181818;
       --text: #f5f5f5;
@@ -46,6 +48,14 @@
       --input-text: #ffffff;
       --par-bg: #2e3b2f;
       --active-hole-bg: rgba(255, 152, 0, 0.24);
+    }
+
+    /* Accent invert: green primary, orange sync */
+    body[data-accent="invert"] {
+      --accent: #00c853;
+      --accent-soft: #b9f6ca;
+      --sync-bg: #ff9800;
+      --sync-text: #111111;
     }
 
     * {
@@ -117,7 +127,7 @@
       background: rgba(0,0,0,0.04);
     }
 
-    body.dark .icon-btn:hover {
+    body[data-mode="dark"] .icon-btn:hover {
       background: rgba(255,255,255,0.05);
     }
 
@@ -562,7 +572,7 @@
       font-size: 12px;
     }
 
-    body.dark .chat-thread {
+    body[data-mode="dark"] .chat-thread {
       background: rgba(255,255,255,0.04);
     }
 
@@ -666,6 +676,7 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      position: relative;
     }
 
     .theme-toggle span.label {
@@ -733,7 +744,7 @@
       background: rgba(0,0,0,0.03);
     }
 
-    body.dark .analytics-row {
+    body[data-mode="dark"] .analytics-row {
       background: rgba(255,255,255,0.04);
     }
 
@@ -805,7 +816,7 @@
     }
   </style>
 </head>
-<body class="dark">
+<body data-mode="dark" data-accent="normal">
   <div class="app-shell">
     <header class="app-header">
       <div class="app-title">Pardle</div>
@@ -975,7 +986,6 @@
                   <td><input class="score-input" type="number" min="1" disabled /></td>
                   <td><input class="score-input" type="number" min="1" disabled /></td>
                   <td><input class="score-input" type="number" min="1" disabled /></td>
-                  <td><input class="score-input" type="number" min="1" disabled /></td>
                   <td class="total-col">E</td>
                 </tr>
 
@@ -983,7 +993,6 @@
                   <th class="player-label">
                     <input class="player-name" placeholder="Player 3" disabled />
                   </th>
-                  <td><input class="score-input" type="number" min="1" disabled /></td>
                   <td><input class="score-input" type="number" min="1" disabled /></td>
                   <td><input class="score-input" type="number" min="1" disabled /></td>
                   <td><input class="score-input" type="number" min="1" disabled /></td>
@@ -1102,11 +1111,19 @@
 
         <div class="settings-section">
           <div class="settings-label">Appearance</div>
-          <div class="settings-row">
+          <div class="settings-row" style="margin-bottom:6px;">
             <span style="font-size:13px;">Theme</span>
             <label class="theme-toggle">
               <span class="label">Dark</span>
               <input type="checkbox" id="themeSwitch" />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="settings-row">
+            <span style="font-size:13px;">Invert accents</span>
+            <label class="theme-toggle">
+              <span class="label">On</span>
+              <input type="checkbox" id="accentSwitch" />
               <span class="slider"></span>
             </label>
           </div>
@@ -1170,6 +1187,8 @@
     const STORAGE_PLAYER_ID_KEY = "pardle_online_player_id";
     const STORAGE_LAST_GAME_ID_KEY = "pardle_online_last_game_id";
     const STORAGE_LAST_SLOT_KEY = "pardle_online_last_player_slot";
+    const STORAGE_MODE_KEY = "pardle_mode";
+    const STORAGE_ACCENT_KEY = "pardle_accent";
 
     const COURSES = {
       "st-andrews": [4,4,4,4,5,4,4,3,4,4,3,4,4,5,4,4,4,4],
@@ -1231,6 +1250,7 @@
     const settingsSheet = document.getElementById("settingsSheet");
     const settingsCloseBtn = document.getElementById("settingsCloseBtn");
     const themeSwitch = document.getElementById("themeSwitch");
+    const accentSwitch = document.getElementById("accentSwitch");
     const rulesLink = document.getElementById("rulesLink");
     const rulesCard = document.getElementById("rulesCard");
 
@@ -1240,6 +1260,16 @@
     const analyticsList = document.getElementById("analyticsList");
 
     setUnreadBadge(false);
+
+    // initial appearance load
+    (function initAppearance() {
+      const savedMode = localStorage.getItem(STORAGE_MODE_KEY) || "dark";
+      const savedAccent = localStorage.getItem(STORAGE_ACCENT_KEY) || "normal";
+      body.dataset.mode = savedMode;
+      body.dataset.accent = savedAccent;
+      if (themeSwitch) themeSwitch.checked = savedMode === "dark";
+      if (accentSwitch) accentSwitch.checked = savedAccent === "invert";
+    })();
 
     // helpers
     function generateId(len = 20) {
@@ -1496,7 +1526,7 @@
             }
           });
 
-          // new over par logic
+          // over par logic
           inp.addEventListener("change", () => {
             const raw = inp.value;
             const score = parseInt(raw, 10);
@@ -1518,7 +1548,7 @@
 
             if (score > parVal) {
               const diff = score - parVal;
-              alert(`Bruh. ${score} on a par ${parVal} is ${diff} over. That's bad. Do better`);
+              alert(`Bruh. ${score} on a par ${parVal} is ${diff} over. That is rough. Do better.`);
             }
           });
         });
@@ -2001,8 +2031,13 @@
 
     function openSettingsSheet() {
       if (!settingsSheet) return;
-      // sync switch with current theme
-      themeSwitch.checked = body.classList.contains("dark");
+      // sync switches with current state
+      if (themeSwitch) {
+        themeSwitch.checked = body.dataset.mode === "dark";
+      }
+      if (accentSwitch) {
+        accentSwitch.checked = body.dataset.accent === "invert";
+      }
       settingsSheet.classList.add("visible");
     }
 
@@ -2021,11 +2056,17 @@
 
     if (themeSwitch) {
       themeSwitch.addEventListener("change", () => {
-        if (themeSwitch.checked) {
-          body.classList.add("dark");
-        } else {
-          body.classList.remove("dark");
-        }
+        const mode = themeSwitch.checked ? "dark" : "light";
+        body.dataset.mode = mode;
+        localStorage.setItem(STORAGE_MODE_KEY, mode);
+      });
+    }
+
+    if (accentSwitch) {
+      accentSwitch.addEventListener("change", () => {
+        const accent = accentSwitch.checked ? "invert" : "normal";
+        body.dataset.accent = accent;
+        localStorage.setItem(STORAGE_ACCENT_KEY, accent);
       });
     }
 
