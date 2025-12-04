@@ -376,6 +376,7 @@
     .scorecard-table td {
       border: 1px solid var(--border-soft);
       text-align: center;
+      vertical-align: middle; /* NEW: fixes vertical alignment for all cells */
       padding: 6px 4px;
       white-space: nowrap;
       transition: background 0.15s ease, box-shadow 0.15s ease;
@@ -937,14 +938,11 @@
                   <td class="par-cell" data-hole="17"></td>
                   <td class="par-cell par-total">-</td>
                 </tr>
-
                 <!-- Player rows -->
                 <tr class="player-row" data-slot="0">
                   <th class="player-label">
                     <input class="player-name" placeholder="Player 1" disabled />
                   </th>
-                  <!-- 18 holes -->
-                  <td><input class="score-input" type="number" min="1" disabled /></td>
                   <td><input class="score-input" type="number" min="1" disabled /></td>
                   <td><input class="score-input" type="number" min="1" disabled /></td>
                   <td><input class="score-input" type="number" min="1" disabled /></td>
@@ -964,7 +962,6 @@
                   <td><input class="score-input" type="number" min="1" disabled /></td>
                   <td class="total-col">E</td>
                 </tr>
-
                 <tr class="player-row" data-slot="1">
                   <th class="player-label">
                     <input class="player-name" placeholder="Player 2" disabled />
@@ -988,7 +985,6 @@
                   <td><input class="score-input" type="number" min="1" disabled /></td>
                   <td class="total-col">E</td>
                 </tr>
-
                 <tr class="player-row" data-slot="2">
                   <th class="player-label">
                     <input class="player-name" placeholder="Player 3" disabled />
@@ -1012,12 +1008,10 @@
                   <td><input class="score-input" type="number" min="1" disabled /></td>
                   <td class="total-col">E</td>
                 </tr>
-
                 <tr class="player-row" data-slot="3">
                   <th class="player-label">
                     <input class="player-name" placeholder="+ Add Player" disabled />
                   </th>
-                  <td><input class="score-input" type="number" min="1" disabled /></td>
                   <td><input class="score-input" type="number" min="1" disabled /></td>
                   <td><input class="score-input" type="number" min="1" disabled /></td>
                   <td><input class="score-input" type="number" min="1" disabled /></td>
