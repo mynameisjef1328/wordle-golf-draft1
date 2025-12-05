@@ -80,7 +80,99 @@
       gap: 12px;
     }
 
-    /* header styled like a card */
+    /* Start screen overlay */
+    #startModal {
+      position: fixed;
+      inset: 0;
+      background: #000000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    #startModal.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(1.02);
+    }
+
+    .start-card {
+      background: #181818;
+      border-radius: 18px;
+      padding: 32px 40px 26px;
+      box-shadow: 0 18px 45px rgba(0,0,0,0.6);
+      border: 1px solid #232323;
+      max-width: 360px;
+      width: 90%;
+      text-align: center;
+    }
+
+    .start-title {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 24px;
+      letter-spacing: 0.02em;
+    }
+
+    .start-main-btn {
+      width: 100%;
+      padding: 12px 18px;
+      border-radius: 999px;
+      border: none;
+      background: var(--accent);
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+      margin-bottom: 12px;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
+    }
+
+    .start-main-btn:active {
+      transform: scale(0.97);
+      opacity: 0.9;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+
+    .start-join-link {
+      border: none;
+      background: none;
+      color: #d0d0d0;
+      font-size: 14px;
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 0;
+      margin-bottom: 8px;
+    }
+
+    .start-join-link:active {
+      opacity: 0.7;
+    }
+
+    .start-rules-btn {
+      width: 100%;
+      margin-top: 4px;
+      padding: 10px 18px;
+      border-radius: 999px;
+      border: none;
+      background: var(--sync-bg);
+      color: #000000;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.5);
+      transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
+    }
+
+    .start-rules-btn:active {
+      transform: scale(0.97);
+      opacity: 0.9;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.6);
+    }
+
     .app-header {
       background: var(--bg-card);
       padding: 10px 16px;
@@ -159,7 +251,6 @@
       height: 10px;
     }
 
-    /* shared pill style */
     .pardle-pill {
       padding: 4px 12px;
       border-radius: 999px;
@@ -198,7 +289,6 @@
     }
 
     /* online controls */
-
     .online-grid {
       display: grid;
       grid-template-columns: 1fr;
@@ -295,7 +385,6 @@
     }
 
     /* course selector */
-
     .course-row {
       display: flex;
       flex-direction: column;
@@ -313,7 +402,6 @@
     }
 
     /* scorecard */
-
     .scorecard-header {
       display: flex;
       align-items: center;
@@ -376,7 +464,7 @@
     .scorecard-table td {
       border: 1px solid var(--border-soft);
       text-align: center;
-      vertical-align: middle; /* NEW: fixes vertical alignment for all cells */
+      vertical-align: middle;
       padding: 6px 4px;
       white-space: nowrap;
       transition: background 0.15s ease, box-shadow 0.15s ease;
@@ -490,10 +578,11 @@
       margin-bottom: 10px;
     }
 
-    #rulesCard .rules-text h3 {
+       #rulesCard .rules-text h3 {
       margin-top: 14px;
       margin-bottom: 6px;
-    }
+      color: var(--accent);
+    } 
 
     #rulesCard .rules-text p {
       margin: 6px 0;
@@ -517,8 +606,7 @@
       line-height: 1.45;
     }
 
-    /* generic bottom sheet styling, shared by chat, settings, analytics */
-
+    /* generic bottom sheet styling */
     .chat-sheet {
       position: fixed;
       inset: 0;
@@ -562,7 +650,6 @@
     }
 
     /* chat specific */
-
     .chat-thread {
       max-height: 180px;
       overflow-y: auto;
@@ -637,7 +724,6 @@
     }
 
     /* settings sheet */
-
     .settings-section {
       margin-bottom: 12px;
       padding-bottom: 10px;
@@ -670,8 +756,6 @@
       color: var(--accent);
       cursor: pointer;
     }
-
-    /* theme toggle reused */
 
     .theme-toggle {
       display: inline-flex;
@@ -722,7 +806,6 @@
     }
 
     /* analytics sheet */
-
     .analytics-intro {
       font-size: 13px;
       line-height: 1.4;
@@ -758,7 +841,6 @@
     }
 
     /* New game confirmation modal */
-
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -818,6 +900,17 @@
   </style>
 </head>
 <body data-mode="dark" data-accent="normal">
+
+  <!-- Start screen overlay -->
+  <div id="startModal">
+    <div class="start-card">
+      <div class="start-title">Pardle</div>
+      <button id="startPlayButton" class="start-main-btn" type="button">Play</button>
+      <button id="startJoinLink" class="start-join-link" type="button">Join Game</button>
+      <button id="startRulesButton" class="start-rules-btn" type="button">Game Rules</button>
+    </div>
+  </div>
+
   <div class="app-shell">
     <header class="app-header">
       <div class="app-title">Pardle</div>
@@ -834,7 +927,6 @@
     </header>
 
     <main class="app-content">
-
       <!-- Online game controls -->
       <section class="card">
         <div class="online-grid">
@@ -844,9 +936,9 @@
           </div>
 
           <div class="online-row online-buttons">
-            <button id="createGameBtn" class="small-btn">Create Game</button>
+            <button id="createGameBtn" class="small-btn" type="button">Create Game</button>
             <input id="joinGameIdInput" class="online-input" placeholder="Enter ID" />
-            <button id="joinGameBtn" class="small-btn secondary">Join Game</button>
+            <button id="joinGameBtn" class="small-btn secondary" type="button">Join Game</button>
           </div>
 
           <div class="online-status" id="onlineStatusText">
@@ -938,6 +1030,7 @@
                   <td class="par-cell" data-hole="17"></td>
                   <td class="par-cell par-total">-</td>
                 </tr>
+
                 <!-- Player rows -->
                 <tr class="player-row" data-slot="0">
                   <th class="player-label">
@@ -984,14 +1077,12 @@
                   <td><input class="score-input" type="number" min="1" disabled /></td>
                   <td><input class="score-input" type="number" min="1" disabled /></td>
                   <td><input class="score-input" type="number" min="1" disabled /></td>
-                  <td><input class="score-input" type="number" min="1" disabled /></td>
                   <td class="total-col">E</td>
                 </tr>
                 <tr class="player-row" data-slot="2">
                   <th class="player-label">
                     <input class="player-name" placeholder="Player 3" disabled />
                   </th>
-                  <td><input class="score-input" type="number" min="1" disabled /></td>
                   <td><input class="score-input" type="number" min="1" disabled /></td>
                   <td><input class="score-input" type="number" min="1" disabled /></td>
                   <td><input class="score-input" type="number" min="1" disabled /></td>
@@ -1032,7 +1123,6 @@
                   <td><input class="score-input" type="number" min="1" disabled /></td>
                   <td><input class="score-input" type="number" min="1" disabled /></td>
                   <td><input class="score-input" type="number" min="1" disabled /></td>
-                  <td><input class="score-input" type="number" min="1" disabled /></td>
                   <td class="total-col">E</td>
                 </tr>
               </tbody>
@@ -1042,28 +1132,25 @@
         <p class="swipe-hint">Swipe sideways to see all holes ⟶</p>
       </section>
 
-      <!-- Rules card lives below and is toggled from Settings -->
+      <!-- Rules card -->
       <section class="card rules-card" id="rulesCard">
         <div class="section-title">Follow The Rules Or Follow The Fools</div>
         <div class="rules-text">
           <h2>PARDLE RULES</h2>
-
-          <p>
-            Pardle is what happens when Wordle and golf have a beautiful, competitive baby.
-          </p>
+          <p>Pardle is what happens when Wordle and golf have a beautiful, competitive baby.</p>
 
           <h3>The Basics</h3>
           <ul>
             <li>Each “hole” is one Wordle puzzle.</li>
             <li>Your score for the hole equals the number of guesses it took you to solve that day’s Wordle.</li>
             <li>Did not crack it? Mark it as a 7 or an “X” (just make sure your group agrees).</li>
-            <li>Par is the number of guesses you are aiming for (can you beat it?).</li>
+            <li>Par is the number of guesses you are aiming for.</li>
           </ul>
 
           <h3>Scoring</h3>
           <ul>
             <li>Your total score is the sum of guesses across all holes in the round.</li>
-            <li>Relative score equals total score vs. par. Just like golf, lower is better.</li>
+            <li>Relative score equals total score vs. par. Lower is better.</li>
             <li>
               Score breakdown:
               <ul>
@@ -1074,13 +1161,24 @@
             </li>
           </ul>
 
-          <p>
-            Pardle is perfect for tracking daily scores with your crew, flexing your vocab game, and delivering
-            top tier trash talk. Keep it competitive, keep it classy, keep it Pardle.
-          </p>
-        </div>
-      </section>
-    </main>
+          <p>Pardle is perfect for tracking daily scores with your crew, flexing your vocab game, and delivering top tier trash talk.</p>
+
+<div class="start-help">
+  <p><h3>Not sure which to tap?</h3></p>
+  <p><strong>Play Button</strong><br>
+    Use this if you are the one setting up the match or coming back on the same device you used last time.<br>
+    • If you already have a Pardle game on this device, it will reopen that game.<br>
+    • If you do not have a game yet, you will go to the main screen where you can tap <strong>Create Game</strong> and get a game code to share.
+  </p>
+  <p><strong>Join Game Link</strong><br>
+    Use this if someone else already created a game and sent you a game code.<br>
+    • Tap <strong>Join Game</strong>.<br>
+    • Enter the code they gave you.<br>
+    • You will join their existing match on this device.
+  </p>
+</div>
+</section>
+</main>
 
     <!-- Chat sheet -->
     <div id="chatSheet" class="chat-sheet">
@@ -1126,13 +1224,6 @@
             </label>
           </div>
         </div>
-
-        <div class="settings-section">
-          <div class="settings-label">Rules</div>
-          <button id="rulesLink" class="settings-link-btn" type="button">
-            View Pardle Rules
-          </button>
-        </div>
       </div>
     </div>
 
@@ -1167,7 +1258,9 @@
   </div>
 
   <script>
+    // ==============================
     // Firebase setup
+    // ==============================
     const firebaseConfig = {
       apiKey: "AIzaSyDxmmTSpvM1xvVRb8qiOQfbbQWHSJEgIrk",
       authDomain: "pardle-online.firebaseapp.com",
@@ -1178,10 +1271,17 @@
       measurementId: "G-SJLZZ84L8F"
     };
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    let db = null;
+    try {
+      firebase.initializeApp(firebaseConfig);
+      db = firebase.firestore();
+    } catch (e) {
+      console.error("Firebase init error:", e);
+    }
 
+    // ==============================
     // Constants and state
+    // ==============================
     const STORAGE_PLAYER_ID_KEY = "pardle_online_player_id";
     const STORAGE_LAST_GAME_ID_KEY = "pardle_online_last_game_id";
     const STORAGE_LAST_SLOT_KEY = "pardle_online_last_player_slot";
@@ -1213,8 +1313,15 @@
     let hasUnreadMessages = false;
     let messagesInitialized = false;
 
-    // DOM
+    // ==============================
+    // DOM references
+    // ==============================
     const body = document.body;
+
+    const startModal = document.getElementById("startModal");
+    const startPlayButton = document.getElementById("startPlayButton");
+    const startJoinLink = document.getElementById("startJoinLink");
+    const startRulesButton = document.getElementById("startRulesButton");
 
     const playerNameInput = document.getElementById("playerNameInput");
     const createGameBtn = document.getElementById("createGameBtn");
@@ -1249,7 +1356,7 @@
     const settingsCloseBtn = document.getElementById("settingsCloseBtn");
     const themeSwitch = document.getElementById("themeSwitch");
     const accentSwitch = document.getElementById("accentSwitch");
-    const rulesLink = document.getElementById("rulesLink");
+
     const rulesCard = document.getElementById("rulesCard");
 
     const analyticsButton = document.getElementById("analyticsButton");
@@ -1257,9 +1364,9 @@
     const analyticsCloseBtn = document.getElementById("analyticsCloseBtn");
     const analyticsList = document.getElementById("analyticsList");
 
-    setUnreadBadge(false);
-
-    // initial appearance load
+    // ==============================
+    // Appearance init
+    // ==============================
     (function initAppearance() {
       const savedMode = localStorage.getItem(STORAGE_MODE_KEY) || "dark";
       const savedAccent = localStorage.getItem(STORAGE_ACCENT_KEY) || "normal";
@@ -1269,7 +1376,9 @@
       if (accentSwitch) accentSwitch.checked = savedAccent === "invert";
     })();
 
-    // helpers
+    // ==============================
+    // Helpers
+    // ==============================
     function generateId(len = 20) {
       const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
       let out = "";
@@ -1394,7 +1503,7 @@
     }
 
     function readScoresFromSlot(slot) {
-      const row = document.querySelector(`.player-row[data-slot="${slot}"]`);
+      const row = document.querySelector('.player-row[data-slot="' + slot + '"]');
       if (!row) return Array(HOLES).fill(null);
 
       const inputs = row.querySelectorAll(".score-input");
@@ -1444,7 +1553,7 @@
       const players = Array.isArray(data.players) ? data.players : [];
 
       for (let i = 0; i < MAX_PLAYERS; i++) {
-        const row = document.querySelector(`.player-row[data-slot="${i}"]`);
+        const row = document.querySelector('.player-row[data-slot="' + i + '"]');
         if (!row) continue;
         const nameInput = row.querySelector(".player-name");
         const scoreInputs = row.querySelectorAll(".score-input");
@@ -1469,7 +1578,7 @@
 
       let holeForHighlight = 0;
       if (currentPlayerSlot != null) {
-        const myRow = document.querySelector(`.player-row[data-slot="${currentPlayerSlot}"]`);
+        const myRow = document.querySelector('.player-row[data-slot="' + currentPlayerSlot + '"]');
         if (myRow) {
           const myInputs = myRow.querySelectorAll(".score-input");
           let firstEmpty = -1;
@@ -1494,6 +1603,15 @@
       renderChatTargets();
     }
 
+    function setUnreadBadge(flag) {
+      hasUnreadMessages = flag;
+      if (!chatBadge) return;
+      chatBadge.style.display = flag ? "inline-block" : "none";
+    }
+
+    // ==============================
+    // Score input binding
+    // ==============================
     function bindScoreInputs() {
       playerRows.forEach(row => {
         const slot = parseInt(row.dataset.slot, 10);
@@ -1546,7 +1664,7 @@
 
             if (score > parVal) {
               const diff = score - parVal;
-              alert(`Bruh. ${score} on a par ${parVal} is ${diff} over. That is rough. Do better.`);
+              alert("Bruh. " + score + " on a par " + parVal + " is " + diff + " over. That is rough. Do better.");
             }
           });
         });
@@ -1558,23 +1676,31 @@
           return;
         }
         const newCourseId = courseSelect.value;
-        const updated = { ...currentGameData, courseId: newCourseId };
+        const updated = Object.assign({}, currentGameData, { courseId: newCourseId });
         currentGameData = updated;
+        if (!db) return;
         db.collection("games").doc(currentGameId).set(updated);
       });
     }
 
+    // ==============================
+    // Game create / join
+    // ==============================
     async function updatePlayerInGame() {
+      if (!db) {
+        setStatus("Connection error. Reload the page to sync.", true);
+        return;
+      }
       if (!currentGameId || currentPlayerSlot == null || !currentGameData) return;
 
-      const row = document.querySelector(`.player-row[data-slot="${currentPlayerSlot}"]`);
+      const row = document.querySelector('.player-row[data-slot="' + currentPlayerSlot + '"]');
       if (!row) return;
 
       const nameInput = row.querySelector(".player-name");
       const scores = readScoresFromSlot(currentPlayerSlot);
 
-      const updated = { ...currentGameData };
-      const players = Array.isArray(updated.players) ? [...updated.players] : [];
+      const updated = Object.assign({}, currentGameData);
+      const players = Array.isArray(updated.players) ? updated.players.slice() : [];
 
       while (players.length < MAX_PLAYERS) {
         players.push({ id: null, name: "", scores: Array(HOLES).fill(null) });
@@ -1598,6 +1724,11 @@
     }
 
     async function createGame() {
+      if (!db) {
+        setStatus("Connection error. Check your network and reload.", true);
+        return;
+      }
+
       const name = playerNameInput.value.trim();
       if (!name) {
         setStatus("Enter your name before creating a game.", true);
@@ -1646,6 +1777,11 @@
     }
 
     async function joinGame() {
+      if (!db) {
+        setStatus("Connection error. Check your network and reload.", true);
+        return;
+      }
+
       const name = playerNameInput.value.trim();
       if (!name) {
         setStatus("Enter your name before joining a game.", true);
@@ -1668,7 +1804,7 @@
       }
 
       const data = snap.data() || {};
-      let players = Array.isArray(data.players) ? [...data.players] : [];
+      let players = Array.isArray(data.players) ? data.players.slice() : [];
       while (players.length < MAX_PLAYERS) {
         players.push({ id: null, name: "", scores: Array(HOLES).fill(null) });
       }
@@ -1699,10 +1835,9 @@
         };
       }
 
-      await docRef.set({
-        ...data,
-        players
-      });
+      await docRef.set(
+        Object.assign({}, data, { players })
+      );
 
       currentGameId = joinId;
       currentPlayerSlot = slot;
@@ -1710,7 +1845,7 @@
       localStorage.setItem(STORAGE_LAST_GAME_ID_KEY, currentGameId);
       localStorage.setItem(STORAGE_LAST_SLOT_KEY, String(currentPlayerSlot));
 
-      setStatus(`Joined game in slot ${slot + 1}.`);
+      setStatus("Joined game in slot " + (slot + 1) + ".");
 
       if (unsubscribeGame) unsubscribeGame();
       unsubscribeGame = docRef.onSnapshot(s => {
@@ -1729,6 +1864,11 @@
     }
 
     async function attemptAutoRejoin() {
+      if (!db) {
+        setStatus("Connection error. Check your network and reload.", true);
+        return;
+      }
+
       const savedGameId = localStorage.getItem(STORAGE_LAST_GAME_ID_KEY);
       const savedSlotStr = localStorage.getItem(STORAGE_LAST_SLOT_KEY);
 
@@ -1773,10 +1913,11 @@
       attachMessageListener(currentGameId);
     }
 
-    // message and chat logic
-
+    // ==============================
+    // Messaging and chat
+    // ==============================
     function attachMessageListener(gameId) {
-      if (!gameId) return;
+      if (!db || !gameId) return;
 
       if (unsubscribeMessages) {
         unsubscribeMessages();
@@ -1802,10 +1943,9 @@
             const isMine = msg.fromId === currentPlayerId;
 
             if (isMine || isBroadcast || isTargeted) {
-              all.push({
-                ...msg,
-                isMine
-              });
+              all.push(
+                Object.assign({}, msg, { isMine })
+              );
             }
           });
 
@@ -1861,9 +2001,9 @@
         const name = msg.fromName || "Player";
         let scope = "all";
         if (Array.isArray(msg.toSlots) && msg.toSlots.length) {
-          scope = "to " + msg.toSlots.map(s => `P${s + 1}`).join(", ");
+          scope = "to " + msg.toSlots.map(s => "P" + (s + 1)).join(", ");
         }
-        meta.textContent = msg.isMine ? `${name} (${scope})` : name;
+        meta.textContent = msg.isMine ? (name + " (" + scope + ")") : name;
 
         const text = document.createElement("span");
         text.className = "text";
@@ -1890,7 +2030,7 @@
         pill.type = "button";
         pill.className = "chat-target-pill";
         pill.dataset.slot = String(idx);
-        pill.textContent = p.name || `Player ${idx + 1}`;
+        pill.textContent = p.name || ("Player " + (idx + 1));
         if (idx === currentPlayerSlot) {
           pill.textContent += " (you)";
         }
@@ -1916,13 +2056,8 @@
       chatSheet.classList.remove("visible");
     }
 
-    function setUnreadBadge(flag) {
-      hasUnreadMessages = flag;
-      if (!chatBadge) return;
-      chatBadge.style.display = flag ? "inline-block" : "none";
-    }
-
     async function sendChatMessage() {
+      if (!db) return;
       if (!currentGameId || currentPlayerSlot == null || !currentPlayerId) return;
 
       const text = chatText.value.trim();
@@ -1950,24 +2085,9 @@
       hideChatSheet();
     }
 
-    if (gameIdPill) {
-      gameIdPill.addEventListener("click", async () => {
-        if (!currentGameId) return;
-        try {
-          await navigator.clipboard.writeText(currentGameId);
-          const original = gameIdValue.textContent;
-          gameIdValue.textContent = "Copied!";
-          setTimeout(() => {
-            gameIdValue.textContent = original;
-          }, 1000);
-        } catch (err) {
-          console.error(err);
-        }
-      });
-    }
-
-    // new game confirm helpers
-
+    // ==============================
+    // New game confirmation
+    // ==============================
     function hasExistingGameData() {
       if (currentGameId) return true;
 
@@ -2009,27 +2129,11 @@
       }
     }
 
-    if (newGameCancelBtn) {
-      newGameCancelBtn.addEventListener("click", () => {
-        hideNewGameConfirm();
-      });
-    }
-
-    if (newGameConfirmBtn) {
-      newGameConfirmBtn.addEventListener("click", () => {
-        hideNewGameConfirm();
-        createGame().catch(err => {
-          console.error(err);
-          setStatus("Error creating game.", true);
-        });
-      });
-    }
-
-    // theme, settings, rules
-
+    // ==============================
+    // Settings, theme
+    // ==============================
     function openSettingsSheet() {
       if (!settingsSheet) return;
-      // sync switches with current state
       if (themeSwitch) {
         themeSwitch.checked = body.dataset.mode === "dark";
       }
@@ -2044,58 +2148,9 @@
       settingsSheet.classList.remove("visible");
     }
 
-    if (settingsButton) {
-      settingsButton.addEventListener("click", openSettingsSheet);
-    }
-
-    if (settingsCloseBtn) {
-      settingsCloseBtn.addEventListener("click", closeSettingsSheet);
-    }
-
-    if (themeSwitch) {
-      themeSwitch.addEventListener("change", () => {
-        const mode = themeSwitch.checked ? "dark" : "light";
-        body.dataset.mode = mode;
-        localStorage.setItem(STORAGE_MODE_KEY, mode);
-      });
-    }
-
-    if (accentSwitch) {
-      accentSwitch.addEventListener("change", () => {
-        const accent = accentSwitch.checked ? "invert" : "normal";
-        body.dataset.accent = accent;
-        localStorage.setItem(STORAGE_ACCENT_KEY, accent);
-      });
-    }
-
-    if (rulesLink) {
-      rulesLink.addEventListener("click", () => {
-        const isVisible = rulesCard.classList.contains("visible");
-        if (isVisible) {
-          rulesCard.classList.remove("visible");
-          rulesLink.textContent = "View Pardle Rules";
-        } else {
-          rulesCard.classList.add("visible");
-          rulesLink.textContent = "Hide Pardle Rules";
-          rulesCard.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-        closeSettingsSheet();
-      });
-    }
-
-    // analytics
-
-    function openAnalyticsSheet() {
-      if (!analyticsSheet) return;
-      buildAnalyticsSummary();
-      analyticsSheet.classList.add("visible");
-    }
-
-    function closeAnalyticsSheet() {
-      if (!analyticsSheet) return;
-      analyticsSheet.classList.remove("visible");
-    }
-
+    // ==============================
+    // Analytics
+    // ==============================
     function buildAnalyticsSummary() {
       if (!analyticsList) return;
       analyticsList.innerHTML = "";
@@ -2139,6 +2194,115 @@
       }
     }
 
+    function openAnalyticsSheet() {
+      if (!analyticsSheet) return;
+      buildAnalyticsSummary();
+      analyticsSheet.classList.add("visible");
+    }
+
+    function closeAnalyticsSheet() {
+      if (!analyticsSheet) return;
+      analyticsSheet.classList.remove("visible");
+    }
+
+    // ==============================
+    // Start modal helpers
+    // ==============================
+    function hideStartModal() {
+      if (!startModal) return;
+      startModal.classList.add("hidden");
+    }
+
+    function handleStartPlayClick() {
+      hideStartModal();
+      setStatus("Not in a game. Create or join to start.");
+      if (playerNameInput) {
+        playerNameInput.focus();
+      }
+      attemptAutoRejoin().catch(err => {
+        console.error(err);
+        setStatus("Not in a game. Create or join to start.", true);
+      });
+    }
+
+    function handleStartJoinClick() {
+      hideStartModal();
+      setStatus("Enter a game code or create a new one.");
+      if (playerNameInput) {
+        playerNameInput.focus();
+      }
+      setTimeout(() => {
+        if (joinGameIdInput) {
+          joinGameIdInput.focus();
+        }
+      }, 120);
+    }
+
+    function handleStartRulesClick() {
+      hideStartModal();
+      if (rulesCard) {
+        rulesCard.classList.add("visible");
+        rulesCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+
+    // ==============================
+    // Event wiring
+    // ==============================
+    if (gameIdPill) {
+      gameIdPill.addEventListener("click", async () => {
+        if (!currentGameId) return;
+        try {
+          await navigator.clipboard.writeText(currentGameId);
+          const original = gameIdValue.textContent;
+          gameIdValue.textContent = "Copied!";
+          setTimeout(() => {
+            gameIdValue.textContent = original;
+          }, 1000);
+        } catch (err) {
+          console.error(err);
+        }
+      });
+    }
+
+    if (newGameCancelBtn) {
+      newGameCancelBtn.addEventListener("click", hideNewGameConfirm);
+    }
+
+    if (newGameConfirmBtn) {
+      newGameConfirmBtn.addEventListener("click", () => {
+        hideNewGameConfirm();
+        createGame().catch(err => {
+          console.error(err);
+          setStatus("Error creating game.", true);
+        });
+      });
+    }
+
+    if (settingsButton) {
+      settingsButton.addEventListener("click", openSettingsSheet);
+    }
+
+    if (settingsCloseBtn) {
+      settingsCloseBtn.addEventListener("click", closeSettingsSheet);
+    }
+
+    if (themeSwitch) {
+      themeSwitch.addEventListener("change", () => {
+        const mode = themeSwitch.checked ? "dark" : "light";
+        body.dataset.mode = mode;
+        localStorage.setItem(STORAGE_MODE_KEY, mode);
+      });
+    }
+
+    if (accentSwitch) {
+      accentSwitch.addEventListener("change", () => {
+        const accent = accentSwitch.checked ? "invert" : "normal";
+        body.dataset.accent = accent;
+        localStorage.setItem(STORAGE_ACCENT_KEY, accent);
+      });
+    }
+
     if (analyticsButton) {
       analyticsButton.addEventListener("click", openAnalyticsSheet);
     }
@@ -2147,7 +2311,6 @@
       analyticsCloseBtn.addEventListener("click", closeAnalyticsSheet);
     }
 
-    // chat button events
     if (chatButton) {
       chatButton.addEventListener("click", () => {
         if (!currentGameId) {
@@ -2159,15 +2322,11 @@
     }
 
     if (chatCloseBtn) {
-      chatCloseBtn.addEventListener("click", () => {
-        hideChatSheet();
-      });
+      chatCloseBtn.addEventListener("click", hideChatSheet);
     }
 
     if (chatCancelBtn) {
-      chatCancelBtn.addEventListener("click", () => {
-        hideChatSheet();
-      });
+      chatCancelBtn.addEventListener("click", hideChatSheet);
     }
 
     if (chatSendBtn) {
@@ -2178,7 +2337,6 @@
       });
     }
 
-    // main buttons
     if (createGameBtn) {
       createGameBtn.addEventListener("click", handleCreateGameClick);
     }
@@ -2192,15 +2350,25 @@
       });
     }
 
-    // init
+    if (startPlayButton) {
+      startPlayButton.addEventListener("click", handleStartPlayClick);
+    }
+
+    if (startJoinLink) {
+      startJoinLink.addEventListener("click", handleStartJoinClick);
+    }
+
+    if (startRulesButton) {
+      startRulesButton.addEventListener("click", handleStartRulesClick);
+    }
+
+    // ==============================
+    // Init
+    // ==============================
     bindScoreInputs();
     updateParRow();
     enableScorecard(false);
-
-    attemptAutoRejoin().catch(err => {
-      console.error(err);
-      setStatus("Not in a game. Create or join to start.");
-    });
+    setUnreadBadge(false);
   </script>
 </body>
 </html>
