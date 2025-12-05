@@ -1863,55 +1863,83 @@
       attachMessageListener(currentGameId);
     }
 
-    async function attemptAutoRejoin() {
-      if (!db) {
-        setStatus("Connection error. Check your network and reload.", true);
-        return;
-      }
+  async function attemptAutoRejoin() {
+  const savedGameId = localStorage.getItem(STORAGE_LAST_GAME_ID_KEY);
+  const savedSlotStr = localStorage.getItem(STORAGE_LAST_SLOT_KEY);
 
-      const savedGameId = localStorage.getItem(STORAGE_LAST_GAME_ID_KEY);
-      const savedSlotStr = localStorage.getItem(STORAGE_LAST_SLOT_KEY);
+  if (!savedGameId) {
+    setStatus("Not in a game. Create or join to start.");
+    return;
+  }
 
-      if (!savedGameId || savedSlotStr == null) {
-        setStatus("Not in a game. Create or join to start.");
-        return;
-      }
+  currentPlayerId = getOrCreatePlayerId();
+  currentGameId = savedGameId;
 
-      currentPlayerId = getOrCreatePlayerId();
-      currentGameId = savedGameId;
-      currentPlayerSlot = parseInt(savedSlotStr, 10);
+  const docRef = db.collection("games").doc(savedGameId);
+  const snap = await docRef.get();
 
-      const docRef = db.collection("games").doc(savedGameId);
-      const snap = await docRef.get();
+  if (!snap.exists) {
+    // old game is gone, clean up and bail
+    localStorage.removeItem(STORAGE_LAST_GAME_ID_KEY);
+    localStorage.removeItem(STORAGE_LAST_SLOT_KEY);
+    currentGameId = null;
+    currentPlayerSlot = null;
+    setStatus("Last saved game not found. Create or join a new one.");
+    enableScorecard(false);
+    setUnreadBadge(false);
+    return;
+  }
 
-      if (!snap.exists) {
-        localStorage.removeItem(STORAGE_LAST_GAME_ID_KEY);
-        localStorage.removeItem(STORAGE_LAST_SLOT_KEY);
-        currentGameId = null;
-        currentPlayerSlot = null;
-        setStatus("Last saved game not found. Create or join a new one.");
-        enableScorecard(false);
-        setUnreadBadge(false);
-        return;
-      }
+  const data = snap.data() || {};
+  currentGameData = data;
 
-      setStatus("Rejoined your last game. Enter scores as normal.");
+  const players = Array.isArray(data.players) ? data.players : [];
+  const myId = currentPlayerId;
 
-      if (unsubscribeGame) unsubscribeGame();
-      unsubscribeGame = docRef.onSnapshot(s => {
-        if (!s.exists) {
-          setStatus("Game was deleted or not found.", true);
-          enableScorecard(false);
-          return;
-        }
-        applyGameToUI(s.data());
-        enableScorecard(true);
-      });
+  // 1) best case, find by player id
+  let slot = players.findIndex(p => p && p.id === myId);
 
-      setUnreadBadge(false);
-      messagesInitialized = false;
-      attachMessageListener(currentGameId);
+  // 2) fall back to stored slot if it exists and looks valid
+  if (slot === -1 && savedSlotStr != null) {
+    const storedSlot = parseInt(savedSlotStr, 10);
+    if (!Number.isNaN(storedSlot) && players[storedSlot]) {
+      slot = storedSlot;
     }
+  }
+
+  // 3) final fallback, default to slot 0 if someone is there
+  if (slot === -1 && players[0]) {
+    slot = 0;
+  }
+
+  if (slot !== -1) {
+    currentPlayerSlot = slot;
+    localStorage.setItem(STORAGE_LAST_SLOT_KEY, String(slot));
+  } else {
+    currentPlayerSlot = null;
+  }
+
+  // paint the UI with the game and enable your row
+  applyGameToUI(currentGameData);
+  enableScorecard(true);
+  setStatus("Rejoined your last game. Enter scores as normal.");
+
+  // live updates
+  if (unsubscribeGame) unsubscribeGame();
+  unsubscribeGame = docRef.onSnapshot(s => {
+    if (!s.exists) {
+      setStatus("Game was deleted or not found.", true);
+      enableScorecard(false);
+      return;
+    }
+    applyGameToUI(s.data());
+    enableScorecard(true);
+  });
+
+  setUnreadBadge(false);
+  messagesInitialized = false;
+  attachMessageListener(currentGameId);
+}
 
     // ==============================
     // Messaging and chat
