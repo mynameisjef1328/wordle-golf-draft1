@@ -1566,6 +1566,7 @@
           nameInput.value = p.name || "";
           const scores = Array.isArray(p.scores) ? p.scores : [];
           for (let h = 0; h < HOLES; h++) {
+            if (!scoreInputs[h]) continue;
             const score = scores[h];
             scoreInputs[h].value = score == null ? "" : score;
           }
